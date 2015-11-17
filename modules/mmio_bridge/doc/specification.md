@@ -37,9 +37,9 @@ The memory-mapped interface is a simple interface:
  `valid` | Master | 1 | Perform a transfer
  `addr` | Master | 16 | Address of the memory-mapped transfer.
  `write` | Master | 1 | Signal a write transfer
- `data_write` | Master | 16 | Data to be written on write transfer
+ `data_write` | Master | `REG_WIDTH` | Data to be written on write transfer
  `ready` | Slave | 1 | Acknowledge a transfer
- `data_read` | Slave | 16 | Read data
+ `data_read` | Slave | `REG_WIDTH` | Read data
  `irq` | Slave | `IRQ_WIDTH` | Interrupt to start unsolicited transfer
 
 The slave can acknowledge with the `valid` signal in the same cycle to
@@ -95,10 +95,16 @@ Depending on the size signaled by the interrupt signal (see above)
 
  Key | Width | Description
  --- | ----- | -----------
+ `REG_WIDTH` | Integer | Width of registers (16, 32 or 64)
  `MOD_ID` | 16 | Module Identifier
  `MOD_VERSION` | 8 | Module Version
  `MOD_VENDOR` | 16 | Module Vendor (optional)
 
+## Width of Registers (`REG_WIDTH`)
+
+This is the (maximum) width of the registers. It is possible to access
+smaller registers (by ignoring parts), but only aligned to `REG_WIDTH`
+addresses.
 
 ## Module Identifier (`MOD_ID`)
 

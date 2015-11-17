@@ -38,7 +38,6 @@ The memory-mapped interface is a simple interface:
  `addr` | Master | 16 | Address of the memory-mapped transfer.
  `data_in` | Master | 16 | Data to be written on write transfer
  `write` | Master | 1 | Signal a write transfer
- `mode` | Master | 2 | Mode of access
  `ack` | Slave | 1 | Acknowledge the transfer
  `data_out` | Slave | 16 | Read data
  `irq` | Slave | `IRQ_WIDTH` | Interrupt to start unsolicited transfer
@@ -47,15 +46,6 @@ The slave can acknowledge with the `ack` signal in the same cycle to
 allow for high-speed interfacing, acknowledge in the next cycle or
 insert arbitrarily long wait states. The `enable` signal gets low
 after a synchronous `ack`.
-
-`mode` can take the following values:
-
- `mode` | Description
- ------ | -----------
- `00` | Single-word access.
- `01` | reserved
- `10` | Incremental burst
- `11` | Same-address burst (FIFO-like)
 
 The `irq` signal triggers the MMIO-bridge to read from an address as
 described below and send a trace event to the host or configured

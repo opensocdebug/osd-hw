@@ -34,18 +34,19 @@ The memory-mapped interface is a simple interface:
 
  Signal | Driver | Width | Description
  ------ | ------ | ----- | -----------
- `enable` | Master | 1 | Perform a transfer
+ `valid` | Master | 1 | Perform a transfer
  `addr` | Master | 16 | Address of the memory-mapped transfer.
- `data_in` | Master | 16 | Data to be written on write transfer
  `write` | Master | 1 | Signal a write transfer
- `ack` | Slave | 1 | Acknowledge the transfer
- `data_out` | Slave | 16 | Read data
+ `data_write` | Master | 16 | Data to be written on write transfer
+ `ready` | Slave | 1 | Acknowledge a transfer
+ `data_read` | Slave | 16 | Read data
  `irq` | Slave | `IRQ_WIDTH` | Interrupt to start unsolicited transfer
 
-The slave can acknowledge with the `ack` signal in the same cycle to
+The slave can acknowledge with the `valid` signal in the same cycle to
 allow for high-speed interfacing, acknowledge in the next cycle or
-insert arbitrarily long wait states. The `enable` signal gets low
-after a synchronous `ack`.
+insert arbitrarily long wait states. The `valid` signal gets low after
+a synchronous `ready`. `valid` must not depend on `ready`
+combinationally.
 
 The `irq` signal triggers the MMIO-bridge to read from an address as
 described below and send a trace event to the host or configured
@@ -56,7 +57,7 @@ event with the read sequence but does not have guarantees about the
 time between an interrupt and the read sequence. The read sequence can
 also contain pause states. Finally, the `irq` signal can be
 de-asserted (set to `0x0` during any time between the start of the
-first read (`enable=1 && addr=MMI_IRQ_CAUSE`) and the last
+first read (`valid=1 && addr=MMI_IRQ_CAUSE`) and the last
 acknowledge. After this it must be de-asserted otherwise another trace
 event is generated.
 

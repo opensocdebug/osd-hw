@@ -26,27 +26,32 @@ the same license as the original.
 
 Stefan Wallentowitz
 
+Andreas Traber
+
 Fill in your name here!
 
 # Memory-Mapped Interface
 
 The memory-mapped interface is a simple interface:
 
- Signal | Driver | Width | Description
- ------ | ------ | ----- | -----------
- `valid` | Master | 1 | Perform a transfer
- `addr` | Master | 16 | Address of the memory-mapped transfer.
- `write` | Master | 1 | Signal a write transfer
+ Signal       | Driver | Width       | Description
+ ------------ | ------ | ----------- | -----------
+ `valid`      | Master | 1           | Perform a transfer
+ `addr`       | Master | 16          | Address of the memory-mapped transfer.
+ `write`      | Master | 1           | Signal a write transfer
  `data_write` | Master | `REG_WIDTH` | Data to be written on write transfer
- `ready` | Slave | 1 | Acknowledge a transfer
- `data_read` | Slave | `REG_WIDTH` | Read data
- `irq` | Slave | `IRQ_WIDTH` | Interrupt to start unsolicited transfer
+ `ready`      | Slave  | 1           | Acknowledge a transfer
+ `data_read`  | Slave  | `REG_WIDTH` | Read data
+ `irq`        | Slave  | `IRQ_WIDTH` | Interrupt to start unsolicited transfer
 
-The slave can acknowledge with the `valid` signal in the same cycle to
-allow for high-speed interfacing, acknowledge in the next cycle or
-insert arbitrarily long wait states. The `valid` signal gets low after
-a synchronous `ready`. `valid` must not depend on `ready`
+The slave can acknowledge with the `ready` signal in the same cycle to allow
+for high-speed interfacing, acknowledge in the next cycle or insert arbitrarily
+long wait states. The `valid` signal gets deasserted after a synchronous
+`ready`. If the `valid` signal stays asserted after a synchronous `ready`,
+another transfer is performed. `valid` must not depend on `ready`
 combinationally.
+
+![Simple MMIO transaction](./figures/mmio_if.pdf)
 
 The `irq` signal triggers the MMIO-bridge to read from an address as
 described below and send a trace event to the host or configured
@@ -65,10 +70,10 @@ event is generated.
 
 The following map applies to the interface.
 
- Address Range | Description
- ------------- | -----------
+ Address Range       | Description
+ -------------       | -----------
  `0x0000` - `0x01ff` | Control and Status
- `0x0200` | Interrupt Cause
+ `0x0200`            | Interrupt Cause
  `0x0201` - `0x02ff` | Reserved
  `0x0300` - `0xffff` | Slave module address space
 
@@ -102,9 +107,9 @@ Depending on the size signaled by the interrupt signal (see above)
 
 ## Width of Registers (`REG_WIDTH`)
 
-This is the (maximum) width of the registers. It is possible to access
-smaller registers (by ignoring parts), but only aligned to `REG_WIDTH`
-addresses.
+This is the (maximum) width of the internal registers of the target CPU.
+It is possible to access smaller registers (by ignoring parts), but only
+aligned to `REG_WIDTH` addresses.
 
 ## Module Identifier (`MOD_ID`)
 

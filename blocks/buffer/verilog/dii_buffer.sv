@@ -41,8 +41,8 @@ module dii_buffer
    assign push = in.valid & in.ready;
 
    assign out.data = fifo_data[0][WIDTH-1:0];
-   assign out.first = fifo_data[0][WIDTH+1];
-   assign out.last = fifo_data[0][WIDTH];   
+   assign out.first = fifo_first[0];
+   assign out.last = fifo_last[0];
    assign out.valid = !FULLPACKET ? !fifo_write_ptr[0] : full_packet;
 
    assign in.ready = !fifo_write_ptr[SIZE];

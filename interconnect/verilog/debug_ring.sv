@@ -42,6 +42,9 @@ module debug_ring
 
    dii_channel tie;
 
+   /* Drop wrongly addressed packets */
+   assign ring_chan1[PORTS-1].ready = 1;
+
    generate
       ring_router
         #(.BUFFER_SIZE(BUFFER_SIZE))

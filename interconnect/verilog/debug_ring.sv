@@ -44,13 +44,13 @@ module debug_ring
 
    /* Drop wrongly addressed packets */
    assign ring_chan1[PORTS-1].ready = 1;
-
+   
    generate
       ring_router
         #(.BUFFER_SIZE(BUFFER_SIZE))
       u_router0(.clk (clk),
                 .rst (rst),
-                .id  (10'(1)),
+                .id  (10'(0)),
                 .ring_in0 (tie),
                 .ring_in1 (ring_chan0[PORTS-1]),
                 .ring_out0 (ring_chan0[0]),
@@ -63,7 +63,7 @@ module debug_ring
                 #(.BUFFER_SIZE(BUFFER_SIZE))
          u_router(.clk       (clk),
                   .rst       (rst),
-                  .id        (10'(i+1)),
+                  .id        (10'(i)),
                   .ring_in0  (ring_chan0[i-1]),
                   .ring_in1  (ring_chan1[i-1]),
                   .ring_out0 (ring_chan0[i]),

@@ -38,10 +38,10 @@ module ring_router_demux
       end
    end
 
-   logic switch_local = worm ? worm_local : is_local;
+   logic switch_local;
+   assign switch_local = worm ? worm_local : is_local;
    
    assign out_ring.valid = !switch_local & in.valid;
-   
    assign out_local.valid = switch_local & in.valid;
    
    assign in.ready = switch_local ? out_local.ready : out_ring.ready;

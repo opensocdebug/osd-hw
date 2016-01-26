@@ -11,12 +11,15 @@ module osd_him
    logic ingress_first;
    logic [4:0] ingress_size;
 
-   assign glip_in.ready = !ingress_active | dii_out.ready;
-   assign dii_out.valid = ingress_active & glip_in.valid;
-
    logic [15:0] ingress_data_be;
    assign ingress_data_be[7:0] = glip_in.data[15:8];
    assign ingress_data_be[15:8] = glip_in.data[7:0];
+
+   assign glip_in.ready = !ingress_active | dii_out.ready;
+   assign dii_out.data  = ingress_data_be;
+   assign dii_out.valid = ingress_active & glip_in.valid;
+   assign dii_out.first = ingress_active & ingress_first;
+   assign dii_out.last  = ingress_active & (ingress_size == 0);
 
    always @(posedge clk) begin
       if (rst) begin
@@ -25,7 +28,7 @@ module osd_him
          if (!ingress_active) begin
             ingress_first <= 1;
             if (glip_in.valid & glip_in.ready) begin
-               ingress_size <= ingress_data_be[4:0];
+               ingress_size <= ingress_data_be[4:0] - 1;
                ingress_active <= 1;
             end
          end else begin

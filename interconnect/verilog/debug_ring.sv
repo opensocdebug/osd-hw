@@ -4,16 +4,43 @@ module debug_ring
     parameter BUFFER_SIZE = 4)
    (input clk, rst,
     
-    dii_channel.master out [PORTS-1:0],
-    dii_channel.slave in [PORTS-1:0] 
-    );
-      
+    input [PORTS*16-1:0]  in_flat_data,
+    input [PORTS-1:0]     in_flat_valid,
+    input [PORTS-1:0]     in_flat_first,
+    input [PORTS-1:0]     in_flat_last,
+    output [PORTS-1:0]    in_flat_ready,
+    output [PORTS*16-1:0] out_flat_data,
+    output [PORTS-1:0]    out_flat_valid,
+    output [PORTS-1:0]    out_flat_first,
+    output [PORTS-1:0]    out_flat_last,
+    input [PORTS-1:0]     out_flat_ready
+   );
+
+   /* Router->Module */
+   dii_channel out [PORTS-1:0];
+   /* Module->Router */
+   dii_channel in [PORTS-1:0];
+
+   genvar i;
+   generate
+      for (i = 0; i < PORTS; i = i + 1) begin
+         assign in[i].data  = in_flat_data[(i+1)*16-1:i*16];
+         assign in[i].valid = in_flat_valid[i];
+         assign in[i].first = in_flat_first[i];
+         assign in[i].last  = in_flat_last[i];
+         assign in_flat_ready[i] = in[i].ready;
+         assign out_flat_data[(i+1)*16-1:i*16] = out[i].data;
+         assign out_flat_valid[i] = out[i].valid;
+         assign out_flat_first[i] = out[i].first;
+         assign out_flat_last[i] = out[i].last;
+         assign out[i].ready = out_flat_ready[i];
+      end
+   endgenerate
+
    dii_channel ring_chan0 [PORTS-1:0];
    dii_channel ring_chan1 [PORTS-1:0];
 
    dii_channel tie;
-
-   genvar i;
 
    generate
       ring_router

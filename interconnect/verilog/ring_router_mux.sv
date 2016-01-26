@@ -19,21 +19,14 @@ module ring_router_mux
 
    always_comb @(*) begin
       nxt_state = state;
-      out.valid = 0;
-      out.data = 'x;
-      out.first = 'x;
-      out.last = 'x;
+      out.assemble('x, 'x, 'x, 'x);
       in_ring.ready = 0;
       in_local.ready = 0;
       
       case (state)
         NOWORM: begin
            if (in_ring.valid && in_ring.first) begin
-              in_ring.ready = out.ready;
-              out.valid = 1;
-              out.data = in_ring.data;
-              out.first = in_ring.first;
-              out.last = in_ring.last;
+              in_ring.ready = out.assemble(in_ring.data, in_ring.first, in_ring.last, 1);
 
               if (!in_ring.last) begin
                  nxt_state = WORM_RING;

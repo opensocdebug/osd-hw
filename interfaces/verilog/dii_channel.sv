@@ -17,6 +17,19 @@ interface dii_channel;
                   input  last,
                   input  valid,
                   output ready);
+
+   // a helper function to ease the assembly of interface signals
+   function logic assemble (logic [15:0] m_data,
+                            logic m_first,
+                            logic m_last,
+                            logic m_valid);
+      data = m_data;
+      first = m_first;
+      last = m_last;
+      valid = m_valid;
+      return ready;
+   endfunction // assemble
+
    
 endinterface // ddi_channel
 

@@ -2,9 +2,9 @@
 module ring_router_mux
   (
    input clk, rst,
-   dii_channel.slave in_ring,
-   dii_channel.slave in_local,
-   dii_channel.master out
+   dii_channel in_ring,
+   dii_channel in_local,
+   dii_channel out
    );
 
    enum         { NOWORM, WORM_LOCAL, WORM_RING } state, nxt_state;
@@ -19,7 +19,7 @@ module ring_router_mux
 
    always_comb @(*) begin
       nxt_state = state;
-      out.assemble('x, 'x, 'x, 'x);
+      out.assemble('x, 'x, 'x, 0);
       in_ring.ready = 0;
       in_local.ready = 0;
       

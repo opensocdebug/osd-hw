@@ -42,6 +42,41 @@ module osd_him
          end
       end
    end
+
+   dii_channel dii_egress;
+   logic [4:0] egress_packet_size;
+
+   logic       egress_active;
+
+   logic [15:0] egress_data_be;
+   assign egress_data_be = !egress_active ? {11'h0, egress_packet_size} : dii_egress.data;
+
+   assign glip_out.data = {egress_data_be[7:0], egress_data_be[15:8]};
+   assign glip_out.valid = dii_egress.valid;
+   assign dii_egress.ready = egress_active & glip_out.ready;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         egress_active <= 0;
+      end else begin
+         if (!egress_active) begin
+            if (dii_egress.valid & glip_out.ready) begin
+               egress_active <= 1;
+            end
+         end else begin 
+            if (dii_egress.ready & dii_egress.last) begin
+               egress_active <= 0;
+            end
+         end
+      end
+   end
+   
+   dii_buffer
+     #(.SIZE(8), .FULLPACKET(1))
+   u_egress_buffer(.*,
+                   .packet_size (egress_packet_size),
+                   .in (dii_in),
+                   .out (dii_egress));
    
    
 endmodule // osd_him

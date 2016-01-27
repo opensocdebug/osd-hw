@@ -3,9 +3,9 @@ module ring_router_demux
   (
    input       clk, rst,
    input [9:0] id,
-   dii_channel.slave in,
-   dii_channel.master out_local,
-   dii_channel.master out_ring
+   dii_channel in,
+   dii_channel out_local,
+   dii_channel out_ring
    );
 
    assign out_local.data = in.data;
@@ -18,7 +18,7 @@ module ring_router_demux
    reg         worm;
    reg         worm_local;
 
-   logic       is_local = (in.data[9:0] == id);
+   logic       is_local = (in.data[0][9:0] == id);
    
    always_ff @(posedge clk) begin
       if (rst) begin

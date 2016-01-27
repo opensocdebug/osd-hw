@@ -1,10 +1,11 @@
 
-interface dii_channel;
-   logic [15:0] data;
-   logic        first;
-   logic        last;
-   logic        valid;
-   logic        ready;
+interface dii_channel
+  #(parameter N = 1);
+   logic [N-1:0][15:0] data;
+   logic [N-1:0]       first;
+   logic [N-1:0]       last;
+   logic [N-1:0]       valid;
+   logic [N-1:0]       ready;
    
    modport master (output data,
                    output first,
@@ -22,12 +23,13 @@ interface dii_channel;
    function logic assemble (logic [15:0] m_data,
                             logic m_first,
                             logic m_last,
-                            logic m_valid);
-      data = m_data;
-      first = m_first;
-      last = m_last;
-      valid = m_valid;
-      return ready;
+                            logic m_valid,
+                            int index = 0);
+      data[index] = m_data;
+      first[index] = m_first;
+      last[index] = m_last;
+      valid[index] = m_valid;
+      return ready[index];
    endfunction // assemble
 
    

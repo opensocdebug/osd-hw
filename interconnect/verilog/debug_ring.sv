@@ -3,9 +3,8 @@ module debug_ring
   #(parameter PORTS = 1,
     parameter BUFFER_SIZE = 4)
    (input clk, rst,
-    
-    dii_channel_flat in_flat,
-    dii_channel_flat out_flat
+    dii_channel dii_in,
+    dii_channel dii_out
    );
 
    /* Router->Module */
@@ -16,16 +15,16 @@ module debug_ring
    genvar i;
    generate
       for (i = 0; i < PORTS; i = i + 1) begin
-         assign in[i].data  = in_flat.data[(i+1)*16-1:i*16];
-         assign in[i].valid = in_flat.valid[i];
-         assign in[i].first = in_flat.first[i];
-         assign in[i].last  = in_flat.last[i];
-         assign in_flat.ready[i] = in[i].ready;
-         assign out_flat.data[(i+1)*16-1:i*16] = out[i].data;
-         assign out_flat.valid[i] = out[i].valid;
-         assign out_flat.first[i] = out[i].first;
-         assign out_flat.last[i] = out[i].last;
-         assign out[i].ready = out_flat.ready[i];
+         assign in[i].data  = dii_in.data[i];
+         assign in[i].valid = dii_in.valid[i];
+         assign in[i].first = dii_in.first[i];
+         assign in[i].last  = dii_in.last[i];
+         assign dii_in.ready[i] = in[i].ready;
+         assign dii_out.data[i] = out[i].data;
+         assign dii_out.valid[i] = out[i].valid;
+         assign dii_out.first[i] = out[i].first;
+         assign dii_out.last[i] = out[i].last;
+         assign out[i].ready = dii_out.ready[i];
       end
    endgenerate
 

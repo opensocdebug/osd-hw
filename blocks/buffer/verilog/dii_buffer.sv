@@ -69,8 +69,12 @@ module dii_buffer
                nxt_fifo_last[i] = in.last;
             end else if (i<SIZE-1) begin
                nxt_fifo_data[i] = fifo_data[i+1];
+               nxt_fifo_first[i] = fifo_first[i+1];
+               nxt_fifo_last[i] = fifo_last[i+1];
             end else begin
                nxt_fifo_data[i] = fifo_data[i];
+               nxt_fifo_first[i] = fifo_data[i];
+               nxt_fifo_last[i] = fifo_last[i];
             end
          end else if (push & fifo_write_ptr[i]) begin
             nxt_fifo_data[i] = in.data;

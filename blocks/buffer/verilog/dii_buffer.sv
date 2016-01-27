@@ -7,6 +7,8 @@ module dii_buffer
     input clk,
     input rst,
 
+    output logic [$clog2(SIZE)-1:0] packet_size,
+
     dii_channel.slave in,
     dii_channel.master out
     );
@@ -88,6 +90,23 @@ module dii_buffer
          fifo_last[i] <= nxt_fifo_last[i];
       end
    end
+
+   // Calculate packet size
+   always @(*) begin: find_first_one
+      integer i;
+      integer not_done;
+      not_done = 1;
+      packet_size = 1;
+
+      for (i=1; i< SIZE; i = i+1) begin
+         if (not_done) begin
+            if (fifo_last[i-1] && valid[i-1]) begin
+               not_done = 0;
+               packet_size = i;
+            end
+         end
+      end
+   end // block: find_first_one
    
 endmodule // dii_buffer
 

@@ -49,13 +49,15 @@ module ring_router
    dii_buffer
      #(.WIDTH(16), .SIZE(BUFFER_SIZE))
    u_buffer0(.*,
-             .in  (c_ring0muxed),
-             .out (ring_out0));
+             .packet_size (),
+             .in          (c_ring0muxed),
+             .out         (ring_out0));
    
    dii_buffer
      #(.WIDTH(16), .SIZE(BUFFER_SIZE))
    u_buffer1(.*,
-             .in  (c_ring1fwd),
-             .out (ring_out1));
+             .packet_size (),
+             .in          (c_ring1fwd),
+             .out         (ring_out1));
    
 endmodule

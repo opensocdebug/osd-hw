@@ -32,6 +32,7 @@ module debug_ring
    dii_channel ring_chan1 [PORTS-1:0] ();
 
    dii_channel tie ();
+   assign tie.valid = 0;
 
    /* Drop wrongly addressed packets */
    assign ring_chan1[PORTS-1].ready = 1;

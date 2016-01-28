@@ -8,9 +8,9 @@ module debug_ring
    );
 
    /* Router->Module */
-   dii_channel out [PORTS-1:0];
+   dii_channel out [PORTS-1:0] ();
    /* Module->Router */
-   dii_channel in [PORTS-1:0];
+   dii_channel in [PORTS-1:0] ();
 
    genvar i;
    generate
@@ -28,10 +28,10 @@ module debug_ring
       end
    endgenerate
 
-   dii_channel ring_chan0 [PORTS-1:0];
-   dii_channel ring_chan1 [PORTS-1:0];
+   dii_channel ring_chan0 [PORTS-1:0] ();
+   dii_channel ring_chan1 [PORTS-1:0] ();
 
-   dii_channel tie;
+   dii_channel tie ();
 
    /* Drop wrongly addressed packets */
    assign ring_chan1[PORTS-1].ready = 1;

@@ -2,9 +2,9 @@
 module ring_router_mux_rr
   (
    input clk, rst,
-   dii_channel.slave in0,
-   dii_channel.slave in1,
-   dii_channel.master out
+   dii_channel in0,
+   dii_channel in1,
+   dii_channel out
    );
 
    enum         { NOWORM0, NOWORM1, WORM0, WORM1 } state, nxt_state;
@@ -17,7 +17,7 @@ module ring_router_mux_rr
       end
    end
 
-   always_comb @(*) begin
+   always_comb begin
       nxt_state = state;
       out.valid = 0;
       out.data = 'x;

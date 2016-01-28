@@ -6,21 +6,21 @@ module ring_router
 
     input [9:0] id,
 
-    dii_channel.slave ring_in0,
-    dii_channel.slave ring_in1,
+    dii_channel ring_in0,
+    dii_channel ring_in1,
 
-    dii_channel.master ring_out0,
-    dii_channel.master ring_out1,
+    dii_channel ring_out0,
+    dii_channel ring_out1,
 
-    dii_channel.slave  local_in,    
-    dii_channel.master local_out
+    dii_channel  local_in,    
+    dii_channel local_out
     );
 
-   dii_channel c_ring1fwd;
-   dii_channel c_ring0fwd;
-   dii_channel c_ring1local;
-   dii_channel c_ring0local;
-   dii_channel c_ring0muxed;
+   dii_channel c_ring1fwd();
+   dii_channel c_ring0fwd();
+   dii_channel c_ring1local();
+   dii_channel c_ring0local();
+   dii_channel c_ring0muxed();
 
    ring_router_demux
      u_demux0(.*,

@@ -1,11 +1,13 @@
 
 module osd_him
   (input clk, rst,
-   glip_channel.slave glip_in,
-   glip_channel.master glip_out,
+   glip_channel glip_in,
+   glip_channel glip_out,
 
-   dii_channel.master dii_out,
-   dii_channel.slave dii_in);
+   dii_channel dii_out,
+   dii_channel dii_in);
+
+   localparam BUF_SIZE = 8;
 
    logic ingress_active;
    logic ingress_first;
@@ -43,8 +45,8 @@ module osd_him
       end
    end
 
-   dii_channel dii_egress;
-   logic [4:0] egress_packet_size;
+   dii_channel dii_egress();
+   logic [$clog2(BUF_SIZE)-1:0] egress_packet_size;
 
    logic       egress_active;
 
@@ -72,7 +74,7 @@ module osd_him
    end
    
    dii_buffer
-     #(.SIZE(8), .FULLPACKET(1))
+     #(.SIZE(BUF_SIZE), .FULLPACKET(1))
    u_egress_buffer(.*,
                    .packet_size (egress_packet_size),
                    .in (dii_in),

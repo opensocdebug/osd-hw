@@ -9,8 +9,8 @@ module dii_buffer
 
     output logic [$clog2(SIZE)-1:0] packet_size,
 
-    dii_channel.slave in,
-    dii_channel.master out
+    dii_channel in,
+    dii_channel out
     );
 
    // Signals for fifo
@@ -28,7 +28,7 @@ module dii_buffer
    logic             full_packet;
 
    logic [SIZE-1:0]   valid;
-   always_comb @(*) begin : valid_comb
+   always_comb begin : valid_comb
       integer i;
       // Set first element
       valid[SIZE-1] = fifo_write_ptr[SIZE];

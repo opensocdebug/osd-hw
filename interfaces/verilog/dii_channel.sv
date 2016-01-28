@@ -20,11 +20,11 @@ interface dii_channel
                   output ready);
 
    // a helper function to ease the assembly of interface signals
-   function logic assemble (logic [15:0] m_data,
-                            logic m_first,
-                            logic m_last,
-                            logic m_valid,
-                            int index = 0);
+   function logic assemble (input logic [15:0] m_data,
+                            input logic m_first,
+                            input logic m_last,
+                            input logic m_valid,
+                            input int index = 0);
       data[index] = m_data;
       first[index] = m_first;
       last[index] = m_last;

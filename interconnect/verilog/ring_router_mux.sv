@@ -17,9 +17,12 @@ module ring_router_mux
       end
    end
 
-   always_comb @(*) begin
+   always_comb begin
       nxt_state = state;
-      out.assemble('x, 'x, 'x, 0);
+      out.valid = 0;
+      out.data = 'x;
+      out.first = 'x;
+      out.last = 'x;
       in_ring.ready = 0;
       in_local.ready = 0;
       
@@ -32,12 +35,7 @@ module ring_router_mux
                  nxt_state = WORM_RING;
               end
            end else if (in_local.valid && in_local.first) begin
-              in_local.ready = out.ready;
-              
-              out.valid = 1;
-              out.data = in_local.data;
-              out.first = in_local.first;
-              out.last = in_local.last;
+              in_local.ready = out.assemble(in_local.data, in_local.first, in_local.last, 1);
 
               if (!in_local.last) begin
                  nxt_state = WORM_LOCAL;
@@ -45,22 +43,14 @@ module ring_router_mux
            end // if (in_local.valid && in_local.first)
         end // case: NOWORM
         WORM_RING: begin
-           in_ring.ready = out.ready;
-           out.valid = in_ring.valid;
-           out.data = in_ring.data;
-           out.first = in_ring.first;
-           out.last = in_ring.last;
+           in_ring.ready = out.assemble(in_ring.data, in_ring.first, in_ring.last, in_ring.valid);
 
            if (out.last & out.valid & out.ready) begin
               nxt_state = NOWORM;
            end
         end
         WORM_LOCAL: begin
-           in_local.ready = out.ready;
-           out.valid = in_local.valid;
-           out.data = in_local.data;
-           out.first = in_local.first;
-           out.last = in_local.last;
+           in_local.ready = out.assemble(in_local.data, in_local.first, in_local.last, in_local.valid);
 
            if (out.last & out.valid & out.ready) begin
               nxt_state = NOWORM;

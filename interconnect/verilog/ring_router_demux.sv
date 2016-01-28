@@ -18,7 +18,8 @@ module ring_router_demux
    reg         worm;
    reg         worm_local;
 
-   logic       is_local = (in.data[0][9:0] == id);
+   logic       is_local;
+   assign is_local = (in.data[0][9:0] == id);
    
    always_ff @(posedge clk) begin
       if (rst) begin

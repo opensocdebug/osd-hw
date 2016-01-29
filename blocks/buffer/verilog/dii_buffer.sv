@@ -75,6 +75,7 @@ module dii_buffer
             nxt_fifo_last[i] = in.last;
          end else begin
             nxt_fifo_data[i] = fifo_data[i];
+            nxt_fifo_last[i] = fifo_last[i];
          end
       end
    end

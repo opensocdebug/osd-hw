@@ -30,6 +30,7 @@ module osd_scm
    always @(*) begin
       reg_ack = 1;
       reg_rdata = 'x;
+      reg_err = 0;
 
       case (reg_addr)
         16'h200: reg_rdata = SYSTEMID;

@@ -103,6 +103,7 @@ module osd_statctrlif
       nxt_req_write = req_write;
       nxt_req_burst = req_burst;
       nxt_req_size = req_size;
+      nxt_req_addr = req_addr;
       nxt_resp_dest = resp_dest;
       nxt_reqresp_value = reqresp_value;
       nxt_resp_error = resp_error;

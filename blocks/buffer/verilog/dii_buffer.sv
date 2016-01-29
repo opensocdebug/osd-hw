@@ -42,7 +42,7 @@ module dii_buffer
 
    assign out.data = fifo_data[0][WIDTH-1:0];
    assign out.last = fifo_last[0];
-   assign out.valid = !FULLPACKET ? !fifo_write_ptr[0] : full_packet;
+   assign out.valid = !FULLPACKET ? valid[0] : full_packet;
 
    assign in.ready = !fifo_write_ptr[SIZE];
 

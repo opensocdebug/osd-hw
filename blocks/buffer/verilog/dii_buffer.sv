@@ -15,10 +15,8 @@ module dii_buffer
 
    // Signals for fifo
    logic [WIDTH-1:0] fifo_data [0:SIZE-1]; //actual fifo
-   logic [SIZE-1:0]  fifo_first; //actual fifo
    logic [SIZE-1:0]  fifo_last; //actual fifo
    logic [WIDTH-1:0] nxt_fifo_data [0:SIZE-1];
-   logic [SIZE-1:0]  nxt_fifo_first;
    logic [SIZE-1:0]  nxt_fifo_last;
    
    reg [SIZE:0]      fifo_write_ptr;
@@ -43,7 +41,6 @@ module dii_buffer
    assign push = in.valid & in.ready;
 
    assign out.data = fifo_data[0][WIDTH-1:0];
-   assign out.first = fifo_first[0];
    assign out.last = fifo_last[0];
    assign out.valid = !FULLPACKET ? !fifo_write_ptr[0] : full_packet;
 
@@ -65,20 +62,16 @@ module dii_buffer
          if (pop) begin
             if (push & fifo_write_ptr[i+1]) begin
                nxt_fifo_data[i] = in.data;
-               nxt_fifo_first[i] = in.first;
                nxt_fifo_last[i] = in.last;
             end else if (i<SIZE-1) begin
                nxt_fifo_data[i] = fifo_data[i+1];
-               nxt_fifo_first[i] = fifo_first[i+1];
                nxt_fifo_last[i] = fifo_last[i+1];
             end else begin
                nxt_fifo_data[i] = fifo_data[i];
-               nxt_fifo_first[i] = fifo_data[i];
                nxt_fifo_last[i] = fifo_last[i];
             end
          end else if (push & fifo_write_ptr[i]) begin
             nxt_fifo_data[i] = in.data;
-            nxt_fifo_first[i] = in.first;
             nxt_fifo_last[i] = in.last;
          end else begin
             nxt_fifo_data[i] = fifo_data[i];
@@ -90,7 +83,6 @@ module dii_buffer
       integer i;
       for (i=0;i<SIZE;i=i+1) begin
          fifo_data[i] <= nxt_fifo_data[i];
-         fifo_first[i] <= nxt_fifo_first[i];
          fifo_last[i] <= nxt_fifo_last[i];
       end
    end

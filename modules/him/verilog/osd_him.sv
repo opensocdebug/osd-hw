@@ -10,7 +10,6 @@ module osd_him
    localparam BUF_SIZE = 8;
 
    logic ingress_active;
-   logic ingress_first;
    logic [4:0] ingress_size;
 
    logic [15:0] ingress_data_be;
@@ -20,7 +19,6 @@ module osd_him
    assign glip_in.ready = !ingress_active | dii_out.ready;
    assign dii_out.data  = ingress_data_be;
    assign dii_out.valid = ingress_active & glip_in.valid;
-   assign dii_out.first = ingress_active & ingress_first;
    assign dii_out.last  = ingress_active & (ingress_size == 0);
 
    always @(posedge clk) begin
@@ -28,7 +26,6 @@ module osd_him
          ingress_active <= 0;
       end else begin
          if (!ingress_active) begin
-            ingress_first <= 1;
             if (glip_in.valid & glip_in.ready) begin
                ingress_size <= ingress_data_be[4:0] - 1;
                ingress_active <= 1;
@@ -36,7 +33,6 @@ module osd_him
          end else begin
             if (glip_in.valid & glip_in.ready) begin
                ingress_size <= ingress_size - 1;
-               ingress_first <= 0;
                if (ingress_size == 0) begin
                   ingress_active <= 0;
                end

@@ -47,18 +47,13 @@ module osd_statctrlif
       debug_in.ready = 0;
       debug_out.valid = 0;
       debug_out.data = 0;
-      debug_out.first = 0;
       debug_out.last = 0;
       
       case (state)
         STATE_IDLE: begin
            debug_in.ready = 1;
            if (debug_in.valid) begin
-              if (!debug_in.first) begin
-                 nxt_state = STATE_DROP;
-              end else begin
-                 nxt_state = STATE_PACKET;
-              end
+              nxt_state = STATE_PACKET;
            end
         end
         STATE_PACKET: begin
@@ -96,7 +91,6 @@ module osd_statctrlif
         STATE_READ2: begin
            debug_out.valid = 1;
            debug_out.data = {6'h0, dest};
-           debug_out.first = 1;
 
            if (debug_out.ready) begin
               nxt_state = STATE_READ3;

@@ -21,28 +21,25 @@ module ring_router_mux_rr
       nxt_state = state;
       out.valid = 0;
       out.data = 'x;
-      out.first = 'x;
       out.last = 'x;
       in0.ready = 0;
       in1.ready = 0;
       
       case (state)
         NOWORM0: begin
-           if (in0.valid && in0.first) begin
+           if (in0.valid) begin
               in0.ready = out.ready;
               out.valid = 1;
               out.data = in0.data;
-              out.first = in0.first;
               out.last = in0.last;
 
               if (!in0.last) begin
                  nxt_state = WORM0;
               end
-           end else if (in1.valid && in1.first) begin
+           end else if (in1.valid) begin
               in1.ready = out.ready;
               out.valid = 1;
               out.data = in1.data;
-              out.first = in1.first;
               out.last = in1.last;
 
               if (!in1.last) begin
@@ -51,21 +48,19 @@ module ring_router_mux_rr
            end
         end
         NOWORM1: begin
-           if (in1.valid && in1.first) begin
+           if (in1.valid) begin
               in1.ready = out.ready;
               out.valid = 1;
               out.data = in1.data;
-              out.first = in1.first;
               out.last = in1.last;
 
               if (!in1.last) begin
                  nxt_state = WORM1;
               end
-           end else if (in0.valid && in0.first) begin
+           end else if (in0.valid) begin
               in0.ready = out.ready;
               out.valid = 1;
               out.data = in0.data;
-              out.first = in0.first;
               out.last = in0.last;
 
               if (!in0.last) begin
@@ -77,7 +72,6 @@ module ring_router_mux_rr
            in0.ready = out.ready;
            out.valid = in0.valid;
            out.data = in0.data;
-           out.first = in0.first;
            out.last = in0.last;
 
            if (out.last & out.valid & out.ready) begin
@@ -88,7 +82,6 @@ module ring_router_mux_rr
            in1.ready = out.ready;
            out.valid = in1.valid;
            out.data = in1.data;
-           out.first = in1.first;
            out.last = in1.last;
 
            if (out.last & out.valid & out.ready) begin

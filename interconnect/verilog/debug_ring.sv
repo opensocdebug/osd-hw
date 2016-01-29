@@ -17,12 +17,10 @@ module debug_ring
       for (i = 0; i < PORTS; i = i + 1) begin
          assign in[i].data  = dii_in.data[i];
          assign in[i].valid = dii_in.valid[i];
-         assign in[i].first = dii_in.first[i];
          assign in[i].last  = dii_in.last[i];
          assign dii_in.ready[i] = in[i].ready;
          assign dii_out.data[i] = out[i].data;
          assign dii_out.valid[i] = out[i].valid;
-         assign dii_out.first[i] = out[i].first;
          assign dii_out.last[i] = out[i].last;
          assign out[i].ready = dii_out.ready[i];
       end

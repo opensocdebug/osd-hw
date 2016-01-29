@@ -9,10 +9,8 @@ module ring_router_demux
    );
 
    assign out_local.data = in.data;
-   assign out_local.first = in.first;
    assign out_local.last = in.last;
    assign out_ring.data = in.data;
-   assign out_ring.first = in.first;
    assign out_ring.last = in.last;
 
    reg         worm;

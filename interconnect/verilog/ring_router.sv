@@ -22,9 +22,33 @@ module ring_router
    dii_channel c_ring0local();
    dii_channel c_ring0muxed();
 
+   dii_channel c_local_in();
+//   assign local_in.ready = c_local_in.assemble(local_in.data, local_in.first, local_in.last, local_in.valid);
+   assign local_in.ready = c_local_in.ready;
+   assign c_local_in.valid = local_in.valid;
+   assign c_local_in.data = local_in.data;
+   assign c_local_in.first = local_in.first;
+   assign c_local_in.last = local_in.last;
+
+   dii_channel c_ring_in0();
+//   assign ring_in0.ready = c_ring_in0.assemble(ring_in0.data, ring_in0.first, ring_in0.last, ring_in0.valid);
+   assign ring_in0.ready = c_ring_in0.ready;
+   assign c_ring_in0.valid = ring_in0.valid;
+   assign c_ring_in0.data = ring_in0.data;
+//   assign c_ring_in0.first = ring_in0.first;
+   assign c_ring_in0.last = ring_in0.last;
+
+   dii_channel c_ring_out0();
+//   assign c_ring_out0.ready = ring_out0.assemble(c_ring_out0.data, c_ring_out0.first, c_ring_out0.last, c_ring_out0.valid);
+   assign c_ring_out0.ready = ring_out0.ready;
+   assign ring_out0.valid = c_ring_out0.valid;
+   assign ring_out0.first = c_ring_out0.first;
+   assign ring_out0.last = c_ring_out0.last;
+   assign ring_out0.data = c_ring_out0.data;
+   
    ring_router_demux
      u_demux0(.*,
-              .in        (ring_in0),
+              .in        (c_ring_in0),
               .out_local (c_ring0local),
               .out_ring  (c_ring0fwd));
 
@@ -43,7 +67,7 @@ module ring_router
    ring_router_mux
      u_mux_ring0(.*,
                  .in_ring  (c_ring0fwd),
-                 .in_local (local_in),
+                 .in_local (c_local_in),
                  .out      (c_ring0muxed));
                  
    dii_buffer
@@ -51,7 +75,7 @@ module ring_router
    u_buffer0(.*,
              .packet_size (),
              .in          (c_ring0muxed),
-             .out         (ring_out0));
+             .out         (c_ring_out0));
    
    dii_buffer
      #(.WIDTH(16), .SIZE(BUFFER_SIZE))

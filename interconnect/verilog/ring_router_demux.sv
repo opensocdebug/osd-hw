@@ -44,7 +44,9 @@ module ring_router_demux
    
    assign out_ring.valid = !switch_local & in.valid;
    assign out_local.valid = switch_local & in.valid;
+
+   assign in.ready = 1;
    
-   assign in.ready = switch_local ? out_local.ready : out_ring.ready;
+   //assign in.ready = switch_local ? out_local.ready : out_ring.ready;
 
 endmodule // ring_router_demux

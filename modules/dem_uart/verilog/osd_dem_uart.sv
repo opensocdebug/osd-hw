@@ -24,14 +24,17 @@ module osd_dem_uart
    logic        reg_err;
    logic [15:0] reg_rdata;
 
+   logic        stall;
+   
    osd_statctrlif
      #(.MODID(16'h2), .MODVERSION(16'h0),
-       .MAX_REG_SIZE(16))
+       .MAX_REG_SIZE(16), .CAN_STALL(1))
    u_statctrlif(.*,
-                 .stall (),
                  .debug_in (debug_in),
                  .debug_out (debug_out));
 
+   
+   
 endmodule // osd_dem_uart
 
    

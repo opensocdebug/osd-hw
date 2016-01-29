@@ -146,22 +146,14 @@ module osd_statctrlif
               nxt_req_addr = debug_in.data[0];
               nxt_state = STATE_EXT_START;
            end else begin
-              if (nxt_req_write) begin
+              if (req_write) begin
                  // LOCAL WRITE
                  if (req_size != REQ_SIZE_16) begin
                     nxt_resp_error = 1;
                  end else begin
+                    nxt_req_addr = debug_in.data;
                     case (debug_in.data)
-                      REG_CS: begin
-                         nxt_reqresp_value[4:0] = debug_in.data[0][15:11];
-                         if (debug_in.data[0][15:11] == CS_STALL) begin
-                            if (!CAN_STALL) begin
-                               nxt_resp_error = 1;
-                            end
-                         end else begin
-                            nxt_resp_error = 1;
-                         end
-                      end
+                      REG_CS: nxt_resp_error = 0;
                       default: nxt_resp_error = 1;
                     endcase // case (debug_in.data)
                  end
@@ -180,7 +172,7 @@ module osd_statctrlif
                        nxt_resp_error = 1;
                        nxt_state = STATE_RESP_START;
                     end else if (nxt_resp_error) begin
-                       nxt_state = STATE_DROP;
+                       nxt_state = STATE_RESP_START;
                     end else begin
                        nxt_state = STATE_WRITE;
                     end
@@ -195,15 +187,23 @@ module osd_statctrlif
            end
         end // case: STATE_ADDR
         STATE_WRITE: begin
+           debug_in.ready = 1;
+          
            if (debug_in.valid) begin
-              case (reqresp_value[4:0])
-                CS_STALL: begin
-                   nxt_mod_cs_stall = debug_in.data[0][0];
+              case (req_addr)
+                REG_CS: begin
+                   if (debug_in.data[0][15:11] == CS_STALL) begin
+                      if (!CAN_STALL) begin
+                         nxt_resp_error = 1;
+                      end else begin
+                         nxt_mod_cs_stall = debug_in.data[0][0];
+                      end
+                   end else begin
+                      nxt_resp_error = 1;
+                   end
                 end
-              endcase // case (nxt_rest_value[4:0])
-           end
-
-           if (debug_in.valid) begin
+              endcase // case (req_addr)
+              
               if (debug_in.last) begin
                  nxt_state = STATE_RESP_START;
               end else begin

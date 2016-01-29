@@ -3,7 +3,7 @@ module osd_statctrlif
   #(parameter MODID = 'x,
     parameter MODVERSION = 'x,
     parameter CAN_STALL = 0,
-    parameter MAX_REG_SIZE = 64)
+    parameter MAX_REG_SIZE = 16)
    (input clk, rst,
 
     input [9:0]   id,

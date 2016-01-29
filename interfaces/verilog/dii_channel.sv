@@ -27,6 +27,21 @@ interface dii_channel
       return ready[index];
    endfunction // assemble
 
+   function logic assemble_up (input logic [17:0] m_down,
+                               input int index = 0);
+      data[index] = m_down[15:0];
+      last[index] = m_down[16];
+      valid[index] = m_down[17];
+      return ready[index];
+   endfunction // assemble_up
+
+   function logic [17:0] assemble_down (input logic m_up,
+                                        input int index = 0);
+      ready[index] = m_up;
+      return {valid, last, data};
+   endfunction // assemble_down
+   
+
    
 endinterface // ddi_channel
 

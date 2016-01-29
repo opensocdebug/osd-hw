@@ -83,7 +83,7 @@ module osd_statctrlif
    always @(posedge clk) begin
       if (rst) begin
          state <= STATE_IDLE;
-         mod_cs_stall <= 0;
+         mod_cs_stall <= 1;
       end else begin
          state <= nxt_state;
          mod_cs_stall <= nxt_mod_cs_stall;
@@ -107,6 +107,8 @@ module osd_statctrlif
       nxt_reqresp_value = reqresp_value;
       nxt_resp_error = resp_error;
 
+      nxt_mod_cs_stall = mod_cs_stall;
+      
       debug_in.ready = 0;
       debug_out.valid = 0;
       debug_out.data = 0;

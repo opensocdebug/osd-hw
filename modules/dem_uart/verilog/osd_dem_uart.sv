@@ -9,7 +9,7 @@ module osd_dem_uart
 
    input [7:0]  out_char,
    input        out_valid,
-   output       out_ready,
+   output reg   out_ready,
 
    output [7:0] in_char,
    output       in_valid,

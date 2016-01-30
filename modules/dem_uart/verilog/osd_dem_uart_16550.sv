@@ -1,0 +1,37 @@
+
+module osd_dem_uart_16550
+  (input clk, rst,
+
+   input        bus_req,
+   input [2:0]  bus_addr,
+   input        bus_write,
+   input [7:0]  bus_wdata,
+   output       bus_ack,
+   output [7:0] bus_rdata,
+
+   output       out_valid,
+   output [7:0] out_char,
+   input        out_ready,
+   input        in_valid,
+   input [7:0]  in_char,
+   output       in_ready);
+
+   localparam REG_TXRX = 0;
+   localparam REG_LCR = 3;
+   
+   reg          lcr_7;
+
+   always @(posedge clk)
+     if (rst)
+       lcr_7 <= 0;
+     else if (bus_req & bus_write & (bus_addr == REG_LCR))
+       lcr_7 <= bus_wdata[7];
+
+   assign out_valid = bus_req & bus_write & (bus_addr == REG_TXRX);
+   assign out_char = bus_wdata;
+   
+   assign bus_ack = lcr_7 | (bus_addr != REG_TXRX) | out_ready;
+
+   assign in_ready = 1;
+   
+endmodule // osd_dem_uart_16550

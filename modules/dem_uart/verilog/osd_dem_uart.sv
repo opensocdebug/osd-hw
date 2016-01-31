@@ -9,7 +9,7 @@ module osd_dem_uart
 
    input [7:0]  out_char,
    input        out_valid,
-   output       out_ready,
+   output reg   out_ready,
 
    output [7:0] in_char,
    output       in_valid,
@@ -18,7 +18,7 @@ module osd_dem_uart
    logic        reg_request;
    logic        reg_write;
    logic [15:0] reg_addr;
-   logic        reg_size;
+   logic [1:0]  reg_size;
    logic [15:0] reg_wdata;
    logic        reg_ack;
    logic        reg_err;
@@ -37,8 +37,8 @@ module osd_dem_uart
      #(.MODID(16'h2), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1))
    u_statctrlif(.*,
-                 .debug_in (debug_in),
-                 .debug_out (c_ctrlstat_out));
+                .debug_in (debug_in),
+                .debug_out (c_ctrlstat_out));
 
    ring_router_mux
      u_mux(.*,

@@ -1,4 +1,8 @@
 
+// To replace the Xilinx AXI UART:
+// Connect addresses with [4:2]
+// Connect data with [8:0]
+
 module osd_dem_uart_nasti
   #(parameter ID_WIDTH=1,
     parameter ADDR_WIDTH=3,
@@ -73,7 +77,7 @@ module osd_dem_uart_nasti
                bus_addr <= aw_addr[2:0];
                bus_write <= 1;
                bus_wdata <= w_data;
-            end else if (ar_valid & w_valid) begin
+            end else if (ar_valid) begin
                bus_req <= 1;
                bus_addr <= ar_addr[2:0];
                bus_write <= 0;

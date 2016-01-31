@@ -38,7 +38,7 @@ interface dii_channel
    function logic [17:0] assemble_down (input logic m_up,
                                         input int index = 0);
       ready[index] = m_up;
-      return {valid, last, data};
+      return {valid[index], last[index], data[index] };
    endfunction // assemble_down
    
 

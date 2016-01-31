@@ -33,9 +33,9 @@ module osd_scm
       reg_err = 0;
 
       case (reg_addr)
-        16'h200: reg_rdata = SYSTEMID;
-        16'h201: reg_rdata = NUM_MOD;
-        16'h202: reg_rdata = MAX_PKT_LEN;
+        16'h200: reg_rdata = 16'(SYSTEMID);
+        16'h201: reg_rdata = 16'(NUM_MOD);
+        16'h202: reg_rdata = 16'(MAX_PKT_LEN);
         default: reg_err = reg_request;
       endcase // case (reg_addr)
    end

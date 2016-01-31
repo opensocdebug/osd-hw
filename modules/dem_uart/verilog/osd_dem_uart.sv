@@ -18,7 +18,7 @@ module osd_dem_uart
    logic        reg_request;
    logic        reg_write;
    logic [15:0] reg_addr;
-   logic        reg_size;
+   logic [1:0]  reg_size;
    logic [15:0] reg_wdata;
    logic        reg_ack;
    logic        reg_err;

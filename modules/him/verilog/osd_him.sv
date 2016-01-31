@@ -50,7 +50,14 @@ module osd_him
    logic       egress_active;
 
    logic [15:0] egress_data_be;
-   assign egress_data_be = !egress_active ? {11'h0, egress_packet_size} : dii_egress.data;
+
+   always @(*) begin
+     if (!egress_active) begin
+        egress_data_be = 0;
+        egress_data_be[$clog2(BUF_SIZE)-1:0] = egress_packet_size;
+     end else
+       egress_data_be  = dii_egress.data;
+   end
 
    assign glip_out.data = {egress_data_be[7:0], egress_data_be[15:8]};
    assign glip_out.valid = dii_egress.valid;

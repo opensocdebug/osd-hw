@@ -14,7 +14,7 @@ module osd_statctrlif
     output reg    reg_request,
     output        reg_write,
     output [15:0] reg_addr,
-    output        reg_size,
+    output [1:0]  reg_size,
     output [15:0] reg_wdata,
     input         reg_ack,
     input         reg_err,

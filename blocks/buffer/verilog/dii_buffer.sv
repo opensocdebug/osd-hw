@@ -98,7 +98,7 @@ module dii_buffer
       packet_size = 1;
 
       for (i=1; i< SIZE; i = i+1) begin
-         if (not_done) begin
+         if (not_done == 1) begin
             if (fifo_last[i-1] && valid[i-1]) begin
                not_done = 0;
                packet_size = i;

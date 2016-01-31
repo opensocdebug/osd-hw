@@ -8,8 +8,8 @@ module osd_statctrlif
 
     input [9:0]   id,
 
-    dii_channel debug_in,
-    dii_channel debug_out,
+    input dii_flit debug_in, output logic debug_in_ready,
+    output dii_flit debug_out, input debug_out_ready,
 
     output reg    reg_request,
     output        reg_write,
@@ -61,8 +61,8 @@ module osd_statctrlif
 
    logic                    addr_is_ext;
    logic [8:0]  addr_internal;
-   assign addr_is_ext = (debug_in.data[0][15:9] != 0);
-   assign addr_internal = debug_in.data[0][8:0];
+   assign addr_is_ext = (debug_in.data[15:9] != 0);
+   assign addr_internal = debug_in.data[8:0];
 
    assign reg_write = req_write;
    assign reg_addr = req_addr;
@@ -110,7 +110,7 @@ module osd_statctrlif
 
       nxt_mod_cs_stall = mod_cs_stall;
       
-      debug_in.ready = 0;
+      debug_in_ready = 0;
       debug_out.valid = 0;
       debug_out.data = 0;
       debug_out.last = 0;
@@ -119,21 +119,21 @@ module osd_statctrlif
       
       case (state)
         STATE_IDLE: begin
-           debug_in.ready = 1;
+           debug_in_ready = 1;
            if (debug_in.valid) begin
               nxt_state = STATE_START;
            end
         end
         STATE_START: begin
-           debug_in.ready = 1;
-           nxt_req_write = (debug_in.data[0][12]);
-           nxt_req_burst = (debug_in.data[0][13]);
-           nxt_req_size = debug_in.data[0][11:10];
-           nxt_resp_dest = debug_in.data[0][9:0];
+           debug_in_ready = 1;
+           nxt_req_write = (debug_in.data[12]);
+           nxt_req_burst = (debug_in.data[13]);
+           nxt_req_size = debug_in.data[11:10];
+           nxt_resp_dest = debug_in.data[9:0];
            nxt_resp_error = 0;
            
            if (debug_in.valid) begin
-              if (|debug_in.data[0][15:14]) begin
+              if (|debug_in.data[15:14]) begin
                  nxt_state = STATE_DROP;
               end else begin
                  nxt_state = STATE_ADDR;
@@ -141,10 +141,10 @@ module osd_statctrlif
            end
         end // case: STATE_START
         STATE_ADDR: begin
-           debug_in.ready = 1;
+           debug_in_ready = 1;
 
            if (addr_is_ext) begin
-              nxt_req_addr = debug_in.data[0];
+              nxt_req_addr = debug_in.data;
               nxt_state = STATE_EXT_START;
            end else begin
               if (req_write) begin
@@ -188,16 +188,16 @@ module osd_statctrlif
            end
         end // case: STATE_ADDR
         STATE_WRITE: begin
-           debug_in.ready = 1;
+           debug_in_ready = 1;
           
            if (debug_in.valid) begin
               case (req_addr)
                 REG_CS: begin
-                   if (debug_in.data[0][15:11] == CS_STALL) begin
+                   if (debug_in.data[15:11] === CS_STALL) begin
                       if (!CAN_STALL) begin
                          nxt_resp_error = 1;
                       end else begin
-                         nxt_mod_cs_stall = debug_in.data[0][0];
+                         nxt_mod_cs_stall = debug_in.data[0];
                       end
                    end else begin
                       nxt_resp_error = 1;
@@ -216,7 +216,7 @@ module osd_statctrlif
            debug_out.valid = 1;
            debug_out.data = {6'h0, resp_dest};
 
-           if (debug_out.ready) begin
+           if (debug_out_ready) begin
               nxt_state = STATE_RESP_SRC;
            end
         end
@@ -226,7 +226,7 @@ module osd_statctrlif
 
            debug_out.last = resp_error | req_write;
 
-           if (debug_out.ready) begin
+           if (debug_out_ready) begin
               if (req_write) begin
                  nxt_state = STATE_IDLE;
               end else begin
@@ -238,7 +238,7 @@ module osd_statctrlif
            debug_out.valid = 1;
            debug_out.data = reqresp_value[15:0];
            debug_out.last = 1;
-           if (debug_out.ready) begin
+           if (debug_out_ready) begin
               nxt_state = STATE_IDLE;
            end
         end
@@ -253,7 +253,7 @@ module osd_statctrlif
         end
 
         STATE_DROP: begin
-           debug_in.ready = 1;
+           debug_in_ready = 1;
            if (debug_in.valid & debug_in.last) begin
               nxt_state = STATE_IDLE;
            end

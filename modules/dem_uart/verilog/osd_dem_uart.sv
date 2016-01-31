@@ -2,8 +2,8 @@
 module osd_dem_uart
   (input clk, rst,
 
-   dii_channel debug_in,
-   dii_channel debug_out,
+   input dii_flit debug_in, output debug_in_ready,
+   output dii_flit debug_out, input debug_out_ready,
 
    input [9:0]  id,
 
@@ -30,21 +30,24 @@ module osd_dem_uart
    
    logic        stall;
 
-   dii_channel c_ctrlstat_out();
-   dii_channel c_uart_out();
+   dii_flit c_ctrlstat_out; logic c_ctrlstat_out_ready;
+   dii_flit c_uart_out; logic c_uart_out_ready;
    
    osd_statctrlif
      #(.MODID(16'h2), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1))
    u_statctrlif(.*,
-                 .debug_in (debug_in),
-                 .debug_out (c_ctrlstat_out));
+                .debug_out (c_ctrlstat_out),
+                .debug_out_ready (c_ctrlstat_out_ready));
 
    ring_router_mux
      u_mux(.*,
            .in_local (c_uart_out),
+           .in_local_ready (c_uart_out_ready),
            .in_ring (c_ctrlstat_out),
-           .out    (debug_out));
+           .in_ring_ready (c_ctrlstat_out_ready),
+           .out_mux    (debug_out),
+           .out_mux_ready    (debug_out_ready));
 
    reg [1:0]    state;
    
@@ -54,17 +57,17 @@ module osd_dem_uart
       end else begin
          case (state)
            0: begin
-              if (out_valid & !stall & c_uart_out.ready) begin
+              if (out_valid & !stall & c_uart_out_ready) begin
                  state <= 1;
               end
            end
            1: begin
-              if (c_uart_out.ready) begin
+              if (c_uart_out_ready) begin
                  state <= 2;
               end
            end
            2: begin
-              if (c_uart_out.ready) begin
+              if (c_uart_out_ready) begin
                  state <= 0;
               end
            end
@@ -91,7 +94,7 @@ module osd_dem_uart
            c_uart_out.valid = 1;
            c_uart_out.data = {8'h0, out_char};
            c_uart_out.last = 1;
-           out_ready = c_uart_out.ready;
+           out_ready = c_uart_out_ready;
         end
       endcase // case (state)
    end

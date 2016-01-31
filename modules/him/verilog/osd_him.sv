@@ -4,8 +4,10 @@ module osd_him
    glip_channel glip_in,
    glip_channel glip_out,
 
-   dii_channel dii_out,
-   dii_channel dii_in);
+   output dii_flit dii_out,
+   input           dii_out_ready,
+   input dii_flit dii_in,
+   output         dii_in_ready);
 
    localparam BUF_SIZE = 8;
 
@@ -16,7 +18,7 @@ module osd_him
    assign ingress_data_be[7:0] = glip_in.data[15:8];
    assign ingress_data_be[15:8] = glip_in.data[7:0];
 
-   assign glip_in.ready = !ingress_active | dii_out.ready;
+   assign glip_in.ready = !ingress_active | dii_out_ready;
    assign dii_out.data  = ingress_data_be;
    assign dii_out.valid = ingress_active & glip_in.valid;
    assign dii_out.last  = ingress_active & (ingress_size == 0);
@@ -41,7 +43,8 @@ module osd_him
       end
    end
 
-   dii_channel dii_egress();
+   dii_flit dii_egress;
+   logic    fii_egress_ready;
    logic [$clog2(BUF_SIZE)-1:0] egress_packet_size;
 
    logic       egress_active;
@@ -51,7 +54,7 @@ module osd_him
 
    assign glip_out.data = {egress_data_be[7:0], egress_data_be[15:8]};
    assign glip_out.valid = dii_egress.valid;
-   assign dii_egress.ready = egress_active & glip_out.ready;
+   assign dii_egress_ready = egress_active & glip_out.ready;
 
    always @(posedge clk) begin
       if (rst) begin
@@ -62,7 +65,7 @@ module osd_him
                egress_active <= 1;
             end
          end else begin 
-            if (dii_egress.ready & dii_egress.last) begin
+            if (dii_egress_ready & dii_egress.last) begin
                egress_active <= 0;
             end
          end
@@ -73,8 +76,10 @@ module osd_him
      #(.SIZE(BUF_SIZE), .FULLPACKET(1))
    u_egress_buffer(.*,
                    .packet_size (egress_packet_size),
-                   .in (dii_in),
-                   .out (dii_egress));
+                   .flit_in (dii_in),
+                   .flit_in_ready (dii_in_ready),
+                   .flit_out (dii_egress),
+                   .flit_out_ready (dii_egress_ready));
    
    
 endmodule // osd_him

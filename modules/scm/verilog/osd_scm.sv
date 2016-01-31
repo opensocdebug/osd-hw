@@ -7,8 +7,8 @@ module osd_scm
 
     input [9:0] id,
 
-    dii_channel debug_in,
-    dii_channel debug_out);
+    input dii_flit debug_in, output debug_in_ready,
+    output dii_flit debug_out, input debug_out_ready);
 
    logic        reg_request;
    logic        reg_write;
@@ -23,9 +23,7 @@ module osd_scm
      #(.MODID(16'h1), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16))
    u_statctrlif(.*,
-                 .stall (),
-                 .debug_in (debug_in),
-                 .debug_out (debug_out));
+                 .stall ());
    
    always @(*) begin
       reg_ack = 1;

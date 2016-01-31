@@ -9,8 +9,10 @@ module dii_buffer
 
     output logic [$clog2(SIZE)-1:0] packet_size,
 
-    dii_channel in,
-    dii_channel out
+    input dii_flit flit_in,
+    output         flit_in_ready,
+    output dii_flit flit_out,
+    input           flit_out_ready
     );
 
    // Signals for fifo
@@ -37,14 +39,14 @@ module dii_buffer
    
    assign full_packet = |(fifo_last & valid); 
 
-   assign pop = out.valid & out.ready;
-   assign push = in.valid & in.ready;
+   assign pop = flit_out.valid & flit_out_ready;
+   assign push = flit_in.valid & flit_in_ready;
 
-   assign out.data = fifo_data[0][WIDTH-1:0];
-   assign out.last = fifo_last[0];
-   assign out.valid = !FULLPACKET ? valid[0] : full_packet;
+   assign flit_out.data = fifo_data[0][WIDTH-1:0];
+   assign flit_out.last = fifo_last[0];
+   assign flit_out.valid = !FULLPACKET ? valid[0] : full_packet;
 
-   assign in.ready = !fifo_write_ptr[SIZE];
+   assign flit_in_ready = !fifo_write_ptr[SIZE];
 
    always @(posedge clk) begin
       if (rst) begin
@@ -61,8 +63,8 @@ module dii_buffer
       for (i=0;i<SIZE;i=i+1) begin
          if (pop) begin
             if (push & fifo_write_ptr[i+1]) begin
-               nxt_fifo_data[i] = in.data;
-               nxt_fifo_last[i] = in.last;
+               nxt_fifo_data[i] = flit_in.data;
+               nxt_fifo_last[i] = flit_in.last;
             end else if (i<SIZE-1) begin
                nxt_fifo_data[i] = fifo_data[i+1];
                nxt_fifo_last[i] = fifo_last[i+1];
@@ -71,8 +73,8 @@ module dii_buffer
                nxt_fifo_last[i] = fifo_last[i];
             end
          end else if (push & fifo_write_ptr[i]) begin
-            nxt_fifo_data[i] = in.data;
-            nxt_fifo_last[i] = in.last;
+            nxt_fifo_data[i] = flit_in.data;
+            nxt_fifo_last[i] = flit_in.last;
          end else begin
             nxt_fifo_data[i] = fifo_data[i];
             nxt_fifo_last[i] = fifo_last[i];

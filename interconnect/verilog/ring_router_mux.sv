@@ -2,9 +2,9 @@
 module ring_router_mux
   (
    input clk, rst,
-   dii_channel in_ring,
-   dii_channel in_local,
-   dii_channel out
+   input dii_flit in_ring, output logic in_ring_ready,
+   input dii_flit in_local, output logic in_local_ready,
+   output dii_flit out_mux, input out_mux_ready
    );
 
    enum         { NOWORM, WORM_LOCAL, WORM_RING } state, nxt_state;
@@ -19,28 +19,26 @@ module ring_router_mux
 
    always_comb begin
       nxt_state = state;
-      out.valid = 0;
-      out.data = 'x;
-      out.last = 'x;
-      in_ring.ready = 0;
-      in_local.ready = 0;
+      out_mux.valid = 0;
+      out_mux.data = 'x;
+      out_mux.last = 'x;
+      in_ring_ready = 0;
+      in_local_ready = 0;
       
       case (state)
         NOWORM: begin
            if (in_ring.valid) begin
-              in_ring.ready = out.ready;
-              out.valid = 1'b1;
-              out.last = in_ring.last;
-              out.data = in_ring.data;
+              in_ring_ready = out_mux_ready;
+              out_mux = in_ring;
+              out_mux.valid = 1'b1;
 
               if (!in_ring.last) begin
                  nxt_state = WORM_RING;
               end
            end else if (in_local.valid) begin
-              in_local.ready = out.ready;
-              out.valid = 1'b1;
-              out.last = in_local.last;
-              out.data = in_local.data;
+              in_local_ready = out_mux_ready;
+              out_mux = in_local;
+              out_mux.valid = 1'b1;
 
               if (!in_local.last) begin
                  nxt_state = WORM_LOCAL;
@@ -48,22 +46,22 @@ module ring_router_mux
            end // if (in_local.valid)
         end // case: NOWORM
         WORM_RING: begin
-           in_ring.ready = out.ready;
-           out.valid = in_ring.ready;
-           out.last = in_ring.last;
-           out.data = in_ring.data;
+           in_ring_ready = out_mux_ready;
+           out_mux.valid = in_ring.valid;
+           out_mux.last = in_ring.last;
+           out_mux.data = in_ring.data;
 
-           if (out.last & out.valid & out.ready) begin
+           if (out_mux.last & out_mux.valid & out_mux_ready) begin
               nxt_state = NOWORM;
            end
         end
         WORM_LOCAL: begin
-           in_local.ready = out.ready;
-           out.valid = in_local.valid;
-           out.last = in_local.last;
-           out.data = in_local.data;
+           in_local_ready = out_mux_ready;
+           out_mux.valid = in_local.valid;
+           out_mux.last = in_local.last;
+           out_mux.data = in_local.data;
 
-           if (out.last & out.valid & out.ready) begin
+           if (out_mux.last & out_mux.valid & out_mux_ready) begin
               nxt_state = NOWORM;
            end
         end          

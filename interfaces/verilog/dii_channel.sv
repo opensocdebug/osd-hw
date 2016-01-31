@@ -21,19 +21,6 @@ interface dii_channel
                   input  valid,
                   output ready);
 
-   // a helper function to ease the assembly of interface signals
-   function logic assemble (input logic [17:0] m,
-                            input int index = 0);
-      {valid[index], last[index], data[index]} = m;
-      return ready[index];
-   endfunction // assemble
-
-   function logic[17:0] disassemble(input logic m_ready,
-                                    input int index = 0);
-      ready[index] = m_ready;
-      return {valid, last, data};
-   endfunction // disassemble
-
    function logic assemble_up (input logic [17:0] m_down,
                                input int index = 0);
       data[index] = m_down[15:0];
@@ -48,17 +35,6 @@ interface dii_channel
       return {valid, last, data};
    endfunction // assemble_down
 
-   function dii_flit get_flit(input int index = 0);
-      get_flit.last = last[index];
-      get_flit.data = data[index];
-   endfunction // get_flit
-
-   function void put_flit(input dii_flit d,
-                          input index = 0);
-      last[index] = d.last;
-      data[index] = d.data;
-   endfunction // put_flit
-   
 endinterface // ddi_channel
 
 

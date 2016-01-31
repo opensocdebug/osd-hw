@@ -28,13 +28,19 @@ module ring_router_mux
       case (state)
         NOWORM: begin
            if (in_ring.valid) begin
-              in_ring.ready = out.assemble({1'b1, in_ring.last, in_ring.data});
+              in_ring.ready = out.ready;
+              out.valid = 1'b1;
+              out.last = in_ring.last;
+              out.data = in_ring.data;
 
               if (!in_ring.last) begin
                  nxt_state = WORM_RING;
               end
            end else if (in_local.valid) begin
-              in_local.ready = out.assemble({1'b1, in_local.last, in_local.data});
+              in_local.ready = out.ready;
+              out.valid = 1'b1;
+              out.last = in_local.last;
+              out.data = in_local.data;
 
               if (!in_local.last) begin
                  nxt_state = WORM_LOCAL;
@@ -42,14 +48,20 @@ module ring_router_mux
            end // if (in_local.valid)
         end // case: NOWORM
         WORM_RING: begin
-           in_ring.ready = out.assemble({in_ring.valid, in_ring.last, in_ring.data});
+           in_ring.ready = out.ready;
+           out.valid = in_ring.ready;
+           out.last = in_ring.last;
+           out.data = in_ring.data;
 
            if (out.last & out.valid & out.ready) begin
               nxt_state = NOWORM;
            end
         end
         WORM_LOCAL: begin
-           in_local.ready = out.assemble({in_local.valid, in_local.last, in_local.data});
+           in_local.ready = out.ready;
+           out.valid = in_local.valid;
+           out.last = in_local.last;
+           out.data = in_local.data;
 
            if (out.last & out.valid & out.ready) begin
               nxt_state = NOWORM;

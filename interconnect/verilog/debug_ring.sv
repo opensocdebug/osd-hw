@@ -7,72 +7,74 @@ module debug_ring
     dii_channel dii_out
    );
 
-   /* Router->Module */
-   dii_channel out [PORTS-1:0] ();
-   /* Module->Router */
-   dii_channel in [PORTS-1:0] ();
-
    genvar i;
-   generate
-      for (i = 0; i < PORTS; i = i + 1) begin
-         assign in[i].data  = dii_in.data[i];
-         assign in[i].valid = dii_in.valid[i];
-         assign in[i].last  = dii_in.last[i];
-         assign dii_in.ready[i] = in[i].ready;
-         assign dii_out.data[i] = out[i].data;
-         assign dii_out.valid[i] = out[i].valid;
-         assign dii_out.last[i] = out[i].last;
-         assign out[i].ready = dii_out.ready[i];
-      end
-   endgenerate
 
-   logic [PORTS-1:0][17:0] ring_chan0_down;
-   logic [PORTS-1:0]       ring_chan0_up;
-   logic [PORTS-1:0][17:0] ring_chan1_down;
-   logic [PORTS-1:0]       ring_chan1_up;
+   logic [1:0][PORTS:0][15:0] chain_data;
+   logic [1:0][PORTS:0]       chain_ready, chain_valid, chain_last;
 
-   /* Drop wrongly addressed packets */
-   assign ring_chan1_up[PORTS-1] = 1;
-   
    generate
-      ring_router
-        #(.BUFFER_SIZE(BUFFER_SIZE))
-      u_router0(.clk (clk),
-                .rst (rst),
-                .id  (10'(0)),
-                .ring_in0_down ({1'b0, 17'bx}),
-                .ring_in0_up   (),
-                .ring_in1_down (ring_chan0_down[PORTS-1][17:0]),
-                .ring_in1_up   (ring_chan0_up[PORTS-1]),
-                .ring_out0_down (ring_chan0_down[0]),
-                .ring_out0_up   (ring_chan0_up[0]),
-                .ring_out1_down (ring_chan1_down[0]),
-                .ring_out1_up   (ring_chan1_up[0]),
-                .local_in_down ({in[0].valid, in[0].last, in[0].data}),
-                .local_in_up   (in[0].ready),
-                .local_out_down ({out[0].valid, out[0].last, out[0].data}),
-                .local_out_up (out[0].ready));
-                
-      for ( i = 1; i < PORTS; i = i + 1 ) begin
+      for(i=0; i<PORTS; i++) begin
+         // local router channels
+         dii_channel ring_in0(), ring_in1(), ring_out0(), ring_out1(), local_in(), local_out();
+
+         // connect router channels
+         assign ring_in0.valid = chain_valid[0][i];
+         assign ring_in0.last = chain_last[0][i];
+         assign ring_in0.data = chain_data[0][i];
+         assign chain_ready[0][i] = ring_in0.ready;
+
+         assign ring_in1.valid = chain_valid[1][i];
+         assign ring_in1.last = chain_last[1][i];
+         assign ring_in1.data = chain_data[1][i];
+         assign chain_ready[1][i] = ring_in1.ready;
+         
+         assign chain_valid[0][i+1] = ring_out0.valid;
+         assign chain_last[0][i+1] = ring_out0.last;
+         assign chain_data[0][i+1] = ring_out0.data;
+         assign ring_out0.ready = chain_ready[0][i+1];
+
+         assign chain_valid[1][i+1] = ring_out1.valid;
+         assign chain_last[1][i+1] = ring_out1.last;
+         assign chain_data[1][i+1] = ring_out1.data;
+         assign ring_out1.ready = chain_ready[1][i+1];
+
+         assign local_in.valid = dii_in.valid[i];
+         assign local_in.last = dii_in.last[i];
+         assign local_in.data = dii_in.data[i];
+         assign dii_in.ready[i] = local_in.ready;
+         
+         assign dii_out.valid[i] = local_out.valid;
+         assign dii_out.last[i] = local_out.last;
+         assign dii_out.data[i] = local_out.data;
+         assign local_out.ready = dii_out.ready[i];
+
+         // local router instances
          ring_router
-                #(.BUFFER_SIZE(BUFFER_SIZE))
-         u_router(.clk       (clk),
-                  .rst       (rst),
-                  .id        (10'(i)),
-                  .ring_in0_down (ring_chan0_down[i-1]),
-                  .ring_in0_up   (ring_chan0_up[i-1]),
-                  .ring_in1_down (ring_chan1_down[i-1]),
-                  .ring_in1_up   (ring_chan1_up[i-1]),
-                  .ring_out0_down (ring_chan0_down[i]),
-                  .ring_out0_up   (ring_chan0_up[i]),
-                  .ring_out1_down (ring_chan1_down[i]),
-                  .ring_out1_up   (ring_chan1_up[i]),
-                  .local_in_down ({in[i].valid, in[i].last, in[i].data}),
-                  .local_in_up   (in[i].ready),
-                  .local_out_down ({out[i].valid, out[i].last, out[i].data}),
-                  .local_out_up (out[i].ready));
-
-      end
+           #(.BUFFER_SIZE(BUFFER_SIZE))
+         u_router(
+                  .*,
+                  .id        ( i         ),
+                  .ring_in0  ( ring_in0  ),
+                  .ring_in1  ( ring_in1  ),
+                  .ring_out0 ( ring_out0 ),
+                  .ring_out1 ( ring_out1 ),                  
+                  .local_in  ( local_in  ),
+                  .local_out ( local_out )
+                  );
+      end // for (i=0; i<PORTS, i++)
    endgenerate
-   
+
+   // special connections
+   // empty input for chain 0
+   assign chain_valid[0][0] = 1'b0;
+
+   // connect the ends of chain 0 & 1
+   assign chain_valid[1][0] = chain_valid[0][PORTS];
+   assign chain_last[1][0] = chain_last[0][PORTS];
+   assign chain_data[1][0] = chain_data[0][PORTS];
+   assign chain_ready[0][PORTS] = chain_ready[1][0];
+
+   // dump chain 1
+   assign chain_ready[1][PORTS] = 1'b1;
+
 endmodule // Ring

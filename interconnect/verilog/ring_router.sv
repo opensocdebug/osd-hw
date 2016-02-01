@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module ring_router
   #(parameter BUFFER_SIZE=4)
    (

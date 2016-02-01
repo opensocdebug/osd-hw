@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module osd_scm
   #(parameter SYSTEMID='x,
     parameter NUM_MOD='x,

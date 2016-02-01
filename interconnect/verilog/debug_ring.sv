@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module debug_ring
   #(parameter PORTS = 1,
     parameter BUFFER_SIZE = 4)

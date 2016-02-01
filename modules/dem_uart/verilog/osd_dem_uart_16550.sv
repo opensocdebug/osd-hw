@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module osd_dem_uart_16550
   (input clk, rst,
 

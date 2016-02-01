@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module ring_router_mux_rr
   (
    input clk, rst,

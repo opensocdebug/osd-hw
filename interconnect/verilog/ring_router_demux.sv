@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module ring_router_demux
   (
    input       clk, rst,

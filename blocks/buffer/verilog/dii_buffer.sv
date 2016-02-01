@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module dii_buffer
   #(parameter WIDTH=16,
     parameter SIZE=4,

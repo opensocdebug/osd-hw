@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module osd_statctrlif
   #(parameter MODID = 'x,
     parameter MODVERSION = 'x,

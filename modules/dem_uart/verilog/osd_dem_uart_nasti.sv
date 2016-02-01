@@ -3,6 +3,8 @@
 // Connect addresses with [4:2]
 // Connect data with [8:0]
 
+import dii_package::dii_flit;
+
 module osd_dem_uart_nasti
   #(parameter ID_WIDTH=1,
     parameter ADDR_WIDTH=3,

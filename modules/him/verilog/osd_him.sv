@@ -1,4 +1,6 @@
 
+import dii_package::dii_flit;
+
 module osd_him
   (input clk, rst,
    glip_channel glip_in,

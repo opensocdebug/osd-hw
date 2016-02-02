@@ -82,7 +82,7 @@ module osd_him
    end
    
    dii_buffer
-     #(.SIZE(BUF_SIZE), .FULLPACKET(1))
+     #(.BUF_SIZE(BUF_SIZE), .FULLPACKET(1))
    u_egress_buffer(.*,
                    .packet_size (egress_packet_size),
                    .flit_in (dii_in),

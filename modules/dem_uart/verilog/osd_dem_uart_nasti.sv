@@ -68,6 +68,9 @@ module osd_dem_uart_nasti
    assign b_valid = resp & bus_write;
    assign r_valid = resp & !bus_write;
    
+   assign r_resp = 2'b00;
+   assign b_resp = 2'b00;
+
    always @(posedge clk) begin
       if (rst) begin
          bus_req <= 0;

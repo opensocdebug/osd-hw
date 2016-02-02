@@ -3,8 +3,8 @@ import dii_package::dii_flit;
 
 module osd_him
   (input clk, rst,
-   glip_channel glip_in,
-   glip_channel glip_out,
+   glip_channel.slave glip_in,
+   glip_channel.master glip_out,
 
    output dii_flit dii_out,
    input           dii_out_ready,

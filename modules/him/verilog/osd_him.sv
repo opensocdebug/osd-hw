@@ -46,7 +46,7 @@ module osd_him
    end
 
    dii_flit dii_egress;
-   logic    fii_egress_ready;
+   logic    dii_egress_ready;
    logic [$clog2(BUF_SIZE)-1:0] egress_packet_size;
 
    logic       egress_active;

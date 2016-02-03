@@ -11,7 +11,7 @@ module dii_buffer
     output logic [$clog2(BUF_SIZE):0]   packet_size,
 
     input  dii_flit                     flit_in,
-    output reg                          flit_in_ready,
+    output                              flit_in_ready,
     output dii_flit                     flit_out,
     input                               flit_out_ready
      );

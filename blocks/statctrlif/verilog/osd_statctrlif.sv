@@ -1,6 +1,5 @@
 
 import dii_package::dii_flit;
-import dii_package::dii_flit_assemble;
 
 module osd_statctrlif
   #(parameter MODID = 'x,
@@ -106,7 +105,7 @@ module osd_statctrlif
       nxt_mod_cs_stall = mod_cs_stall;
       
       debug_in_ready = 0;
-      debug_out = dii_flit_assemble(0, 0, 0);
+      debug_out = 0;
 
       reg_request = 0;
       

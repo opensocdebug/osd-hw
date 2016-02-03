@@ -1,6 +1,5 @@
 
 import dii_package::dii_flit;
-import dii_package::dii_flit_assemble;
 
 module dii_buffer
   #(
@@ -9,7 +8,7 @@ module dii_buffer
     )
    (
     input                               clk, rst,
-    output logic [$clog2(BUF_SIZE)-1:0] packet_size,
+    output logic [$clog2(BUF_SIZE):0]   packet_size,
 
     input  dii_flit                     flit_in,
     output reg                          flit_in_ready,
@@ -24,8 +23,11 @@ module dii_buffer
    dii_flit [BUF_SIZE-1:0]   data;
    reg [ID_W:0]              rp; // read pointer
    logic                     reg_out_valid;  // local output valid
+   logic                     flit_in_fire, flit_out_fire;
 
    assign flit_in_ready = (rp != BUF_SIZE - 1) || !reg_out_valid;
+   assign flit_in_fire = flit_in.valid && flit_in_ready;
+   assign flit_out_fire = flit_out.valid && flit_out_ready;
 
    always_ff @(posedge clk)
      if(rst)
@@ -38,39 +40,56 @@ module dii_buffer
    always_ff @(posedge clk)
      if(rst)
        rp <= 0;
-     else if(flit_in.valid && flit_in_ready && (!flit_out.valid || !flit_out_ready) && reg_out_valid)
+     else if(flit_in_fire && !flit_out_fire && reg_out_valid)
        rp <= rp + 1;
-     else if(flit_out.valid && flit_out_ready && (!flit_in.valid  || !flit_in_ready) && rp != 0)
+     else if(flit_out_fire && !flit_in_fire && rp != 0)
        rp <= rp - 1;
 
    always @(posedge clk)
-     if(flit_in.valid && flit_in_ready)
+     if(flit_in_fire)
        data <= {data, flit_in};
 
    generate                     // SRL does not allow parallel read
-      if(FULLPACKET) begin
+      if(FULLPACKET != 0) begin
          logic [BUF_SIZE-1:0] data_last_buf;
 
          always @(posedge clk)
            if(rst)
-             data_last_buf <= 0;
-           else if(flit_in.valid && flit_in_ready)
-             data_last_buf <= {data_last_buf, flit_in.last && flit_in.valid};
+             data_last_buf = 0;
+           else begin
+              if(flit_out_fire)
+                data_last_buf[rp] = 1'b0;
+              if(flit_in_fire)
+                data_last_buf = {data_last_buf, flit_in.last && flit_in.valid};
+           end
 
-         // Calculate packet size
-         function int count_first(input logic [BUF_SIZE-1:0] data);
-            int i;
-            for(i=0; i<BUF_SIZE; i++)
-              if(data[i])
-                return i+1;
-         endfunction // count_first
+         // extra logic to get the packet size in a stable manner
+         logic [BUF_SIZE:0] data_last_shifted;
+         assign data_last_shifted = {1'b0,data_last_buf} << BUF_SIZE - rp;
 
-         assign packet_size = count_first(data_last_buf);
-         assign flit_out = dii_flit_assemble(|data_last_buf, data[rp].last, data[rp].data);
+         function logic [ID_W:0] find_first_one(input logic [BUF_SIZE:0] data);
+            automatic int i;
+            for(i=BUF_SIZE; i>0; i--)
+              if(data[i]) return i;
+            return BUF_SIZE;
+         endfunction // size_count
 
+         assign packet_size = BUF_SIZE + 1 - find_first_one(data_last_shifted);
+
+         always_comb begin
+            //flit_out = dii_flit_assemble(|data_last_buf, data[rp].last, data[rp].data);
+            flit_out.valid = |data_last_buf;
+            flit_out.last = data[rp].last;
+            flit_out.data = data[rp].data;
+         end
       end else begin // if (FULLPACKET)
          assign packet_size = 0;
-         assign flit_out = dii_flit_assemble(reg_out_valid, data[rp].last, data[rp].data);
+         always_comb begin
+            //flit_out = dii_flit_assemble(reg_out_valid, data[rp].last, data[rp].data);
+            flit_out.valid = reg_out_valid;
+            flit_out.last = data[rp].last;
+            flit_out.data = data[rp].data;
+         end
       end
    endgenerate
 

@@ -4,11 +4,11 @@ package open_soc_debug
 import Chisel._
 import cde.{Parameters, Field}
 
-case object DiiWidth extends Field[Int]
+case object DiiIOWidth extends Field[Int]
 
 trait HasDiiParameters {
   implicit val p: Parameters
-  val diiWidth = p(DiiWidth)
+  val diiWidth = p(DiiIOWidth)
 }
 
 abstract class DiiModule(implicit val p: Parameters) extends Module

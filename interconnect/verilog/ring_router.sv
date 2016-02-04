@@ -65,7 +65,7 @@ module ring_router
                  );
 
    dii_buffer
-     #(.WIDTH(16), .SIZE(BUFFER_SIZE))
+     #(.BUF_SIZE(BUFFER_SIZE))
    u_buffer0(.*,
              .packet_size       (                  ),
              .flit_in           ( ring_muxed       ),
@@ -75,7 +75,7 @@ module ring_router
              );
 
    dii_buffer
-     #(.WIDTH(16), .SIZE(BUFFER_SIZE))
+     #(.BUF_SIZE(BUFFER_SIZE))
    u_buffer1(.*,
              .packet_size       (                  ),
              .flit_in           ( ring_fwd1        ),

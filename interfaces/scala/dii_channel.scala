@@ -11,6 +11,8 @@ trait HasDiiParameters {
   val diiWidth = p(DiiWidth)
 }
 
+abstract class DiiModule(implicit val p: Parameters) extends Module
+  with HasDiiParameters
 abstract class DiiBundle(implicit val p: Parameters) extends ParameterizedBundle()(p)
   with HasDiiParameters
 

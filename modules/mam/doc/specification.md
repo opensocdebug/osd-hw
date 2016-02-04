@@ -26,7 +26,22 @@ Fill in your name here!
 
 # System Interface
 
-Reduced AXI-ish
+There is a generic interface between the MAM and the system:
+
+ Signal        | Direction   | Description
+ ------------  | ----------- | -----------
+ `req_start`   | MAM->System | Start a new memory access request
+ `req_rw`      | MAM->System | `0`: Read, `1`: Write
+ `req_addr`    | MAM->System | Request base address
+ `req_burst`   | MAM->System | `0` for single beat access, `1` for incremental burst
+ `req_size`    | MAM->System | Burst size in number of words
+ `write_valid` | MAM->System | Next write data is valid
+ `write_data`  | MAM->System | Write data
+ `write_strb`  | MAM->System | Byte strobe if `req_burst==0`
+ `write_ready` | System->MAM | Acknowledge this data item
+ `read_valid`  | System->MAM | Next read data is valid
+ `read_data`   | System->MAM | Read data
+ `read_ready`  | MAM->System | Acknowledge this data item
 
 # Memory Map
 

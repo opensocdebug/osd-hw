@@ -30,7 +30,8 @@ There is a generic interface between the MAM and the system:
 
  Signal        | Direction   | Description
  ------------  | ----------- | -----------
- `req_start`   | MAM->System | Start a new memory access request
+ `req_valid`   | MAM->System | Start a new memory access request
+ `req_ready`   | MAM->System | Acknowledge the new memory access request
  `req_rw`      | MAM->System | `0`: Read, `1`: Write
  `req_addr`    | MAM->System | Request base address
  `req_burst`   | MAM->System | `0` for single beat access, `1` for incremental burst

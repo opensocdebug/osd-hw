@@ -42,9 +42,12 @@ module osd_statctrlif
    assign stall = CAN_STALL ? mod_cs_stall : 0;
    
    // State machine
-   reg [3:0]    state;
-   reg [3:0]    nxt_state;
-
+   enum {
+         STATE_IDLE, STATE_START, STATE_ADDR, STATE_WRITE,
+         STATE_RESP_START, STATE_RESP_SRC, STATE_RESP_VALUE,
+         STATE_DROP, STATE_EXT_START, STATE_EXT_WAIT
+         } state, nxt_state;
+        
    // Local request/response data
    reg                      req_write;
    reg                      req_burst;
@@ -70,17 +73,6 @@ module osd_statctrlif
    assign reg_addr = req_addr;
    assign reg_size = req_size;
    assign reg_wdata = reqresp_value;
-   
-   localparam STATE_IDLE       = 0;
-   localparam STATE_START      = 1;
-   localparam STATE_ADDR       = 2;
-   localparam STATE_WRITE      = 3;
-   localparam STATE_RESP_START = 4;
-   localparam STATE_RESP_SRC   = 5;
-   localparam STATE_RESP_VALUE = 6;
-   localparam STATE_DROP       = 7;
-   localparam STATE_EXT_START  = 8;
-   localparam STATE_EXT_WAIT   = 9;
    
    always @(posedge clk) begin
       if (rst) begin
@@ -113,9 +105,7 @@ module osd_statctrlif
       nxt_mod_cs_stall = mod_cs_stall;
       
       debug_in_ready = 0;
-      debug_out.valid = 0;
-      debug_out.data = 0;
-      debug_out.last = 0;
+      debug_out = 0;
 
       reg_request = 0;
       

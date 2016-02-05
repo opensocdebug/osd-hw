@@ -90,7 +90,7 @@ module osd_dem_uart
         end
         1: begin
            c_uart_out.valid = 1;
-           c_uart_out.data = {4'b1000, 2'b00, 10'(id)};
+           c_uart_out.data = {2'b01, 4'h01, 10'(id)};
         end
         2: begin
            c_uart_out.valid = 1;

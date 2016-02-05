@@ -25,9 +25,10 @@ module osd_statctrlif
 
     output        stall);
 
-   localparam REQ_SIZE_16 = 2'b01;
-   localparam REQ_SIZE_32 = 2'b10;
-   localparam REQ_SIZE_64 = 2'b11;
+   localparam REQ_SIZE_16  = 2'b00;
+   localparam REQ_SIZE_32  = 2'b01;
+   localparam REQ_SIZE_64  = 2'b10;
+   localparam REQ_SIZE_128 = 2'b11;
 
    localparam REG_MODID   = 0;
    localparam REG_VERSION = 1;
@@ -50,14 +51,12 @@ module osd_statctrlif
         
    // Local request/response data
    reg                      req_write;
-   reg                      req_burst;
    reg [1:0]                req_size;
    reg [15:0]               req_addr;
    reg [MAX_REG_SIZE-1:0]   reqresp_value;
    reg [9:0]                resp_dest;
    reg                      resp_error;
    logic                    nxt_req_write;
-   logic                    nxt_req_burst;
    logic [1:0]              nxt_req_size;
    logic [15:0]             nxt_req_addr;
    logic [MAX_REG_SIZE-1:0] nxt_reqresp_value;
@@ -86,7 +85,6 @@ module osd_statctrlif
       reqresp_value <= nxt_reqresp_value;
       resp_error <= nxt_resp_error;
       req_write <= nxt_req_write;
-      req_burst <= nxt_req_burst;
       req_size <= nxt_req_size;
       req_addr <= nxt_req_addr;
    end
@@ -95,7 +93,6 @@ module osd_statctrlif
       nxt_state = state;
 
       nxt_req_write = req_write;
-      nxt_req_burst = req_burst;
       nxt_req_size = req_size;
       nxt_req_addr = req_addr;
       nxt_resp_dest = resp_dest;
@@ -119,7 +116,6 @@ module osd_statctrlif
         STATE_START: begin
            debug_in_ready = 1;
            nxt_req_write = (debug_in.data[12]);
-           nxt_req_burst = (debug_in.data[13]);
            nxt_req_size = debug_in.data[11:10];
            nxt_resp_dest = debug_in.data[9:0];
            nxt_resp_error = 0;
@@ -160,7 +156,7 @@ module osd_statctrlif
               end
 
               if (debug_in.valid) begin
-                 if (nxt_req_write) begin
+                 if (req_write) begin
                     if (debug_in.last) begin
                        nxt_resp_error = 1;
                        nxt_state = STATE_RESP_START;

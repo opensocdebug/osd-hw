@@ -10,9 +10,10 @@ case object MamIOBusrtMax extends Field[Int]
 trait HasMamParameters {
   implicit val p: Parameters
   val mamDataWidth = p(MamIODataWidth)
-  val mamStrbWidth = mamDataWidth / 8
+  val mamByteWidth = mamDataWidth / 8
   val mamAddrWidth = p(MamIOAddrWidth)
   val mamBurstSizeWidth = log2Up(p(MamIOBusrtMax))
+  val mamBurstByteSizeWidth = log2Up(p(MamIOBusrtMax) * mamByteWidth)
   require(isPow2(mamDataWidth))
 }
 
@@ -33,13 +34,16 @@ class MamData(implicit p: Parameters) extends MamBundle()(p) {
 }
 
 class MamWData(implicit p: Parameters) extends MamData()(p) {
-  val strb = UInt(width = mamStrbWidth)
+  val strb = UInt(width = mamByteWidth)
 }
 
 class MamRData(implicit p: Parameters) extends MamData()(p)
 
-class MamIO(implicit val p:Parameters) extends ParameterizedBundle()(p) {
+class MamIOReqChannel (implicit val p:Parameters) extends ParameterizedBundle()(p) {
   val req = Decoupled(new MamReq)
+}
+
+class MamIO(implicit val p:Parameters) extends MamIOReqChannel()(p) {
   val wdata = Decoupled(new MamWData)
   val rdata = Decoupled(new MamRData).flip
 }

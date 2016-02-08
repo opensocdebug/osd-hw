@@ -1,7 +1,7 @@
 
 import dii_package::dii_flit;
 
-module osd_statctrlif
+module osd_regaccess
   #(parameter MODID = 'x,
     parameter MODVERSION = 'x,
     parameter CAN_STALL = 0,

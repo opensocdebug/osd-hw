@@ -35,7 +35,7 @@ module osd_dem_uart
    dii_flit c_ctrlstat_out; logic c_ctrlstat_out_ready;
    dii_flit c_uart_out; logic c_uart_out_ready;
    
-   osd_statctrlif
+   osd_regaccess
      #(.MODID(16'h2), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1))
    u_statctrlif(.*,

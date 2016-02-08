@@ -21,7 +21,7 @@ module osd_scm
    logic        reg_err;
    logic [15:0] reg_rdata;
    
-   osd_statctrlif
+   osd_regaccess
      #(.MODID(16'h1), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16))
    u_statctrlif(.*,

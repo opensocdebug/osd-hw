@@ -26,7 +26,7 @@ module osd_scm
 
    logic [1:0]  rst_vector;
    assign sys_rst = rst_vector[0] | rst;
-   assign cpu_rst = rst_vector[1];
+   assign cpu_rst = rst_vector[1] | rst;
    
    osd_regaccess
      #(.MODID(16'h1), .MODVERSION(16'h0),

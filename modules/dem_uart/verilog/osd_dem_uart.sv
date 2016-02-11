@@ -32,24 +32,17 @@ module osd_dem_uart
    
    logic        stall;
 
-   dii_flit c_ctrlstat_out; logic c_ctrlstat_out_ready;
-   dii_flit c_uart_out; logic c_uart_out_ready;
+   dii_flit c_uart_out, c_uart_in;
+   logic        c_uart_out_ready, c_uart_in_ready;
    
-   osd_statctrlif
+   osd_regaccess_layer
      #(.MODID(16'h2), .MODVERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1))
-   u_statctrlif(.*,
-                .debug_out (c_ctrlstat_out),
-                .debug_out_ready (c_ctrlstat_out_ready));
-
-   ring_router_mux
-     u_mux(.*,
-           .in_local (c_uart_out),
-           .in_local_ready (c_uart_out_ready),
-           .in_ring (c_ctrlstat_out),
-           .in_ring_ready (c_ctrlstat_out_ready),
-           .out_mux    (debug_out),
-           .out_mux_ready    (debug_out_ready));
+   u_regaccess(.*,
+               .module_in (c_uart_out),
+               .module_in_ready (c_uart_out_ready),
+               .module_out (c_uart_in),
+               .module_out_ready (c_uart_in_ready));
 
    reg [1:0]    state;
    
@@ -90,7 +83,7 @@ module osd_dem_uart
         end
         1: begin
            c_uart_out.valid = 1;
-           c_uart_out.data = {4'b1000, 2'b00, 10'(id)};
+           c_uart_out.data = {2'b01, 4'h01, 10'(id)};
         end
         2: begin
            c_uart_out.valid = 1;

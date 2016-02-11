@@ -1,7 +1,7 @@
 
 import dii_package::dii_flit;
 
-module osd_statctrlif
+module osd_regaccess
   #(parameter MODID = 'x,
     parameter MODVERSION = 'x,
     parameter CAN_STALL = 0,
@@ -22,12 +22,12 @@ module osd_statctrlif
     input         reg_err,
     input [15:0]  reg_rdata,
 
-
     output        stall);
 
-   localparam REQ_SIZE_16 = 2'b01;
-   localparam REQ_SIZE_32 = 2'b10;
-   localparam REQ_SIZE_64 = 2'b11;
+   localparam REQ_SIZE_16  = 2'b00;
+   localparam REQ_SIZE_32  = 2'b01;
+   localparam REQ_SIZE_64  = 2'b10;
+   localparam REQ_SIZE_128 = 2'b11;
 
    localparam REG_MODID   = 0;
    localparam REG_VERSION = 1;
@@ -50,14 +50,12 @@ module osd_statctrlif
         
    // Local request/response data
    reg                      req_write;
-   reg                      req_burst;
    reg [1:0]                req_size;
    reg [15:0]               req_addr;
    reg [MAX_REG_SIZE-1:0]   reqresp_value;
    reg [9:0]                resp_dest;
    reg                      resp_error;
    logic                    nxt_req_write;
-   logic                    nxt_req_burst;
    logic [1:0]              nxt_req_size;
    logic [15:0]             nxt_req_addr;
    logic [MAX_REG_SIZE-1:0] nxt_reqresp_value;
@@ -86,7 +84,6 @@ module osd_statctrlif
       reqresp_value <= nxt_reqresp_value;
       resp_error <= nxt_resp_error;
       req_write <= nxt_req_write;
-      req_burst <= nxt_req_burst;
       req_size <= nxt_req_size;
       req_addr <= nxt_req_addr;
    end
@@ -95,7 +92,6 @@ module osd_statctrlif
       nxt_state = state;
 
       nxt_req_write = req_write;
-      nxt_req_burst = req_burst;
       nxt_req_size = req_size;
       nxt_req_addr = req_addr;
       nxt_resp_dest = resp_dest;
@@ -119,7 +115,6 @@ module osd_statctrlif
         STATE_START: begin
            debug_in_ready = 1;
            nxt_req_write = (debug_in.data[12]);
-           nxt_req_burst = (debug_in.data[13]);
            nxt_req_size = debug_in.data[11:10];
            nxt_resp_dest = debug_in.data[9:0];
            nxt_resp_error = 0;
@@ -137,7 +132,10 @@ module osd_statctrlif
 
            if (addr_is_ext) begin
               nxt_req_addr = debug_in.data;
-              nxt_state = STATE_EXT_START;
+              if (req_write)
+                nxt_state = STATE_WRITE;
+              else
+                nxt_state = STATE_EXT_START;
            end else begin
               if (req_write) begin
                  // LOCAL WRITE
@@ -160,7 +158,7 @@ module osd_statctrlif
               end
 
               if (debug_in.valid) begin
-                 if (nxt_req_write) begin
+                 if (req_write) begin
                     if (debug_in.last) begin
                        nxt_resp_error = 1;
                        nxt_state = STATE_RESP_START;
@@ -183,24 +181,32 @@ module osd_statctrlif
            debug_in_ready = 1;
           
            if (debug_in.valid) begin
-              case (req_addr)
-                REG_CS: begin
-                   if (debug_in.data[15:11] === CS_STALL) begin
-                      if (!CAN_STALL) begin
-                         nxt_resp_error = 1;
-                      end else begin
-                         nxt_mod_cs_stall = debug_in.data[0];
-                      end
-                   end else begin
-                      nxt_resp_error = 1;
-                   end
-                end
-              endcase // case (req_addr)
-              
-              if (debug_in.last) begin
-                 nxt_state = STATE_RESP_START;
+              nxt_reqresp_value = debug_in.data;
+              if (req_addr[15:9] != 0) begin
+                 if (debug_in.last)
+                   nxt_state = STATE_EXT_START;
+                 else
+                   nxt_state = STATE_DROP;
               end else begin
-                 nxt_state = STATE_DROP;
+                 case (req_addr)
+                   REG_CS: begin
+                      if (debug_in.data[15:11] === CS_STALL) begin
+                         if (!CAN_STALL) begin
+                            nxt_resp_error = 1;
+                         end else begin
+                            nxt_mod_cs_stall = debug_in.data[0];
+                         end
+                      end else begin
+                         nxt_resp_error = 1;
+                      end
+                   end
+                 endcase // case (req_addr)
+                 
+                 if (debug_in.last) begin
+                    nxt_state = STATE_RESP_START;
+                 end else begin
+                    nxt_state = STATE_DROP;
+                 end
               end
            end
         end
@@ -237,8 +243,8 @@ module osd_statctrlif
 
         STATE_EXT_START: begin
            reg_request = 1;
-           nxt_reqresp_value = reg_rdata;
            if (reg_ack | reg_err) begin
+              nxt_reqresp_value = reg_rdata;
               nxt_resp_error = reg_err;
               nxt_state = STATE_RESP_START;
            end

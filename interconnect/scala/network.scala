@@ -60,8 +60,3 @@ class DebugNetworkDemultiplexer(ops:Int)(route: DiiFlit => UInt) extends DebugNe
   })
   io.ip(0).ready := io.op(selection).ready
 }
-
-def local_id_route(id:Int)(flit: DiiFlit):UInt = {
-  if (flit.data(9,0) === UInt(id)) UInt(0)
-  else UInt(1)
-}

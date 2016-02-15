@@ -31,10 +31,20 @@ class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
   }
 }
 
-/** Multiplexer for debug network
+/** Multiplexer for debug network (static)
   * params ips Number of input ports
   */
 class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
+  val arb = Module(new DebugWormholeArbiter(new DiiFlit,ips))
+  io.ip <> arb.in
+  io.op <> arb.out
+}
 
-
+/** Multiplexer for debug network (round-robin)
+  * params ips Number of input ports
+  */
+class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
+  val arb = Module(new DebugWormholeRRArbiter(new DiiFlit,ips))
+  io.ip <> arb.in
+  io.op <> arb.out
 }

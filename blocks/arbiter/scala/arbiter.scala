@@ -16,7 +16,7 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit, A <: LockingArbiterLike](g
   val io = new ArbiterIO(gen, n)
 
   val chosen = Vec(n, Reg(init=Bool(false)))
-  val arbiter = new Module(new arb)
+  val arbiter = Module(arb)
 
   chosen.zipWithIndex.map( (c, i) => {
     c := arbiter.in(i).fire() && !io.in(i).bits.last
@@ -34,10 +34,10 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit, A <: LockingArbiterLike](g
 /** Static priority arbiter
   */
 class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)(Arbiter(gen,n,true))
+    DebugWormholeArbiterLike(gen,n)(new Arbiter(gen,n,true))
 
 /** Round-robin arbiter
   */
-class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)(RRArbiter(gen,n,true))
+class DebugWormholeRRArbiter[T <: DiiFlit](gen: T, n:Int) extends
+    DebugWormholeArbiterLike(gen,n)(new RRArbiter(gen,n,true))
 

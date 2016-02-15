@@ -32,19 +32,36 @@ class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
 }
 
 /** Multiplexer for debug network (static)
-  * params ips Number of input ports
+  * @param ips Number of input ports
   */
 class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
   val arb = Module(new DebugWormholeArbiter(new DiiFlit,ips))
   io.ip <> arb.in
-  io.op <> arb.out
+  io.op(0) <> arb.out
 }
 
 /** Multiplexer for debug network (round-robin)
-  * params ips Number of input ports
+  * @param ips Number of input ports
   */
 class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
   val arb = Module(new DebugWormholeRRArbiter(new DiiFlit,ips))
   io.ip <> arb.in
-  io.op <> arb.out
+  io.op(0) <> arb.out
+}
+
+/** Demultiplexer for debug network
+  * @param ops Number of output ports
+  */
+class DebugNetworkDemultiplexer(ops:Int)(route: DiiFlit => UInt) extends DebugNetworkConnector(1,ops) {
+  val selection = route(io.ip(0).bits)
+  io.op.zipWithIndex.map ( (o, i) => {
+    o.valid := selection === UInt(i)
+    o.bits := io.ip(0)
+  })
+  io.ip(0).ready := io.op(selection).ready
+}
+
+def local_id_route(id:Int)(flit: DiiFlit):UInt = {
+  if (flit.data(9,0) === UInt(id)) UInt(0)
+  else UInt(1)
 }

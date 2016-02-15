@@ -55,3 +55,40 @@ class DebugRingRouter(id:Int, buf_len:Int) extends ExpandibleDebugNetwork(1,2) {
   ring0_mux.io.op(0) <> ring0_buffer.io.ip(0)
   local_mux.io.op(0) <> local_buffer.io.ip(0)
 }
+
+
+/** Ring network with expandible ports
+  */
+class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) extends
+    ExpandibleDebugNetwork(nodes, 2)
+{
+
+  require(nodes > 1)
+
+  val routers = (0 until nodes).map(id => Module(new DebugRingRouter(id_assign(id),buf_len)))
+
+  io.loc.zipWithIndex.map ( (loc, i) => {
+    val router = routers(i)
+    loc <> router.io.loc
+    i match {
+      case 0 => {
+        router.io.net(0).dii_in <> io.net(0).dii_in
+        router.io.net(1).dii_in <> io.net(1).dii_in
+        router.io.net(0).dii_out <> routers(1).io.net(0).dii_in
+        router.io.net(1).dii_out <> routers(1).io.net(1).dii_in
+      }
+      case nodes-1 => {
+        router.io.net(0).dii_in <> routers(nodes-2).io.net(0).dii_out
+        router.io.net(1).dii_in <> routers(nodes-2).io.net(1).dii_out
+        router.io.net(0).dii_out <> io.net(0).dii_out
+        router.io.net(1).dii_out <> io.net(1).dii_out
+      }
+      case other => {
+        router.io.net(0).dii_in <> routers(i-1).io.net(0).dii_out
+        router.io.net(1).dii_in <> routers(i-1).io.net(1).dii_out
+        router.io.net(0).dii_out <> routers(i+1).io.net(0).dii_in
+        router.io.net(1).dii_out <> routers(i+1).io.net(1).dii_in
+      }
+    }
+  })
+}

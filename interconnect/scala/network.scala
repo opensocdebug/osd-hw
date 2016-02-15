@@ -35,4 +35,6 @@ class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
   * params ips Number of input ports
   */
 class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
+
+
 }

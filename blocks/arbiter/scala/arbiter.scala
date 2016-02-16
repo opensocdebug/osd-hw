@@ -10,7 +10,7 @@ import Chisel._
   * @param n Number of input ports
   * @param arb Arbiter generation function
   */
-abstract class DebugWormholeArbiterLike[T <: DiiFlit, A <: LockingArbiterLike](gen: T, n:Int)(arb: () => A)
+abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: LockingArbiterLike[T])
     extends Module
 {
   val io = new ArbiterIO(gen, n)
@@ -18,15 +18,18 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit, A <: LockingArbiterLike](g
   val chosen = Vec(n, Reg(init=Bool(false)))
   val arbiter = Module(arb)
 
-  chosen.zipWithIndex.map( (c, i) => {
-    c := arbiter.in(i).fire() && !io.in(i).bits.last
+  chosen.zipWithIndex.foreach{ case (c, i) => {
+    c := arbiter.io.in(i).fire() && !io.in(i).bits.last
 
-    arbiter.in(i).valid := io.in(i).valid || c
-    arbiter.in(i).bits := io.in(i).bits
-    io.in(i).ready := arbiter.in(i).ready
-  })
+    arbiter.io.in(i).valid := io.in(i).valid || c
+    arbiter.io.in(i).bits := io.in(i).bits
+    io.in(i).ready := arbiter.io.in(i).ready
+  }}
 
-  io.out.valid := Mux(chosen.orR, (io.in chosen).zipped.map(_||_).reduce(_||_), arbiter.io.out.valid)
+  io.out.valid := Mux(chosen.toBits.orR,
+    (io.in, chosen).zipped.map(_.valid && _).reduce(_||_),
+    arbiter.io.out.valid)
+
   io.out.bits := arbiter.io.out.bits
   arbiter.io.out.ready := io.out.ready
 }
@@ -40,4 +43,3 @@ class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int) extends
   */
 class DebugWormholeRRArbiter[T <: DiiFlit](gen: T, n:Int) extends
     DebugWormholeArbiterLike(gen,n)(new RRArbiter(gen,n,true))
-

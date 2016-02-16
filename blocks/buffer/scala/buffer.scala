@@ -9,7 +9,7 @@ import Chisel._
 class DebugNetworkBufferLike(width:Int, length:Int) extends
     DebugNetworkConnector(width, width)
 {
-  io.ip zip io.op map ((i,o) => o <> Queue(i, length))
+  io.ip zip io.op foreach { case (i,o) => o <> Queue(i, length) }
 }
 
 class DebugNetworkBuffer(length:Int) extends DebugNetworkBufferLike(1, length)

@@ -3,7 +3,7 @@ package open_soc_debug
 
 import Chisel._
 
-trait HasDebugNetworkParameters extends UseParameters
+trait HasDebugNetworkParameters extends UsesParameters
 
 abstract class DebugNetworkModule extends Module with HasDebugNetworkParameters
 abstract class DebugNetworkBundle extends Bundle with HasDebugNetworkParameters
@@ -36,8 +36,8 @@ class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
   */
 class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
   val arb = Module(new DebugWormholeArbiter(new DiiFlit,ips))
-  io.ip <> arb.in
-  io.op(0) <> arb.out
+  io.ip <> arb.io.in
+  io.op(0) <> arb.io.out
 }
 
 /** Multiplexer for debug network (round-robin)
@@ -45,8 +45,8 @@ class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
   */
 class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
   val arb = Module(new DebugWormholeRRArbiter(new DiiFlit,ips))
-  io.ip <> arb.in
-  io.op(0) <> arb.out
+  io.ip <> arb.io.in
+  io.op(0) <> arb.io.out
 }
 
 /** Demultiplexer for debug network
@@ -54,9 +54,9 @@ class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
   */
 class DebugNetworkDemultiplexer(ops:Int)(route: DiiFlit => UInt) extends DebugNetworkConnector(1,ops) {
   val selection = route(io.ip(0).bits)
-  io.op.zipWithIndex.map ( (o, i) => {
+  io.op.zipWithIndex.foreach { case (o, i) => {
     o.valid := selection === UInt(i)
     o.bits := io.ip(0)
-  })
+  }}
   io.ip(0).ready := io.op(selection).ready
 }

@@ -1,5 +1,6 @@
 
 import dii_package::dii_flit;
+import dii_package::dii_flit_assemble;
 
 module dii_buffer
   #(

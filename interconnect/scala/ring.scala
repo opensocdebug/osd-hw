@@ -91,3 +91,17 @@ class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) exten
     }
   }}
 }
+
+/** A stand-slone Ring network
+  */
+class RingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) extends
+    DebugNetwork(nodes)
+{
+
+  val ring = Module(new ExpandibleRingNetwork(id_assign,nodes, buf_len))
+
+  io.loc <> ring.io.loc
+  ring.io.net(0).dii_in.valid := Bool(false)
+  ring.io.net(1).dii_in <> ring.io.net(0).dii_out
+  ring.io.net(1).dii_out.ready := Bool(true)
+}

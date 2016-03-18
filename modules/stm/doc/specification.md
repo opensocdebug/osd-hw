@@ -153,11 +153,11 @@ In RISC-V an additional control register is added to emit a trace
 event (non-standard for the moment). A write to this register triggers
 the emission of the trace event for one cycle.
 
-Beside this, the general purpose register `x18` (`a0`) is tracked for
+Beside this, the general purpose register `x10` (`a0`) is tracked for
 updates as the trace event value, identical to the reasoning for
 OpenRISC.
 
-Finally the register `x15` (`tp`) may also be tracked and a
+Finally the register `x4` (`tp`) may also be tracked and a
 `THREAD_SWICH` trace event is emitted on updates to the register.
 
 ## Software Trace Port: Other cores

@@ -63,33 +63,16 @@ class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) exten
 {
 
   require(nodes > 1)
-  val last_index = nodes - 1
   val routers = (0 until nodes).map(id => Module(new DebugRingRouter(id_assign(id),buf_len)))
 
   io.loc.zipWithIndex.foreach { case (loc, i) => {
     val router = routers(i)
-    loc <> router.io.loc
-    i match {
-      case 0 => {
-        router.io.net(0).dii_in <> io.net(0).dii_in
-        router.io.net(1).dii_in <> io.net(1).dii_in
-        router.io.net(0).dii_out <> routers(1).io.net(0).dii_in
-        router.io.net(1).dii_out <> routers(1).io.net(1).dii_in
-      }
-      case `last_index` => {
-        router.io.net(0).dii_in <> routers(nodes-2).io.net(0).dii_out
-        router.io.net(1).dii_in <> routers(nodes-2).io.net(1).dii_out
-        router.io.net(0).dii_out <> io.net(0).dii_out
-        router.io.net(1).dii_out <> io.net(1).dii_out
-      }
-      case other => {
-        router.io.net(0).dii_in <> routers(i-1).io.net(0).dii_out
-        router.io.net(1).dii_in <> routers(i-1).io.net(1).dii_out
-        router.io.net(0).dii_out <> routers(i+1).io.net(0).dii_in
-        router.io.net(1).dii_out <> routers(i+1).io.net(1).dii_in
-      }
-    }
+    loc <> router.io.loc(0)
+    router.io.net(0).dii_in <> (if(i==0) io.net(0).dii_in else routers(i-1).io.net(0).dii_out)
+    router.io.net(1).dii_in <> (if(i==0) io.net(1).dii_in else routers(i-1).io.net(1).dii_out)
   }}
+  routers(nodes-1).io.net(0).dii_out <> io.net(0).dii_out
+  routers(nodes-1).io.net(1).dii_out <> io.net(1).dii_out
 }
 
 /** A stand-slone Ring network

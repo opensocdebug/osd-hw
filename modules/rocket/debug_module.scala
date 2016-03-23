@@ -2,9 +2,11 @@ package open_soc_debug
 
 import Chisel._
 
+case object UseDebug extends Field[Boolean]
 case object DebugCtmID extends Field[Int]
 case object DebugStmID extends Field[Int]
 case object DebugStmCsrAddr extends Field[Int]
+case object DebugBaseID extends Field[Int]
 case object DebugRouterBufferSize extends Field[Int]
 
 trait HasDebugModuleParameters extends UsesParameters {
@@ -18,6 +20,9 @@ trait HasDebugModuleParameters extends UsesParameters {
                                   // the CSR used for software trace
   val ctmID = params(DebugCtmID)  // the debug module ID of the core trace module
   val stmID = params(DebugStmID)  // the debug module ID of the software trace module
+  val baseID = params(DebugBaseID)
+                                  // the starting ID for rocket cores
+  val subIDSize = 8               // the section size of each core
   val bufSize = params(DebugRouterBufferSize)
                                   // the size of buffer of the ring network
 }
@@ -31,7 +36,7 @@ class DebugModuleIO extends DebugModuleBundle {
 }
 
 class DebugModuleBBoxIO extends DebugModuleBundle {
-  val net = new DiiIOBBox
+  val net = new DiiBBoxIO
 }
 
 class RocketDebugNetwork(coreid:Int) extends DebugModuleModule {
@@ -41,12 +46,12 @@ class RocketDebugNetwork(coreid:Int) extends DebugModuleModule {
     val stm = (new DiiIO).flip
   }
 
-  def route = match _ {
-    case 0 => ctmID
-    case 1 => stmID
+  def idAssign: Int => Int = _ match {
+    case 0 => baseID + coreid*subIDSize + ctmID
+    case 1 => baseID + coreid*subIDSize + stmID
   }
 
-  val network = Module(new ExpandibleRingNetwork(route, 2, bufSize))
+  val network = Module(new ExpandibleRingNetwork(idAssign, 2, bufSize))
 
   network.io.loc(0) <> io.ctm
   network.io.loc(1) <> io.stm

@@ -40,7 +40,7 @@ class DiiBBoxIO extends DiiBundle {
 }
 
 class DiiBBoxPort extends DiiModule {
-  val io = new bundle {
+  val io = new Bundle {
     val bbox = (new DiiBBoxIO)
     val chisel = (new DiiIO).flip
   }
@@ -50,12 +50,13 @@ class DiiBBoxPort extends DiiModule {
 
   val w = (new DiiFlit).getWidth
   io.chisel.dii_in.valid := io.bbox.dii_in(w)
-  io.chisel.dii_in.bits := io.bbox.dii_in
+  io.chisel.dii_in.bits.last := io.bbox.dii_in(w-1)
+  io.chisel.dii_in.bits.data := io.bbox.dii_in
   io.bbox.dii_in_ready := io.chisel.dii_in.ready
 }
 
 class DiiPort extends DiiModule {
-  val io = new bundle {
+  val io = new Bundle {
     val chisel = (new DiiIO)
     val bbox = (new DiiBBoxIO).flip
   }
@@ -65,7 +66,8 @@ class DiiPort extends DiiModule {
 
   val w = (new DiiFlit).getWidth
   io.chisel.dii_out.valid := io.bbox.dii_out(w)
-  io.chisel.dii_out.bits := io.bbox.dii_out
+  io.chisel.dii_out.bits.last := io.bbox.dii_out(w-1)
+  io.chisel.dii_out.bits.data := io.bbox.dii_out
   io.bbox.dii_out_ready := io.chisel.dii_out.ready
 }
 

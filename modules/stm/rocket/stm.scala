@@ -21,7 +21,7 @@ class SoftwareTraceIO extends DebugModuleBBoxIO {
 }
 
 // black box wrapper
-class SoftwareTracer extends BlackBox with HasDebugModuleParameters {
+class osd_stm extends BlackBox with HasDebugModuleParameters {
   val io = new SoftwareTraceIO
 
   addClock(Driver.implicitClock)
@@ -41,7 +41,7 @@ class RocketSoftwareTraceIO extends DebugModuleIO {
 class RocketSoftwareTracer(latch:Boolean = false) extends DebugModuleModule {
   val io = new RocketSoftwareTraceIO
 
-  val tracer = Module(new SoftwareTracer)
+  val tracer = Module(new osd_stm)
   val bbox_port = Module(new DiiPort)
   io.net <> bbox_port.io.chisel
   bbox_port.io.bbox <> tracer.io.net

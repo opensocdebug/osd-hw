@@ -13,7 +13,7 @@ module osd_stm
 
     input                  trace_valid,
     input [15:0]           trace_id,
-    input [63:0]           trace_value,
+    input [63:0]           trace_value
     );
 
 endmodule // osd_stm

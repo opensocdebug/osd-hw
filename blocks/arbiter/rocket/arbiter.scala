@@ -10,56 +10,36 @@ import Chisel._
   * @param n Number of input ports
   * @param arb Arbiter generation function
   */
-abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)
+abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => LockingArbiterLike[T])
     extends Module
 {
   val io = new ArbiterIO(gen, n)
 
   val chosen = Reg(Vec(n, Bool()))
-  val arb_in  = Wire(Vec(n,  Decoupled(gen)))
-  val arb_out = Wire(Decoupled(gen))
+  val arbiter = Module(arb)
 
   chosen.zipWithIndex.foreach{ case (c, i) => {
-    c := arb_in(i).fire() && !io.in(i).bits.last
+    c := arbiter.io.in(i).fire() && !io.in(i).bits.last
 
-    arb_in(i).valid := io.in(i).valid || c
-    arb_in(i).bits := io.in(i).bits
-    io.in(i).ready := arb_in(i).ready
+    arbiter.io.in(i).valid := io.in(i).valid || c
+    arbiter.io.in(i).bits := io.in(i).bits
+    io.in(i).ready := arbiter.io.in(i).ready
   }}
 
   io.out.valid := Mux(chosen.toBits.orR,
     (io.in, chosen).zipped.map(_.valid && _).reduce(_||_),
-    arb_out.valid)
+    arbiter.io.out.valid)
 
-  io.out.bits := arb_out.bits
-  arb_out.ready := io.out.ready
-
-  def connect(arb: ArbiterIO[T]) = {
-    (0 until n).foreach ( i => {
-      arb.in(i).valid := arb_in(i).valid
-      arb.in(i).bits := arb_in(i).bits
-      arb_in(i).ready := arb.in(i).ready
-    })
-    arb_out.valid := arb.out.valid
-    arb_out.bits := arb.out.bits
-    arb.out.ready := arb_out.ready
-  }
+  io.out.bits := arbiter.io.out.bits
+  arbiter.io.out.ready := io.out.ready
 }
 
 /** Static priority arbiter
   */
 class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)
-{
-  val arbiter = Module(new Arbiter(gen,n,true))
-  connect(arbiter.io)
-}
+    DebugWormholeArbiterLike(gen,n)(new Arbiter(gen,n,true))
 
 /** Round-robin arbiter
   */
 class DebugWormholeRRArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)
-{
-  val arbiter = Module(new RRArbiter(gen,n,true))
-  connect(arbiter.io)
-}
+    DebugWormholeArbiterLike(gen,n)(new RRArbiter(gen,n,true))

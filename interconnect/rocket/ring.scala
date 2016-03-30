@@ -3,7 +3,6 @@ package open_soc_debug
 
 import Chisel._
 
-
 /** Ring router
   * Basic element for a ring network
   * 1 local node, 2 expandible ports
@@ -54,7 +53,6 @@ class DebugRingRouter(id:Int, buf_len:Int) extends ExpandibleDebugNetwork(1,2) {
   ring0_mux.io.op(0) <> ring0_buffer.io.ip(0)
   local_mux.io.op(0) <> local_buffer.io.ip(0)
 }
-
 
 /** Ring network with expandible ports
   */

@@ -59,10 +59,10 @@ class RocketCoreTraceIO extends DebugModuleIO {
   val wb_jal = Bool(INPUT)
   val wb_jalr = Bool(INPUT)
   val wb_br = Bool(INPUT)
-  val wb_mem = Bool()
+  val wb_mem = Bool(INPUT)
   val wb_mem_cmd = UInt(INPUT, width=memOpSize)
   val wb_xcpt = Bool(INPUT)
-  val wb_csr = Bool()
+  val wb_csr = Bool(INPUT)
   val wb_csr_cmd = UInt(INPUT, width=csrCmdWidth)
   val wb_csr_addr = UInt(INPUT, width=csrAddrWidth)
 
@@ -76,7 +76,8 @@ class RocketCoreTraceIO extends DebugModuleIO {
   val csr_evec = UInt(INPUT, width=sysWordLength)
   val csr_time = UInt(INPUT, width=sysWordLength)
 
-  val dmem_replay = Bool()
+  val dmem_has_data = Bool(INPUT)
+  val dmem_replay = Bool(INPUT)
   val dmem_rdata = UInt(INPUT, width=sysWordLength)
   val dmem_wdata = UInt(INPUT, width=sysWordLength)
   val dmem_addr = UInt(INPUT, width=sysWordLength)
@@ -100,6 +101,7 @@ class RocketCoreTracer(coreid:Int,
   io.net <> bbox_port.io.chisel
   bbox_port.io.bbox <> tracer.io.net
   tracer.io.id := UInt(baseID + coreid*subIDSize + ctmID)
+  tracer.io.trace.valid := Bool(false)
 
   def input_latch[T <: Data](in:T):T = if(latch) RegNext(in) else in
 
@@ -125,32 +127,87 @@ class RocketCoreTracer(coreid:Int,
   val csr_wdata       = input_latch(io.csr_wdata)
   val csr_time        = input_latch(io.csr_time)
 
+  val dmem_has_data   = input_latch(io.dmem_has_data)
   val dmem_replay     = input_latch(io.dmem_replay)
   val dmem_rdata      = input_latch(io.dmem_rdata)
   val dmem_wdata      = input_latch(io.dmem_wdata)
   val dmem_addr       = input_latch(io.dmem_addr)
 
-  when(wb_valid || csr_xcpt || csr_eret) { // an instruction is retired
-    tracer.io.trace.valid := wb_valid && (wb_jal || wb_jalr || wb_br || wb_xcpt || wb_mem || wb_csr) || csr_xcpt || csr_reset
-    trace.pc := wb_pc
-    trace.npc := Mux(wb_xcpt || csr_xcpt || csr_eret, wb_xcpt_npc, wb_br_npc)
-    trace.jal := wb_jal
-    trace.jalr := wb_jalr
-    trace.br := wb_br
-    trace.load := wb_mem && isRead(wb_mem_cmd) || wb_csr && isCsrRead(wb_csr_cmd, wb_csr_addr)
-    trace.store := wb_mem && isWrite(wb_mem_cmd) || wb_csr && isCsrWrite(wb_csr_cmd, wb_csr_addr)
-    trace.trap := csr_xcpt && isCsrTrap(wb_csr_cmd, wb_csr_addr)
-    trace.xcpt := wb_xcpt || csr_xcpt && !isTrap(wb_csr_cmd, wb_csr_addr)
-    trace.csr := wb_csr
-    trace.mem := wb_mem
-    trace.taken := wb_br_taken
-    trace.prv := csr_prv
-    trace.addr := dmem_addr
-    trace.rdata := Mux(wb_mem, dmem_rdata, wb_wdata)
-    trace.wdata := Mux(wb_mem, dmem_wdata, csr_wdata)
-    trace.time := csr_time
-  }
+  val retire_event = wb_valid && (wb_jal || wb_jalr || wb_br || wb_xcpt || wb_mem && (dmem_has_data || !isRead(wb_mem_cmd)) || wb_csr) || csr_xcpt || csr_eret
+
+  tracer.io.trace.valid := retire_event
+  trace.pc := wb_pc
+  trace.npc := Mux(wb_xcpt || csr_xcpt || csr_eret, wb_xcpt_npc, wb_br_npc)
+  trace.jal := wb_jal
+  trace.jalr := wb_jalr
+  trace.br := wb_br
+  trace.load := wb_mem && isRead(wb_mem_cmd) || wb_csr && isCsrRead(wb_csr_cmd, wb_csr_addr)
+  trace.store := wb_mem && isWrite(wb_mem_cmd) || wb_csr && isCsrWrite(wb_csr_cmd, wb_csr_addr)
+  trace.trap := csr_xcpt && isCsrTrap(wb_csr_cmd, wb_csr_addr)
+  trace.xcpt := wb_xcpt || csr_xcpt && !isCsrTrap(wb_csr_cmd, wb_csr_addr)
+  trace.csr := wb_csr
+  trace.mem := wb_mem
+  trace.taken := wb_br_taken
+  trace.prv := csr_prv
+  trace.addr := dmem_addr
+  trace.rdata := Mux(wb_mem, dmem_rdata, wb_wdata)
+  trace.wdata := Mux(wb_mem, dmem_wdata, csr_wdata)
+  trace.time := csr_time
 
   // handle cache miss
+  val sb = new Scoreboard(ctmScoreBoardSize)
 
+  when(wb_valid && wb_mem && !dmem_has_data) { // non-blocked cache miss
+    sb.add(dmem_addr, csr_time)
+  }
+
+  when(dmem_replay && dmem_has_data) { // dcache replay
+    sb.replay(dmem_addr, dmem_rdata)
+  }
+
+  when(!retire_event && sb.fire) {
+    tracer.io.trace.valid := Bool(true)
+    trace.load := Bool(true)
+    trace.mem := Bool(true)
+    trace.addr := sb.addr
+    trace.rdata := sb.data
+    trace.time := sb.time
+    sb.clear
+  }
+
+  class Scoreboard(n:Int) {
+    private val availQ = Reg(init = Bits(1,n))
+    private val fillQ = Reg(init = Bits(0,n))
+    private val fireQ = ~availQ & fillQ
+    private val addrQ = Reg(Vec(n, UInt(width=sysWordLength)))
+    private val timeQ = Reg(Vec(n, UInt(width=sysWordLength)))
+    private val dataQ = Reg(Vec(n, UInt(width=sysWordLength)))
+
+    private val add_index = PriorityEncoder(availQ)
+    private val fire_index = PriorityEncoder(fireQ)
+
+    val fire = orR(fireQ)
+    val addr = addrQ(fire_index)
+    val data = dataQ(fire_index)
+    val time = timeQ(fire_index)
+
+    def add(a:UInt, t:UInt) = {
+      availQ(add_index) := Bool(false)
+      fillQ(add_index) := Bool(false)
+      addrQ(add_index) := a
+      timeQ(add_index) := t
+    }
+    def replay(a:UInt, d:UInt) = {
+     addrQ.zipWithIndex.zip(dataQ).map{ case((addr, i), data) => {
+        when(addr === a) {
+          data := d
+          fillQ(i) := Bool(true)
+        }
+      }}
+    }
+    def clear = {
+      availQ(fire_index) := Bool(true)
+    }
+
+  }
 }

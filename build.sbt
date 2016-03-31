@@ -10,6 +10,7 @@ unmanagedSourceDirectories in Compile <++= baseDirectory { base =>
     base / "blocks/arbiter/rocket",
     base / "modules/rocket",
     base / "modules/mam/rocket",
-    base / "modules/stm/rocket"
+    base / "modules/stm/rocket",
+    base / "modules/ctm/rocket"
   )
 }

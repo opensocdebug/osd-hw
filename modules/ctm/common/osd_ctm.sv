@@ -26,6 +26,7 @@ module osd_ctm
     input                  trace_store,
     input                  trace_trap,
     input                  trace_xcpt,
+    input                  trace_mem,
     input                  trace_csr,
     input                  trace_br_taken,
     input [1:0]            trace_prv,

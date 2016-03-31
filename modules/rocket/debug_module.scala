@@ -5,6 +5,7 @@ import Chisel._
 case object UseDebug extends Field[Boolean]
 case object DebugCtmID extends Field[Int]
 case object DebugStmID extends Field[Int]
+case object DebugCtmScorBoardSize extends Field[Int]
 case object DebugStmCsrAddr extends Field[Int]
 case object DebugBaseID extends Field[Int]
 case object DebugRouterBufferSize extends Field[Int]
@@ -15,6 +16,8 @@ trait HasDebugModuleParameters extends UsesParameters {
   val csrAddrWidth = 12           // address width of CSRs
   val csrCmdWidth = 3             // size of CSR commends
   val memOpSize = 5               // size of memory operations
+  val ctmScoreBoardSize = params(DebugCtmScorBoardSize)
+                                  // size of scoreboard in CTM, the same as L1 MISHS
   val stmUserRegAddr = 10         // the address of the user register for software trace
   val stmThreadPtrAddr = 4        // the address of the thread pointer for software trace
   val stmThreadPtrChgID = 0       // the software trace id when thread pointer changed

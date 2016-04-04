@@ -1,4 +1,3 @@
-
 import dii_package::dii_flit;
 
 module osd_mam
@@ -32,8 +31,7 @@ module osd_mam
     input [DATA_WIDTH-1:0]      read_data, // Read data
     output                      read_ready // Acknowledge this data item
    );
-   
-   
+
    logic        reg_request;
    logic        reg_write;
    logic [15:0] reg_addr;
@@ -85,24 +83,30 @@ module osd_mam
 
    enum {
          STATE_INACTIVE, STATE_CMD_SKIP, STATE_CMD, STATE_ADDR,
-         STATE_REQUEST, STATE_WRITE_PACKET, STATE_WRITE, STATE_WRITE_WAIT
+         STATE_REQUEST, STATE_WRITE_PACKET, STATE_WRITE, STATE_WRITE_WAIT,
+         STATE_READ_PACKET, STATE_READ, STATE_READ_WAIT
          } state, nxt_state;
 
+   // The counter is used to count flits
    reg [$clog2(MAX_PKT_LEN)-1:0] counter;
    logic [$clog2(MAX_PKT_LEN)-1:0] nxt_counter;
 
+   // This counter is used to count words (that can span packets)
    reg [$clog2(DATA_WIDTH/16)-1:0] wcounter;
    logic [$clog2(DATA_WIDTH/16)-1:0] nxt_wcounter;
 
+   // Stores whether we are inside a packet
    reg                               in_packet;
    logic                             nxt_in_packet;
 
+   // Combinational part of interface
    logic [13:0] nxt_req_beats;
    logic        nxt_req_rw;
    logic        nxt_req_burst;
    logic [ADDR_WIDTH-1:0] nxt_req_addr;
    logic [DATA_WIDTH-1:0] nxt_write_data;
 
+   // This is the number of (16 bit) words needed to form an address
    localparam ADDR_WORDS = ADDR_WIDTH >> 4;
    
    always_ff @(posedge clk) begin
@@ -122,14 +126,6 @@ module osd_mam
       in_packet <= nxt_in_packet;
    end
 
-   logic [15:0] nxt_req_addr_vec [ADDR_WORDS];
-   genvar       v;
-   generate
-      for (v=0; v < ADDR_WORDS; v = v+1) begin
-         assign nxt_req_addr[16*(v+1)-1:16*v] = nxt_req_addr_vec[v];
-      end
-   endgenerate
-   
    integer i;
    always_comb @(*) begin
       nxt_state = state;
@@ -139,11 +135,12 @@ module osd_mam
       nxt_wcounter = wcounter;
       nxt_in_packet = in_packet;
       
-      for (i=0; i < ADDR_WORDS; i = i+1) begin
-         nxt_req_addr_vec[i] = req_addr[(i+1)*16-1 -: 16];
-      end
+      nxt_req_addr = req_addr;
       
       dp_in_ready = 0;
+      dp_out.valid = 0;
+      dp_out.data = 16'hx;
+      dp_out.last = 0;
       req_valid = 0;
       write_valid = 0;
 
@@ -173,7 +170,7 @@ module osd_mam
         end
         STATE_ADDR: begin
            dp_in_ready = 1;
-           nxt_req_addr_vec[counter] = dp_in.data;
+           nxt_req_addr[(counter+1)*16-1 -: 16] = dp_in.data;
            if (dp_in.valid) begin
               nxt_counter = counter + 1;
               if (counter == ADDR_WORDS - 1) begin
@@ -184,7 +181,11 @@ module osd_mam
         STATE_REQUEST: begin
            req_valid = 1;
            if (req_ready) begin
-              nxt_state = STATE_WRITE_PACKET;
+              if (req_rw) begin
+                 nxt_state = STATE_WRITE_PACKET;
+              end else begin
+                 nxt_state = STATE_READ_PACKET;
+              end
               nxt_wcounter = 0;
               nxt_counter = 0;
               nxt_in_packet = 0;
@@ -226,6 +227,53 @@ module osd_mam
                  end else begin
                     nxt_counter = 0;
                     nxt_state = STATE_WRITE_PACKET;
+                 end
+              end
+           end
+        end // case: STATE_WRITE_WAIT
+        STATE_READ_PACKET: begin
+           dp_out.valid = 1;
+           if (counter == 0) begin
+              dp_out.data = 16'h0;
+           end else begin
+              dp_out.data = { 2'b01, 4'b1111, id };
+           end
+           if (dp_out_ready) begin
+              nxt_counter = counter + 1;
+              if (counter == 1) begin
+                 nxt_state = STATE_READ;
+              end
+           end
+        end // case: STATE_READ_PACKET
+        STATE_READ: begin
+           if (read_valid) begin
+              dp_out.valid = 1;
+              dp_out.last = (counter == MAX_PKT_LEN) ||
+                            ((wcounter == DATA_WIDTH/16 - 1) && (req_beats == 1));
+              dp_out.data = read_data[DATA_WIDTH-wcounter*16-1 -: 16];
+              if (dp_out_ready) begin
+                 if (wcounter == DATA_WIDTH/16-1) begin
+                    nxt_req_beats = req_beats - 1;
+
+                    read_ready = 1;
+
+                    if (req_beats == 1) begin
+                       nxt_state = STATE_INACTIVE;
+                    end else begin
+                       if (counter == MAX_PKT_LEN - 1) begin
+                          nxt_state = STATE_READ_PACKET;
+                          nxt_counter = 0;
+                       end else begin
+                          nxt_counter = counter + 1;
+                       end
+                    end
+                 end else begin
+                    if (counter == MAX_PKT_LEN - 1) begin
+                       nxt_state = STATE_READ_PACKET;
+                       nxt_counter = 0;
+                    end else begin
+                       nxt_counter = counter + 1;
+                    end
                  end
               end
            end

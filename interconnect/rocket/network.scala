@@ -20,6 +20,17 @@ class ExpandibleDebugNetwork(nodes:Int, eps:Int) extends DebugNetworkModule {
   }
 }
 
+/** Stand-alone debug network
+  * Base module for all debug networks
+  * @param nodes Number of end nodes connected to this network
+  * @param eps Number of expandible ports (bidirectional)
+  */
+class DebugNetwork(nodes:Int) extends DebugNetworkModule {
+  val io = new Bundle {
+    val loc = Vec(nodes, new DiiIO).flip
+  }
+}
+
 /** Link connector base class
   * @param ips Number of input ports
   * @param ops Number of output ports

@@ -10,12 +10,12 @@ import Chisel._
   * @param n Number of input ports
   * @param arb Arbiter generation function
   */
-abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: LockingArbiterLike[T])
+abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => LockingArbiterLike[T])
     extends Module
 {
   val io = new ArbiterIO(gen, n)
 
-  val chosen = Vec(n, Reg(init=Bool(false)))
+  val chosen = Reg(Vec(n, Bool()))
   val arbiter = Module(arb)
 
   chosen.zipWithIndex.foreach{ case (c, i) => {

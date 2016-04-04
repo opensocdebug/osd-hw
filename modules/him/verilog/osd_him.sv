@@ -2,6 +2,7 @@
 import dii_package::dii_flit;
 
 module osd_him
+  #(parameter MAX_PKT_LEN = 8)
   (input clk, rst,
    glip_channel.slave glip_in,
    glip_channel.master glip_out,
@@ -11,7 +12,7 @@ module osd_him
    input dii_flit dii_in,
    output         dii_in_ready);
 
-   localparam BUF_SIZE = 8;
+   localparam BUF_SIZE = MAX_PKT_LEN;
 
    logic ingress_active;
    logic [4:0] ingress_size;

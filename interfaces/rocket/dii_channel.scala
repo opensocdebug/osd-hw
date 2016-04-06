@@ -45,7 +45,7 @@ class DiiBBoxPort extends DiiModule {
     val chisel = (new DiiIO).flip
   }
 
-  io.bbox.dii_out := Cat(io.chisel.dii_out.valid, io.chisel.dii_out.bits)
+  io.bbox.dii_out := Cat(io.chisel.dii_out.valid, io.chisel.dii_out.bits.toBits)
   io.chisel.dii_out.ready := io.bbox.dii_out_ready
 
   val w = (new DiiFlit).getWidth
@@ -61,7 +61,7 @@ class DiiPort extends DiiModule {
     val bbox = (new DiiBBoxIO).flip
   }
 
-  io.bbox.dii_in := Cat(io.chisel.dii_in.valid, io.chisel.dii_in.bits)
+  io.bbox.dii_in := Cat(io.chisel.dii_in.valid, io.chisel.dii_in.bits.toBits)
   io.chisel.dii_in.ready := io.bbox.dii_in_ready
 
   val w = (new DiiFlit).getWidth

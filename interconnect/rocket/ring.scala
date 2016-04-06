@@ -26,9 +26,12 @@ class DebugRingRouter(id:Int, buf_len:Int) extends ExpandibleDebugNetwork(1,2) {
    *          out    in
    */
 
-  // route function
-  def local_id_route(flit: DiiFlit):UInt = {
-    Mux(flit.data(9,0) === UInt(id), UInt(0), UInt(1))
+  def local_id_route(flit: DiiFlit, valid: Bool):UInt = {
+    val worm = Reg(init=Bool(false))
+    worm := Mux(valid && flit.last, Bool(false), Mux(valid, Bool(true), worm))
+    val route = Mux(flit.data(9,0) === UInt(id), UInt(0), UInt(1))
+    val route_reg = RegEnable(route, valid && !worm)
+    Mux(worm, route_reg, route)
   }
 
   val ring0_demux = Module(new DebugNetworkDemultiplexer(2)(local_id_route))

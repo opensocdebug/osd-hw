@@ -33,7 +33,7 @@ class RocketSoftwareTraceIO extends DebugModuleIO {
   val csr_wen = Bool(INPUT)
 }
 
-class RocketSoftwareTracer(coreid:Int, latch:Boolean = false) extends DebugModuleModule(coreid) {
+class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null) extends DebugModuleModule(coreid)(rst) {
   val io = new RocketSoftwareTraceIO
 
   val tracer = Module(new osd_stm)

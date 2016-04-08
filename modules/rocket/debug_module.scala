@@ -32,7 +32,7 @@ trait HasDebugModuleParameters extends UsesParameters {
                                   // the size of buffer of the ring network
 }
 
-abstract class DebugModuleModule(coreid:Int) extends Module with HasDebugModuleParameters
+abstract class DebugModuleModule(coreid:Int)(rst:Bool = null) extends Module(_reset = rst) with HasDebugModuleParameters
 abstract class DebugModuleBundle extends Bundle with HasDebugModuleParameters
 
 
@@ -51,7 +51,7 @@ class DebugModuleBBoxIO extends DebugModuleBundle {
   id.setName("id")
 }
 
-class RocketDebugNetwork(coreid:Int) extends DebugModuleModule(coreid) {
+class RocketDebugNetwork(coreid:Int)(rst:Bool = null) extends DebugModuleModule(coreid)(rst) {
   val io = new Bundle {
     val net = Vec(2, new DiiIO)
     val ctm = (new DiiIO).flip

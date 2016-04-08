@@ -91,7 +91,8 @@ class RocketCoreTracer(coreid:Int,
   isCsrWrite:(UInt, UInt) => Bool,
   isCsrTrap:(UInt, UInt) => Bool,
   latch:Boolean = false)
-    extends DebugModuleModule(coreid)
+  (rst:Bool = null)
+    extends DebugModuleModule(coreid)(rst)
 {
   val io = new RocketCoreTraceIO
 

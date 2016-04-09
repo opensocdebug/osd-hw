@@ -1,11 +1,26 @@
 import dii_package::dii_flit;
 
 module osd_mam
-  #(parameter DATA_WIDTH = 16, // in bits, must be multiple of 16
-    parameter ADDR_WIDTH = 32,
-    parameter MEM_SIZE = 'x,
-    parameter BASE_ADDR = 0,
-    parameter MAX_PKT_LEN = 'x
+  #(parameter DATA_WIDTH  = 16, // in bits, must be multiple of 16
+    parameter ADDR_WIDTH  = 32,
+    parameter MAX_PKT_LEN = 'x,
+    parameter REGIONS     = 1,
+    parameter MEM_SIZE0   = 'x,
+    parameter BASE_ADDR0  = 'x,
+    parameter MEM_SIZE1   = 'x,
+    parameter BASE_ADDR1  = 'x,
+    parameter MEM_SIZE2   = 'x,
+    parameter BASE_ADDR2  = 'x,
+    parameter MEM_SIZE3   = 'x,
+    parameter BASE_ADDR3  = 'x,
+    parameter MEM_SIZE4   = 'x,
+    parameter BASE_ADDR4  = 'x,
+    parameter MEM_SIZE5   = 'x,
+    parameter BASE_ADDR5  = 'x,
+    parameter MEM_SIZE6   = 'x,
+    parameter BASE_ADDR6  = 'x,
+    parameter MEM_SIZE7   = 'x,
+    parameter BASE_ADDR7  = 'x
     )
    (
     input                       clk, rst,
@@ -57,28 +72,55 @@ module osd_mam
 
    assign reg_ack = 1;
 
-   logic [63:0] base_addr;
-   assign base_addr = 64'(BASE_ADDR);
-   logic [63:0] mem_size;
-   assign mem_size = 64'(MEM_SIZE);
+   logic [63:0] base_addr [8];
+   assign base_addr[0] = 64'(BASE_ADDR0);
+   assign base_addr[1] = 64'(BASE_ADDR1);
+   assign base_addr[2] = 64'(BASE_ADDR2);
+   assign base_addr[3] = 64'(BASE_ADDR3);
+   assign base_addr[4] = 64'(BASE_ADDR4);
+   assign base_addr[5] = 64'(BASE_ADDR5);
+   assign base_addr[6] = 64'(BASE_ADDR6);
+   assign base_addr[7] = 64'(BASE_ADDR7);
+   logic [63:0] mem_size [8];
+   assign mem_size[0] = 64'(MEM_SIZE0);
+   assign mem_size[1] = 64'(MEM_SIZE1);
+   assign mem_size[2] = 64'(MEM_SIZE2);
+   assign mem_size[3] = 64'(MEM_SIZE3);
+   assign mem_size[4] = 64'(MEM_SIZE4);
+   assign mem_size[5] = 64'(MEM_SIZE5);
+   assign mem_size[6] = 64'(MEM_SIZE6);
+   assign mem_size[7] = 64'(MEM_SIZE7);
    
    always_comb @(*) begin
       reg_err = 0;
       reg_rdata = 16'hx;
-      
-      case (reg_addr)
-        16'h200: reg_rdata = 16'(DATA_WIDTH);
-        16'h201: reg_rdata = 16'(ADDR_WIDTH);
-        16'h202: reg_rdata = base_addr[15:0];
-        16'h203: reg_rdata = base_addr[31:16];
-        16'h204: reg_rdata = base_addr[47:32];
-        16'h205: reg_rdata = base_addr[63:48];
-        16'h206: reg_rdata = mem_size[15:0];
-        16'h207: reg_rdata = mem_size[31:16];
-        16'h208: reg_rdata = mem_size[47:32];
-        16'h209: reg_rdata = mem_size[63:48];
-        default: reg_err = 1;
-      endcase
+
+      if (reg_addr[15:7] == 9'h4) // 0x200
+        case (reg_addr)
+          16'h200: reg_rdata = 16'(DATA_WIDTH);
+          16'h201: reg_rdata = 16'(ADDR_WIDTH);
+          16'h202: reg_rdata = 16'(REGIONS);
+          default: reg_err = 1;
+        endcase
+      else if (reg_addr[15:7] == 9'h5) // 0x280-0x300
+        if (reg_addr[3])
+          reg_err = 1;
+        else if (reg_addr[6:4] > REGIONS)
+          reg_err = 1;
+        else if (reg_addr[2] == 0) // addr
+          case (reg_addr[1:0])
+            0: reg_rdata = base_addr[reg_addr[6:4]][15:0];
+            1: reg_rdata = base_addr[reg_addr[6:4]][31:16];
+            2: reg_rdata = base_addr[reg_addr[6:4]][47:32];
+            3: reg_rdata = base_addr[reg_addr[6:4]][63:48];
+          endcase // case (reg_addr[1:0])
+        else
+          case (reg_addr[1:0])
+            0: reg_rdata = mem_size[reg_addr[6:4]][15:0];
+            1: reg_rdata = mem_size[reg_addr[6:4]][31:16];
+            2: reg_rdata = mem_size[reg_addr[6:4]][47:32];
+            3: reg_rdata = mem_size[reg_addr[6:4]][63:48];
+          endcase // case (reg_addr[1:0])
    end
 
    enum {

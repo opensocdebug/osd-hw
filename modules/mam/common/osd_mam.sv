@@ -23,28 +23,28 @@ module osd_mam
     parameter BASE_ADDR7  = 'x
     )
    (
-    input                       clk, rst,
+    input                         clk, rst,
 
-    input                       dii_flit debug_in, output debug_in_ready,
-    output                      dii_flit debug_out, input debug_out_ready,
+    input                         dii_flit debug_in, output debug_in_ready,
+    output                        dii_flit debug_out, input debug_out_ready,
 
-    input [9:0]                 id,
+    input [9:0]                   id,
 
-    output                      req_valid, // Start a new memory access request
-    input                       req_ready, // Acknowledge the new memory access request
-    output reg                  req_rw, // 0: Read, 1: Write
-    output reg [ADDR_WIDTH-1:0] req_addr, // Request base address
-    output reg                  req_burst, // 0 for single beat access, 1 for incremental burst
-    output reg [13:0]           req_beats, // Burst length in number of words
+    output                        req_valid, // Start a new memory access request
+    input                         req_ready, // Acknowledge the new memory access request
+    output reg                    req_rw, // 0: Read, 1: Write
+    output reg [ADDR_WIDTH-1:0]   req_addr, // Request base address
+    output reg                    req_burst, // 0 for single beat access, 1 for incremental burst
+    output reg [13:0]             req_beats, // Burst length in number of words
 
-    output                      write_valid, // Next write data is valid
-    output reg [DATA_WIDTH-1:0] write_data, // Write data
-    output [DATA_WIDTH/8-1:0]   write_strb, // Byte strobe if req_burst==0
-    input                       write_ready, // Acknowledge this data item
+    output                        write_valid, // Next write data is valid
+    output reg [DATA_WIDTH-1:0]   write_data, // Write data
+    output reg [DATA_WIDTH/8-1:0] write_strb, // Byte strobe if req_burst==0
+    input                         write_ready, // Acknowledge this data item
    
-    input                       read_valid, // Next read data is valid
-    input [DATA_WIDTH-1:0]      read_data, // Read data
-    output                      read_ready // Acknowledge this data item
+    input                         read_valid, // Next read data is valid
+    input [DATA_WIDTH-1:0]        read_data, // Read data
+    output                        read_ready // Acknowledge this data item
    );
 
    logic        reg_request;
@@ -126,7 +126,8 @@ module osd_mam
    enum {
          STATE_INACTIVE, STATE_CMD_SKIP, STATE_CMD, STATE_ADDR,
          STATE_REQUEST, STATE_WRITE_PACKET, STATE_WRITE, STATE_WRITE_WAIT,
-         STATE_READ_PACKET, STATE_READ, STATE_READ_WAIT
+         STATE_READ_PACKET, STATE_READ, STATE_READ_WAIT, STATE_WRITE_SINGLE,
+         STATE_WRITE_SINGLE_WAIT
          } state, nxt_state;
 
    // The counter is used to count flits
@@ -142,11 +143,12 @@ module osd_mam
    logic                             nxt_in_packet;
 
    // Combinational part of interface
-   logic [13:0] nxt_req_beats;
-   logic        nxt_req_rw;
-   logic        nxt_req_burst;
-   logic [ADDR_WIDTH-1:0] nxt_req_addr;
-   logic [DATA_WIDTH-1:0] nxt_write_data;
+   logic [13:0]                      nxt_req_beats;
+   logic                             nxt_req_rw;
+   logic                             nxt_req_burst;
+   logic [ADDR_WIDTH-1:0]            nxt_req_addr;
+   logic [DATA_WIDTH-1:0]            nxt_write_data;
+   logic [DATA_WIDTH/8-1:0]          nxt_write_strb;
 
    // This is the number of (16 bit) words needed to form an address
    localparam ADDR_WORDS = ADDR_WIDTH >> 4;
@@ -166,6 +168,7 @@ module osd_mam
       write_data <= nxt_write_data;
       wcounter <= nxt_wcounter;
       in_packet <= nxt_in_packet;
+      write_strb <= nxt_write_strb;
    end
 
    integer i;
@@ -185,6 +188,7 @@ module osd_mam
       dp_out.last = 0;
       req_valid = 0;
       write_valid = 0;
+      read_ready = 0;
 
       case (state)
          STATE_INACTIVE: begin
@@ -201,10 +205,15 @@ module osd_mam
         end
         STATE_CMD: begin
            dp_in_ready = 1;
-           nxt_req_beats = dp_in.data[13:0];
+           nxt_write_strb = dp_in.data[DATA_WIDTH/8-1:0];
            nxt_req_rw = dp_in.data[15];
            nxt_req_burst = dp_in.data[14];
-           
+
+           if (nxt_req_burst)
+             nxt_req_beats = dp_in.data[13:0];
+           else
+             nxt_req_beats = 1;
+
            if (dp_in.valid) begin
               nxt_state = STATE_ADDR;
               nxt_counter = 0;
@@ -224,7 +233,11 @@ module osd_mam
            req_valid = 1;
            if (req_ready) begin
               if (req_rw) begin
-                 nxt_state = STATE_WRITE_PACKET;
+                 if (req_burst) begin
+                    nxt_state = STATE_WRITE_PACKET;
+                 end else begin
+                    nxt_state = STATE_WRITE_SINGLE;
+                 end
               end else begin
                  nxt_state = STATE_READ_PACKET;
               end
@@ -273,6 +286,22 @@ module osd_mam
               end
            end
         end // case: STATE_WRITE_WAIT
+        STATE_WRITE_SINGLE: begin
+           dp_in_ready = 1;
+           nxt_write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
+           if (dp_in.valid) begin
+              nxt_wcounter = wcounter + 1;
+              if (wcounter == DATA_WIDTH/16 - 1) begin
+                 nxt_state = STATE_WRITE_SINGLE_WAIT;
+              end
+           end
+        end
+        STATE_WRITE_SINGLE_WAIT: begin
+           write_valid = 1;
+           if (write_ready) begin
+              nxt_state = STATE_INACTIVE;
+           end
+        end
         STATE_READ_PACKET: begin
            dp_out.valid = 1;
            if (counter == 0) begin

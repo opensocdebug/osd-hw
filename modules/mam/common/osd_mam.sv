@@ -319,7 +319,7 @@ module osd_mam
         STATE_READ: begin
            if (read_valid) begin
               dp_out.valid = 1;
-              dp_out.last = (counter == MAX_PKT_LEN) ||
+              dp_out.last = (counter == MAX_PKT_LEN-1) ||
                             ((wcounter == DATA_WIDTH/16 - 1) && (req_beats == 1));
               dp_out.data = read_data[DATA_WIDTH-wcounter*16-1 -: 16];
               if (dp_out_ready) begin

@@ -52,31 +52,26 @@ module dii_buffer
 
    generate                     // SRL does not allow parallel read
       if(FULLPACKET != 0) begin
-         logic [BUF_SIZE-1:0] data_last_buf;
+         logic [BUF_SIZE-1:0] data_last_buf, data_last_shifted;
 
          always @(posedge clk)
            if(rst)
              data_last_buf = 0;
-           else begin
-              if(flit_out_fire)
-                data_last_buf[rp] = 1'b0;
-              if(flit_in_fire)
-                data_last_buf = {data_last_buf, flit_in.last && flit_in.valid};
-           end
+           else if(flit_in_fire)
+             data_last_buf = {data_last_buf, flit_in.last && flit_in.valid};
 
          // extra logic to get the packet size in a stable manner
-         logic [BUF_SIZE:0] data_last_shifted;
-         assign data_last_shifted = {1'b0,data_last_buf} << BUF_SIZE - rp;
+         assign data_last_shifted = data_last_buf << BUF_SIZE - 1 - rp;
 
-         function logic [ID_W:0] find_first_one(input logic [BUF_SIZE:0] data);
+         function logic [ID_W:0] find_first_one(input logic [BUF_SIZE-1:0] data);
             automatic int i;
-            for(i=BUF_SIZE; i>0; i--)
+            for(i=BUF_SIZE-1; i>=0; i--)
               if(data[i]) return i;
             return BUF_SIZE;
          endfunction // size_count
 
-         assign packet_size = BUF_SIZE + 1 - find_first_one(data_last_shifted);
-         assign flit_out = dii_flit_assemble(|data_last_buf, data[rp].last, data[rp].data);
+         assign packet_size = BUF_SIZE - find_first_one(data_last_shifted);
+         assign flit_out = dii_flit_assemble(reg_out_valid && |data_last_shifted, data[rp].last, data[rp].data);
       end else begin // if (FULLPACKET)
          assign packet_size = 0;
          assign flit_out = dii_flit_assemble(reg_out_valid, data[rp].last, data[rp].data);

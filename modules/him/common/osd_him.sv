@@ -48,7 +48,7 @@ module osd_him
 
    dii_flit dii_egress;
    logic    dii_egress_ready;
-   logic [$clog2(BUF_SIZE)-1:0] egress_packet_size;
+   logic [$clog2(BUF_SIZE):0] egress_packet_size;
 
    logic       egress_active;
 
@@ -57,7 +57,7 @@ module osd_him
    always @(*) begin
      if (!egress_active) begin
         egress_data_be = 0;
-        egress_data_be[$clog2(BUF_SIZE)-1:0] = egress_packet_size;
+        egress_data_be[$clog2(BUF_SIZE):0] = egress_packet_size;
      end else
        egress_data_be  = dii_egress.data;
    end

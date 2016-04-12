@@ -14,24 +14,20 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => Loc
     extends Module
 {
   val io = new ArbiterIO(gen, n)
-
-  val chosen = Reg(Vec(n, Bool()))
   val arbiter = Module(arb)
 
-  chosen.zipWithIndex.foreach{ case (c, i) => {
-    c := arbiter.io.in(i).fire() && !io.in(i).bits.last
+  val chosen = Reg(init = Vec.fill(n)(Bool(false)))
+  val transmitting = chosen.reduce(_||_)
 
-    arbiter.io.in(i).valid := io.in(i).valid || c
-    arbiter.io.in(i).bits := io.in(i).bits
-    io.in(i).ready := arbiter.io.in(i).ready
-  }}
+  io.in <> arbiter.io.in
+  io.out <> arbiter.io.out
 
-  io.out.valid := Mux(chosen.toBits.orR,
-    (io.in, chosen).zipped.map(_.valid && _).reduce(_||_),
-    arbiter.io.out.valid)
-
-  io.out.bits := arbiter.io.out.bits
-  arbiter.io.out.ready := io.out.ready
+  (0 until n).foreach( i => {
+    when(io.in(i).fire()) {
+      chosen(i) := !io.in(i).bits.last
+    }
+    arbiter.io.in(i).valid := (!transmitting || chosen(i)) && io.in(i).valid
+  })
 }
 
 /** Static priority arbiter

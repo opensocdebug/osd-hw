@@ -55,7 +55,7 @@ module debug_ring_expand
            #(.BUFFER_SIZE(BUFFER_SIZE))
          u_router(
                   .*,
-                  .id              ( ID_BASE + i         ),
+                  .id              ( (ID_BASE + i) << 3  ),
                   .ring_in0        ( chain[0][i]         ),
                   .ring_in0_ready  ( chain_ready[0][i]   ),
                   .ring_in1        ( chain[1][i]         ),

@@ -2,13 +2,15 @@
 package open_soc_debug
 
 import Chisel._
+import cde.{Parameters}
 
 /** Ring router
   * Basic element for a ring network
   * 1 local node, 2 expandible ports
   */
 
-class DebugRingRouter(id:Int, buf_len:Int) extends ExpandibleDebugNetwork(1,2) {
+class DebugRingRouter(id:Int, buf_len:Int)(implicit p: Parameters)
+    extends ExpandibleDebugNetwork(1,2)(p) {
   /*
    *       /|--------------buffer-out1
    *  in1 -||
@@ -59,8 +61,8 @@ class DebugRingRouter(id:Int, buf_len:Int) extends ExpandibleDebugNetwork(1,2) {
 
 /** Ring network with expandible ports
   */
-class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) extends
-    ExpandibleDebugNetwork(nodes, 2)
+class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int)(implicit p: Parameters)
+    extends ExpandibleDebugNetwork(nodes, 2)(p)
 {
 
   require(nodes > 1)
@@ -78,8 +80,8 @@ class ExpandibleRingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) exten
 
 /** A stand-slone Ring network
   */
-class RingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int) extends
-    DebugNetwork(nodes)
+class RingNetwork(id_assign: Int => Int, nodes:Int, buf_len:Int)(implicit p: Parameters)
+    extends DebugNetwork(nodes)(p)
 {
 
   val ring = Module(new ExpandibleRingNetwork(id_assign,nodes, buf_len))

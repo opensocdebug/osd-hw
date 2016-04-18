@@ -1,8 +1,9 @@
 package open_soc_debug
 
 import Chisel._
+import cde.{Parameters}
 
-class CoreTrace extends DebugModuleBundle {
+class CoreTrace(implicit p: Parameters) extends DebugModuleBundle()(p) {
   val pc        = UInt(width=sysWordLength)
   val npc       = UInt(width=sysWordLength)
   val jal       = Bool()
@@ -22,7 +23,7 @@ class CoreTrace extends DebugModuleBundle {
   val time      = UInt(width=sysWordLength)
 }
 
-class CoreTraceIO extends DebugModuleBBoxIO {
+class CoreTraceIO(implicit p: Parameters) extends DebugModuleBBoxIO()(p) {
   val trace = (new ValidIO(new CoreTrace)).flip
   trace.valid.setName("trace_valid")
   trace.bits.pc.setName("trace_pc")
@@ -45,14 +46,14 @@ class CoreTraceIO extends DebugModuleBBoxIO {
 }
 
 // black box wrapper
-class osd_ctm extends BlackBox with HasDebugModuleParameters {
+class osd_ctm(implicit val p: Parameters) extends BlackBox with HasDebugModuleParameters {
   val io = new CoreTraceIO
 
   addClock(Driver.implicitClock)
   renameReset("rst")
 }
 
-class RocketCoreTraceIO extends DebugModuleIO {
+class RocketCoreTraceIO(implicit p: Parameters) extends DebugModuleIO()(p) {
   val wb_valid = Bool(INPUT)
   val wb_pc = UInt(INPUT, width=sysWordLength)
   val wb_wdata = UInt(INPUT, width=sysWordLength)
@@ -92,7 +93,8 @@ class RocketCoreTracer(coreid:Int,
   isCsrTrap:(UInt, UInt) => Bool,
   latch:Boolean = false)
   (rst:Bool = null)
-    extends DebugModuleModule(coreid)(rst)
+  (implicit p: Parameters)
+    extends DebugModuleModule(coreid)(rst)(p)
 {
   val io = new RocketCoreTraceIO
 

@@ -2,18 +2,20 @@
 package open_soc_debug
 
 import Chisel._
+import cde.{Parameters}
+import junctions.ParameterizedBundle
 
-trait HasDebugNetworkParameters extends UsesParameters
-
-abstract class DebugNetworkModule extends Module with HasDebugNetworkParameters
-abstract class DebugNetworkBundle extends Bundle with HasDebugNetworkParameters
+abstract class DebugNetworkModule(implicit val p: Parameters) extends Module
+abstract class DebugNetworkBundle(implicit val p: Parameters) extends ParameterizedBundle()(p)
 
 /** Expandible debug network
   * Base module for all debug networks
   * @param nodes Number of end nodes connected to this network
   * @param eps Number of expandible ports (bidirectional) 
   */
-class ExpandibleDebugNetwork(nodes:Int, eps:Int) extends DebugNetworkModule {
+class ExpandibleDebugNetwork(nodes:Int, eps:Int)(implicit p: Parameters)
+    extends DebugNetworkModule()(p)
+{
   val io = new Bundle {
     val loc = Vec(nodes, new DiiIO).flip
     val net = Vec(eps, new DiiIO)
@@ -25,7 +27,7 @@ class ExpandibleDebugNetwork(nodes:Int, eps:Int) extends DebugNetworkModule {
   * @param nodes Number of end nodes connected to this network
   * @param eps Number of expandible ports (bidirectional)
   */
-class DebugNetwork(nodes:Int) extends DebugNetworkModule {
+class DebugNetwork(nodes:Int)(implicit p: Parameters) extends DebugNetworkModule()(p) {
   val io = new Bundle {
     val loc = Vec(nodes, new DiiIO).flip
   }
@@ -35,7 +37,9 @@ class DebugNetwork(nodes:Int) extends DebugNetworkModule {
   * @param ips Number of input ports
   * @param ops Number of output ports
   */
-class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
+class DebugNetworkConnector(ips:Int, ops:Int)(implicit p: Parameters)
+    extends DebugNetworkModule()(p)
+{
   val io = new Bundle {
     val ip = Vec(ips, new DecoupledIO(new DiiFlit)).flip
     val op = Vec(ops, new DecoupledIO(new DiiFlit))
@@ -45,7 +49,9 @@ class DebugNetworkConnector(ips:Int, ops:Int) extends DebugNetworkModule {
 /** Multiplexer for debug network (static)
   * @param ips Number of input ports
   */
-class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
+class DebugNetworkMultiplexer(ips:Int)(implicit p: Parameters)
+    extends DebugNetworkConnector(ips,1)(p)
+{
   val arb = Module(new DebugWormholeArbiter(new DiiFlit,ips))
   io.ip <> arb.io.in
   io.op(0) <> arb.io.out
@@ -54,7 +60,9 @@ class DebugNetworkMultiplexer(ips:Int) extends DebugNetworkConnector(ips,1) {
 /** Multiplexer for debug network (round-robin)
   * @param ips Number of input ports
   */
-class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
+class DebugNetworkMultiplexerRR(ips:Int)(implicit p: Parameters)
+    extends DebugNetworkConnector(ips,1)(p)
+{
   val arb = Module(new DebugWormholeRRArbiter(new DiiFlit,ips))
   io.ip <> arb.io.in
   io.op(0) <> arb.io.out
@@ -63,7 +71,9 @@ class DebugNetworkMultiplexerRR(ips:Int) extends DebugNetworkConnector(ips,1) {
 /** Demultiplexer for debug network
   * @param ops Number of output ports
   */
-class DebugNetworkDemultiplexer(ops:Int)(route: (DiiFlit,Bool) => UInt) extends DebugNetworkConnector(1,ops) {
+class DebugNetworkDemultiplexer(ops:Int)(route: (DiiFlit,Bool) => UInt)(implicit p: Parameters)
+    extends DebugNetworkConnector(1,ops)(p)
+{
   val selection = route(io.ip(0).bits, io.ip(0).valid)
   io.op.zipWithIndex.foreach { case (o, i) => {
     o.valid := io.ip(0).valid && selection === UInt(i)

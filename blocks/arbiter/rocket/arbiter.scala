@@ -2,6 +2,7 @@
 package open_soc_debug
 
 import Chisel._
+import cde.{Parameters}
 
 /** wormhole arbiter
   * @param T The type of wormhole flit
@@ -10,8 +11,8 @@ import Chisel._
   * @param n Number of input ports
   * @param arb Arbiter generation function
   */
-abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => LockingArbiterLike[T])
-    extends Module
+abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => LockingArbiterLike[T])(implicit p: Parameters)
+    extends DebugNetworkModule()(p)
 {
   val io = new ArbiterIO(gen, n)
   val arbiter = Module(arb)
@@ -32,10 +33,10 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => Loc
 
 /** Static priority arbiter
   */
-class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)(new Arbiter(gen,n,true))
+class DebugWormholeArbiter[T <: DiiFlit](gen: T, n:Int)(implicit p: Parameters) extends
+    DebugWormholeArbiterLike(gen,n)(new Arbiter(gen,n,true))(p)
 
 /** Round-robin arbiter
   */
-class DebugWormholeRRArbiter[T <: DiiFlit](gen: T, n:Int) extends
-    DebugWormholeArbiterLike(gen,n)(new RRArbiter(gen,n,true))
+class DebugWormholeRRArbiter[T <: DiiFlit](gen: T, n:Int)(implicit p: Parameters) extends
+    DebugWormholeArbiterLike(gen,n)(new RRArbiter(gen,n,true))(p)

@@ -1,3 +1,4 @@
+import dii_package::dii_flit;
 
 module osd_regaccess_demux
   (input clk, input rst,

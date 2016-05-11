@@ -9,15 +9,22 @@ class SoftwareTrace extends DebugModuleBundle {
 
 class SoftwareTraceIO extends DebugModuleBBoxIO {
   val trace = (new ValidIO(new SoftwareTrace)).flip
-
   trace.valid.setName("trace_valid")
   trace.bits.id.setName("trace_id")
   trace.bits.value.setName("trace_value")
+
+  val tracking_enable = Bool(OUTPUT)
+  tracking_enable.setName("trace_reg_enable")
+
+  val tracking_addr = UInt(OUTPUT, width=regAddrWidth)
+  tracking_addr.setName("trace_reg_addr")
 }
 
 // black box wrapper
 class osd_stm extends BlackBox with HasDebugModuleParameters {
   val io = new SoftwareTraceIO
+
+  setVerilogParameters("#(.REG_ADDR_WIDTH(" + regAddrWidth + "))")
 
   addClock(Driver.implicitClock)
   renameReset("rst")
@@ -55,9 +62,9 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null) e
   val user_reg   = RegEnable(reg_wdata,
     retire && reg_wen && reg_waddr === UInt(stmUserRegAddr))
 
-  val thread_change = retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr)
+  val tracking_trigger = tracer.io.tracking_enable && retire && reg_wen && reg_waddr === tracer.io.tracking_addr
   val software_trigger = retire && csr_wen && csr_waddr === UInt(stmCsrAddr)
-  tracer.io.trace.valid := thread_change || software_trigger
-  tracer.io.trace.bits.value := Mux(thread_change, reg_wdata, user_reg)
-  tracer.io.trace.bits.id := Mux(thread_change, UInt(0x8000), csr_wdata)
+  tracer.io.trace.valid := tracking_trigger || software_trigger
+  tracer.io.trace.bits.value := Mux(tracking_trigger, reg_wdata, user_reg)
+  tracer.io.trace.bits.id := Mux(tracking_trigger, UInt(stmThreadPtrChgID), csr_wdata)
 }

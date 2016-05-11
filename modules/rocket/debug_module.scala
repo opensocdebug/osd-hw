@@ -8,6 +8,7 @@ case object DebugStmID extends Field[Int]
 case object DebugCtmScorBoardSize extends Field[Int]
 case object DebugStmCsrAddr extends Field[Int]
 case object DebugBaseID extends Field[Int]
+case object DebugSubIDSize extends Field[Int]
 case object DebugRouterBufferSize extends Field[Int]
 
 trait HasDebugModuleParameters extends UsesParameters {
@@ -27,7 +28,8 @@ trait HasDebugModuleParameters extends UsesParameters {
   val stmID = params(DebugStmID)  // the debug module ID of the software trace module
   val baseID = params(DebugBaseID)
                                   // the starting ID for rocket cores
-  val subIDSize = 8               // the section size of each core
+  val subIDSize = params(DebugSubIDSize)
+                                  // the section size of each core
   val bufSize = params(DebugRouterBufferSize)
                                   // the size of buffer of the ring network
 }

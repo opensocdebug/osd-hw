@@ -41,9 +41,6 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null) e
   io.net <> bbox_port.io.chisel
   bbox_port.io.bbox <> tracer.io.net
   tracer.io.id := UInt(baseID + coreid*subIDSize + stmID)
-  tracer.io.trace.valid := Bool(false)
-  tracer.io.trace.bits.id := UInt(0)
-  tracer.io.trace.bits.value := UInt(0)
 
   def input_latch[T <: Data](in:T):T = if(latch) RegNext(in) else in
 
@@ -58,17 +55,9 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null) e
   val user_reg   = RegEnable(reg_wdata,
     retire && reg_wen && reg_waddr === UInt(stmUserRegAddr))
 
-  // change of thread pointer
-  when(retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr)) {
-    tracer.io.trace.valid := Bool(true)
-    tracer.io.trace.bits.value := reg_wdata
-    tracer.io.trace.bits.id := UInt(0x8000)
-  }
-
-  // a software trace is triggered
-  when(csr_wen && csr_waddr === UInt(stmCsrAddr)) {
-    tracer.io.trace.valid := Bool(true)
-    tracer.io.trace.bits.value := user_reg
-    tracer.io.trace.bits.id := csr_wdata
-  }
+  val thread_change = retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr)
+  val software_trigger = retire && csr_wen && csr_waddr === UInt(stmCsrAddr)
+  tracer.io.trace.valid := thread_change || software_trigger
+  tracer.io.trace.bits.value := Mux(thread_change, reg_wdata, user_reg)
+  tracer.io.trace.bits.id := Mux(thread_change, UInt(0x8000), csr_wdata)
 }

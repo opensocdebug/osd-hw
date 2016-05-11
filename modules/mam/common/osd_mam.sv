@@ -30,21 +30,21 @@ module osd_mam
 
     input [9:0]                   id,
 
-    output reg                    req_valid, // Start a new memory access request
+    output                        req_valid, // Start a new memory access request
     input                         req_ready, // Acknowledge the new memory access request
     output reg                    req_rw, // 0: Read, 1: Write
     output reg [ADDR_WIDTH-1:0]   req_addr, // Request base address
     output reg                    req_burst, // 0 for single beat access, 1 for incremental burst
     output reg [13:0]             req_beats, // Burst length in number of words
 
-    output reg                    write_valid, // Next write data is valid
+    output                        write_valid, // Next write data is valid
     output reg [DATA_WIDTH-1:0]   write_data, // Write data
     output reg [DATA_WIDTH/8-1:0] write_strb, // Byte strobe if req_burst==0
     input                         write_ready, // Acknowledge this data item
    
     input                         read_valid, // Next read data is valid
     input [DATA_WIDTH-1:0]        read_data, // Read data
-    output reg                    read_ready // Acknowledge this data item
+    output                        read_ready // Acknowledge this data item
    );
 
    logic        reg_request;
@@ -91,7 +91,7 @@ module osd_mam
    assign mem_size[6] = 64'(MEM_SIZE6);
    assign mem_size[7] = 64'(MEM_SIZE7);
    
-   always_comb begin
+   always_comb @(*) begin
       reg_err = 0;
       reg_rdata = 16'hx;
 
@@ -141,12 +141,7 @@ module osd_mam
    // Stores whether we are inside a packet
    reg                               in_packet;
    logic                             nxt_in_packet;
-   
-   // Stores whether the last address flit is the last flit in a packet
-   // Decides whether to go to STATE_WRITE or STATE_WRITE_PACKET
-   reg                               is_last_flit;
-   logic                             nxt_is_last_flit;
-   
+
    // Combinational part of interface
    logic [13:0]                      nxt_req_beats;
    logic                             nxt_req_rw;
@@ -173,19 +168,17 @@ module osd_mam
       write_data <= nxt_write_data;
       wcounter <= nxt_wcounter;
       in_packet <= nxt_in_packet;
-      is_last_flit <= nxt_is_last_flit;
       write_strb <= nxt_write_strb;
    end
 
    integer i;
-   always_comb begin
+   always_comb @(*) begin
       nxt_state = state;
       nxt_counter = counter;
       nxt_req_beats = req_beats;
       nxt_write_data = write_data;
       nxt_wcounter = wcounter;
       nxt_in_packet = in_packet;
-      nxt_is_last_flit = is_last_flit;
       
       nxt_req_addr = req_addr;
       
@@ -232,22 +225,16 @@ module osd_mam
            if (dp_in.valid) begin
               nxt_counter = counter + 1;
               if (counter == ADDR_WORDS - 1) begin
-              	 nxt_is_last_flit = dp_in.last;              	                 
                  nxt_state = STATE_REQUEST;
               end
            end
         end
         STATE_REQUEST: begin
            req_valid = 1;
-           nxt_is_last_flit = 0;
            if (req_ready) begin
               if (req_rw) begin
                  if (req_burst) begin
-                 	if (is_last_flit) begin
-	             		nxt_state = STATE_WRITE_PACKET;
-	             	end else begin
-	             		nxt_state = STATE_WRITE;
-	             	end
+                    nxt_state = STATE_WRITE_PACKET;
                  end else begin
                     nxt_state = STATE_WRITE_SINGLE;
                  end

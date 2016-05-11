@@ -57,14 +57,12 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null) e
 
   val user_reg   = RegEnable(reg_wdata,
     retire && reg_wen && reg_waddr === UInt(stmUserRegAddr))
-  val thread_ptr = RegEnable(reg_wdata,
-    retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr))
 
   // change of thread pointer
   when(retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr)) {
     tracer.io.trace.valid := Bool(true)
-    tracer.io.trace.bits.value := thread_ptr
-    tracer.io.trace.bits.id := UInt(stmCsrAddr)
+    tracer.io.trace.bits.value := reg_wdata
+    tracer.io.trace.bits.id := UInt(0x8000)
   }
 
   // a software trace is triggered

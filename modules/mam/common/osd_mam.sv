@@ -152,8 +152,10 @@ module osd_mam
    logic                             nxt_req_rw;
    logic                             nxt_req_burst;
    logic [ADDR_WIDTH-1:0]            nxt_req_addr;
-   logic [DATA_WIDTH-1:0]            nxt_write_data;
    logic [DATA_WIDTH/8-1:0]          nxt_write_strb;
+
+   reg                               write_data_reg;
+   logic [DATA_WIDTH-1:0]            nxt_write_data_reg;
 
    // This is the number of (16 bit) words needed to form an address
    localparam ADDR_WORDS = ADDR_WIDTH >> 4;
@@ -170,7 +172,7 @@ module osd_mam
       req_burst <= nxt_req_burst;
       req_addr <= nxt_req_addr;
       counter <= nxt_counter;
-      write_data <= nxt_write_data;
+      write_data_reg <= nxt_write_data_reg;
       wcounter <= nxt_wcounter;
       in_packet <= nxt_in_packet;
       is_last_flit <= nxt_is_last_flit;
@@ -182,7 +184,7 @@ module osd_mam
       nxt_state = state;
       nxt_counter = counter;
       nxt_req_beats = req_beats;
-      nxt_write_data = write_data;
+      nxt_write_data_reg = write_data_reg;
       nxt_wcounter = wcounter;
       nxt_in_packet = in_packet;
       nxt_is_last_flit = is_last_flit;
@@ -195,6 +197,7 @@ module osd_mam
       dp_out.last = 0;
       req_valid = 0;
       write_valid = 0;
+      write_data = write_data_reg;
       read_ready = 0;
 
       case (state)
@@ -269,17 +272,31 @@ module osd_mam
            end
         end
         STATE_WRITE: begin
+           nxt_write_data_reg[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
+           write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
            dp_in_ready = 1;
-           nxt_write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
            if (dp_in.valid) begin
               nxt_wcounter = wcounter + 1;
               if (wcounter == DATA_WIDTH/16 - 1) begin
-                 nxt_state = STATE_WRITE_WAIT;
-                 nxt_in_packet = !dp_in.last;
+                 write_valid = 1;
+                 if (!write_ready) begin
+                    nxt_state = STATE_WRITE_WAIT;
+                    nxt_in_packet = !dp_in.last;
+                 end else begin
+                    nxt_req_beats = req_beats - 1;
+                    if (req_beats == 1) begin
+                       nxt_state = STATE_INACTIVE;
+                    end else if (dp_in.last) begin
+                       nxt_counter = 0;
+                       nxt_state = STATE_WRITE_PACKET;
+                    end
+                 end
                  nxt_wcounter = 0;
-              end else if (dp_in.last) begin
-                 nxt_counter = 0;
-                 nxt_state = STATE_WRITE_PACKET;
+              end else begin
+                 if (dp_in.last) begin
+                    nxt_counter = 0;
+                    nxt_state = STATE_WRITE_PACKET;
+                 end
               end
            end
         end // case: STATE_WRITE
@@ -300,12 +317,18 @@ module osd_mam
            end
         end // case: STATE_WRITE_WAIT
         STATE_WRITE_SINGLE: begin
+           nxt_write_data_reg[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
+           write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
            dp_in_ready = 1;
-           nxt_write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
            if (dp_in.valid) begin
               nxt_wcounter = wcounter + 1;
               if (wcounter == DATA_WIDTH/16 - 1) begin
-                 nxt_state = STATE_WRITE_SINGLE_WAIT;
+                 write_valid = 1;
+                 if (!write_ready) begin
+                    nxt_state = STATE_WRITE_SINGLE_WAIT;
+                 end else begin
+                    nxt_state = STATE_INACTIVE;
+                 end
               end
            end
         end

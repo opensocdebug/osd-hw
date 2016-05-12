@@ -154,7 +154,7 @@ module osd_mam
    logic [ADDR_WIDTH-1:0]            nxt_req_addr;
    logic [DATA_WIDTH/8-1:0]          nxt_write_strb;
 
-   reg                               write_data_reg;
+   reg   [DATA_WIDTH-1:0]            write_data_reg;
    logic [DATA_WIDTH-1:0]            nxt_write_data_reg;
 
    // This is the number of (16 bit) words needed to form an address

@@ -30,6 +30,7 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => Loc
       chosen(i) := !io.in(i).bits.last
     }
     arbiter.io.in(i).valid := chosen(i) || (!transmitting && io.in(i).valid)
+    io.in(i).ready := arbiter.io.in(i).fire()
   })
 }
 

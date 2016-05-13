@@ -83,7 +83,7 @@ module osd_ctm
 
    logic                   sample_prvchange;
    assign sample_prvchange = (prv_reg != trace_prv);
-   assign sample_valid = trace_valid &
+   assign sample_valid = trace_valid & !trace_mem &
                           (sample_prvchange | trace_jal | trace_jalr);
    assign sample_data = {sample_prvchange, trace_jal, trace_jalr,
                          trace_prv, trace_pc, trace_npc, timestamp};

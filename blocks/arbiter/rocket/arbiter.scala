@@ -18,15 +18,18 @@ abstract class DebugWormholeArbiterLike[T <: DiiFlit](gen: T, n:Int)(arb: => Loc
 
   val chosen = Reg(init = Vec.fill(n)(Bool(false)))
   val transmitting = chosen.reduce(_||_)
+  val out_valid = (0 until n) map ( i => { io.in(i).valid && chosen(i) }) reduce(_||_)
 
   io.in <> arbiter.io.in
   io.out <> arbiter.io.out
+
+  io.out.valid := out_valid || (!transmitting && arbiter.io.out.valid)
 
   (0 until n).foreach( i => {
     when(io.in(i).fire()) {
       chosen(i) := !io.in(i).bits.last
     }
-    arbiter.io.in(i).valid := (!transmitting || chosen(i)) && io.in(i).valid
+    arbiter.io.in(i).valid := chosen(i) || (!transmitting && io.in(i).valid)
   })
 }
 

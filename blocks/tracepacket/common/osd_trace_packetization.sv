@@ -71,8 +71,10 @@ module osd_trace_packetization
            debug_out.valid = 1;
            debug_out.data = {1'b1, 5'h0, trace_data[9:0]};
            debug_out.last = 1;
-           if (debug_out_ready)
-             nxt_state = IDLE;
+           if (debug_out_ready) begin
+              nxt_state = IDLE;
+              trace_ready = 1;
+           end
         end
         EVENT: begin
            debug_out.valid = 1;

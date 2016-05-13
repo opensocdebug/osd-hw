@@ -89,6 +89,7 @@ module osd_trace_packetization
                  debug_out.data = trace_data[(counter+1)*16-1 -: 16];
               end
               if (debug_out_ready) begin
+                 trace_ready = 1;
                  nxt_state = IDLE;
               end
            end // else: !if(counter < NUM_FLITS - 1)

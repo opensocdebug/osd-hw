@@ -64,7 +64,7 @@ module osd_stm
    logic          packet_ready;
    
    assign sample_valid = trace_valid;
-   assign sample_data = {trace_id, trace_value, timestamp};
+   assign sample_data = {trace_value, trace_id, timestamp};
 
    osd_timestamp
      #(.WIDTH(32))
@@ -97,12 +97,14 @@ module osd_stm
    
    osd_trace_packetization
      #(.WIDTH(EW))
-   u_packetization(.clk  (clk),
-                   .rst  (rst),
-                   .id   (id),
-                   .trace_data  (packet_data),
-                   .trace_overflow (packet_overflow),
-                   .trace_valid (packet_valid),
-                   .trace_ready (packet_ready));
+   u_packetization(.clk             (clk),
+                   .rst             (rst),
+                   .id              (id),
+                   .trace_data      (packet_data),
+                   .trace_overflow  (packet_overflow),
+                   .trace_valid     (packet_valid),
+                   .trace_ready     (packet_ready),
+                   .debug_out       (dp_out),
+                   .debug_out_ready (dp_out_ready));
    
 endmodule // osd_stm

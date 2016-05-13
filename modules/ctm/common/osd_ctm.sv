@@ -62,25 +62,31 @@ module osd_ctm
    assign reg_ack = 1;
    assign reg_err = 1;
 
+   localparam EW = 3 + 32 + 2 + 64 + 64;
+
    reg [1:0]               prv_reg;
    always_ff @(posedge clk)
      if (trace_valid)
        prv_reg <= trace_prv;
 
-   logic [33:0]            sample_data;
+   logic [EW-1:0]          sample_data;
    logic                   sample_valid;
    logic [31:0]            timestamp;
-   logic [33:0]            fifo_data;
+   logic [EW-1:0]          fifo_data;
    logic                   fifo_overflow;
    logic                   fifo_valid;
    logic                   fifo_ready;
-   logic [33:0]            packet_data;
+   logic [EW-1:0]          packet_data;
    logic                   packet_overflow;
    logic                   packet_valid;
    logic                   packet_ready;
 
-   assign sample_valid = trace_valid & (prv_reg != trace_prv);
-   assign sample_data = {trace_prv, timestamp};
+   logic                   sample_prvchange;
+   assign sample_prvchange = (prv_reg != trace_prv);
+   assign sample_valid = trace_valid &
+                          (sample_prvchange | trace_jal | trace_jalr);
+   assign sample_data = {sample_prvchange, trace_jal, trace_jalr,
+                         trace_prv, trace_pc, trace_npc, timestamp};
 
    osd_timestamp
      #(.WIDTH(32))
@@ -90,7 +96,7 @@ module osd_ctm
                .timestamp (timestamp));
    
    osd_tracesample
-     #(.WIDTH(34))
+     #(.WIDTH(EW))
    u_sample(.clk            (clk),
             .rst            (rst),
             .sample_data    (sample_data),
@@ -101,7 +107,7 @@ module osd_ctm
             .fifo_ready     (fifo_ready));
 
    osd_fifo
-     #(.WIDTH(35), .DEPTH(8))
+     #(.WIDTH(EW+1), .DEPTH(8))
    u_buffer(.clk     (clk),
             .rst     (rst),
             .in_data ({fifo_overflow, fifo_data}),
@@ -112,14 +118,16 @@ module osd_ctm
             .out_ready (packet_ready));
    
    osd_trace_packetization
-     #(.WIDTH(34))
+     #(.WIDTH(EW))
    u_packetization(.clk  (clk),
                    .rst  (rst),
                    .id   (id),
                    .trace_data  (packet_data),
                    .trace_overflow (packet_overflow),
                    .trace_valid (packet_valid),
-                   .trace_ready (packet_ready));
+                   .trace_ready (packet_ready),
+                   .debug_out (dp_out),
+                   .debug_out_ready (dp_out_ready));
     
    
 endmodule // osd_ctm

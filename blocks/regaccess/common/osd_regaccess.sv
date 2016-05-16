@@ -132,10 +132,12 @@ module osd_regaccess
 
            if (addr_is_ext) begin
               nxt_req_addr = debug_in.data;
-              if (req_write)
-                nxt_state = STATE_WRITE;
-              else
-                nxt_state = STATE_EXT_START;
+              if (debug_in.valid) begin
+                 if (req_write)
+                   nxt_state = STATE_WRITE;
+                 else
+                   nxt_state = STATE_EXT_START;
+              end
            end else begin
               if (req_write) begin
                  // LOCAL WRITE

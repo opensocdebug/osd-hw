@@ -188,6 +188,9 @@ module osd_mam
       nxt_wcounter = wcounter;
       nxt_in_packet = in_packet;
       nxt_is_last_flit = is_last_flit;
+      nxt_write_strb = write_strb;
+      nxt_req_rw = req_rw;
+      nxt_req_burst = req_burst;
       
       nxt_req_addr = req_addr;
       

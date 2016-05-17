@@ -14,6 +14,9 @@ module osd_him
 
    localparam BUF_SIZE = MAX_PKT_LEN;
 
+   dii_flit dii_ingress;
+   logic          dii_ingress_ready;
+
    logic ingress_active;
    logic [4:0] ingress_size;
 
@@ -21,10 +24,10 @@ module osd_him
    assign ingress_data_be[7:0] = glip_in.data[15:8];
    assign ingress_data_be[15:8] = glip_in.data[7:0];
 
-   assign glip_in.ready = !ingress_active | dii_out_ready;
-   assign dii_out.data  = ingress_data_be;
-   assign dii_out.valid = ingress_active & glip_in.valid;
-   assign dii_out.last  = ingress_active & (ingress_size == 0);
+   assign glip_in.ready = !ingress_active | dii_ingress_ready;
+   assign dii_ingress.data  = ingress_data_be;
+   assign dii_ingress.valid = ingress_active & glip_in.valid;
+   assign dii_ingress.last  = ingress_active & (ingress_size == 0);
 
    always @(posedge clk) begin
       if (rst) begin
@@ -45,6 +48,15 @@ module osd_him
          end
       end
    end
+
+   dii_buffer
+     #(.BUF_SIZE(BUF_SIZE), .FULLPACKET(1))
+   u_ingress_buffer(.*,
+                   .packet_size (),
+                   .flit_in (dii_ingress),
+                   .flit_in_ready (dii_ingress_ready),
+                   .flit_out (dii_out),
+                   .flit_out_ready (dii_out_ready));
 
    dii_flit dii_egress;
    logic    dii_egress_ready;

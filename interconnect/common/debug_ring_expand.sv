@@ -3,12 +3,12 @@ import dii_package::dii_flit;
 
 module debug_ring_expand
   #(parameter PORTS = 1,
-    parameter BUFFER_SIZE = 4,
-    parameter PORTIDMAP = 10'h0)
+    parameter BUFFER_SIZE = 4)
    (input clk, rst,
-    input dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,
+    input  [PORTS-1:0][9:0] id_map,
+    input  dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,
     output dii_flit [PORTS-1:0] dii_out, input [PORTS-1:0] dii_out_ready,
-    input dii_flit [1:0] ext_in, output [1:0] ext_in_ready, // extension input ports
+    input  dii_flit [1:0] ext_in, output [1:0] ext_in_ready, // extension input ports
     output dii_flit [1:0] ext_out, input [1:0] ext_out_ready // extension output ports
    );
 
@@ -23,7 +23,7 @@ module debug_ring_expand
            #(.BUFFER_SIZE(BUFFER_SIZE))
          u_router(
                   .*,
-                  .id              ( PORTIDMAP[(i+1)*10-1 -: 10] ),
+                  .id              ( id_map[i]                   ),
                   .ring_in0        ( chain[0][i]                 ),
                   .ring_in0_ready  ( chain_ready[0][i]           ),
                   .ring_in1        ( chain[1][i]                 ),

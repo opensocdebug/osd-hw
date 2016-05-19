@@ -66,8 +66,7 @@ module osd_ctm
 
    reg [1:0]               prv_reg;
    always_ff @(posedge clk)
-     if (trace_valid)
-       prv_reg <= trace_prv;
+     prv_reg <= trace_prv;
 
    logic [EW-1:0]          sample_data;
    logic                   sample_valid;
@@ -83,8 +82,8 @@ module osd_ctm
 
    logic                   sample_prvchange;
    assign sample_prvchange = (prv_reg != trace_prv);
-   assign sample_valid = trace_valid & !trace_mem &
-                          (sample_prvchange | trace_jal | trace_jalr);
+   assign sample_valid = (trace_valid & !trace_mem &
+                          (trace_jal | trace_jalr)) | sample_prvchange;
    assign sample_data = {sample_prvchange, trace_jal, trace_jalr,
                          trace_prv, trace_pc, trace_npc, timestamp};
 

@@ -10,6 +10,7 @@ case object DebugStmID extends Field[Int]
 case object DebugCtmScorBoardSize extends Field[Int]
 case object DebugStmCsrAddr extends Field[Int]
 case object DebugBaseID extends Field[Int]
+case object DebugSubIDSize extends Field[Int]
 case object DebugRouterBufferSize extends Field[Int]
 
 trait HasDebugModuleParameters {
@@ -22,8 +23,7 @@ trait HasDebugModuleParameters {
   val ctmScoreBoardSize = p(DebugCtmScorBoardSize)
                                   // size of scoreboard in CTM, the same as L1 MISHS
   val stmUserRegAddr = 10         // the address of the user register for software trace
-  val stmThreadPtrAddr = 4        // the address of the thread pointer for software trace
-  val stmThreadPtrChgID = 0       // the software trace id when thread pointer changed
+  val stmThreadPtrChgID = 0x8000  // the software trace id for register tracking
   val stmCsrAddr = p(DebugStmCsrAddr)
                                   // the CSR used for software trace
   val ctmID = p(DebugCtmID)       // the debug module ID of the core trace module

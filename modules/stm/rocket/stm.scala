@@ -10,15 +10,22 @@ class SoftwareTrace(implicit p: Parameters) extends DebugModuleBundle()(p) {
 
 class SoftwareTraceIO(implicit p: Parameters) extends DebugModuleBBoxIO()(p) {
   val trace = (new ValidIO(new SoftwareTrace)).flip
-
   trace.valid.setName("trace_valid")
   trace.bits.id.setName("trace_id")
   trace.bits.value.setName("trace_value")
+
+  val tracking_enable = Bool(OUTPUT)
+  tracking_enable.setName("trace_reg_enable")
+
+  val tracking_addr = UInt(OUTPUT, width=regAddrWidth)
+  tracking_addr.setName("trace_reg_addr")
 }
 
 // black box wrapper
 class osd_stm(implicit val p: Parameters) extends BlackBox with HasDebugModuleParameters {
   val io = new SoftwareTraceIO
+
+  setVerilogParameters("#(.REG_ADDR_WIDTH(" + regAddrWidth + "))")
 
   addClock(Driver.implicitClock)
   renameReset("rst")
@@ -44,9 +51,6 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null)(i
   io.net <> bbox_port.io.chisel
   bbox_port.io.bbox <> tracer.io.net
   tracer.io.id := UInt(baseID + coreid*subIDSize + stmID)
-  tracer.io.trace.valid := Bool(false)
-  tracer.io.trace.bits.id := UInt(0)
-  tracer.io.trace.bits.value := UInt(0)
 
   def input_latch[T <: Data](in:T):T = if(latch) RegNext(in) else in
 
@@ -60,20 +64,10 @@ class RocketSoftwareTracer(coreid:Int, latch:Boolean = false)(rst:Bool = null)(i
 
   val user_reg   = RegEnable(reg_wdata,
     retire && reg_wen && reg_waddr === UInt(stmUserRegAddr))
-  val thread_ptr = RegEnable(reg_wdata,
-    retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr))
 
-  // change of thread pointer
-  when(retire && reg_wen && reg_waddr === UInt(stmThreadPtrAddr)) {
-    tracer.io.trace.valid := Bool(true)
-    tracer.io.trace.bits.value := thread_ptr
-    tracer.io.trace.bits.id := UInt(stmCsrAddr)
-  }
-
-  // a software trace is triggered
-  when(csr_wen && csr_waddr === UInt(stmCsrAddr)) {
-    tracer.io.trace.valid := Bool(true)
-    tracer.io.trace.bits.value := user_reg
-    tracer.io.trace.bits.id := csr_wdata
-  }
+  val tracking_trigger = tracer.io.tracking_enable && retire && reg_wen && reg_waddr === tracer.io.tracking_addr
+  val software_trigger = retire && csr_wen && csr_waddr === UInt(stmCsrAddr)
+  tracer.io.trace.valid := tracking_trigger || software_trigger
+  tracer.io.trace.bits.value := Mux(tracking_trigger, reg_wdata, user_reg)
+  tracer.io.trace.bits.id := Mux(tracking_trigger, UInt(stmThreadPtrChgID), csr_wdata)
 }

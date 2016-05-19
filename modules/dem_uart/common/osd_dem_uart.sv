@@ -4,10 +4,12 @@ import dii_package::dii_flit;
 module osd_dem_uart
   (input clk, rst,
 
-   input dii_flit debug_in, output debug_in_ready,
-   output dii_flit debug_out, input debug_out_ready,
+   input        dii_flit debug_in, output debug_in_ready,
+   output       dii_flit debug_out, input debug_out_ready,
 
    input [9:0]  id,
+
+   output       drop,
 
    input [7:0]  out_char,
    input        out_valid,
@@ -31,6 +33,7 @@ module osd_dem_uart
    assign reg_rdata = 0;
    
    logic        stall;
+   assign drop = stall;
 
    dii_flit c_uart_out, c_uart_in;
    logic        c_uart_out_ready, c_uart_in_ready;

@@ -35,7 +35,7 @@ module dii_buffer
        reg_out_valid <= 0;
      else if(flit_in.valid)
        reg_out_valid <= 1;
-     else if(flit_out_ready && rp == 0)
+     else if(flit_out_fire && rp == 0)
        reg_out_valid <= 0;
 
    always_ff @(posedge clk)

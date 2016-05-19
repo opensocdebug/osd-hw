@@ -74,7 +74,7 @@ class DebugNetworkMultiplexerRR(ips:Int)(implicit p: Parameters)
 class DebugNetworkDemultiplexer(ops:Int)(route: (DiiFlit,Bool) => UInt)(implicit p: Parameters)
     extends DebugNetworkConnector(1,ops)(p)
 {
-  val selection = route(io.ip(0).bits, io.ip(0).valid)
+  val selection = route(io.ip(0).bits, io.ip(0).fire())
   io.op.zipWithIndex.foreach { case (o, i) => {
     o.valid := io.ip(0).valid && selection === UInt(i)
     o.bits := io.ip(0).bits

@@ -47,6 +47,8 @@ module osd_dem_uart_nasti
    logic                    bus_ack;
    logic [7:0]              bus_rdata;
 
+   logic                    drop;
+
    logic                    out_valid;
    logic [7:0]              out_char;
    logic                    out_ready;

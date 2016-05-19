@@ -89,8 +89,7 @@ class RocketCoreTracer(coreid:Int,
   isWrite:UInt => Bool,
   isCsrRead:(UInt, UInt) => Bool,
   isCsrWrite:(UInt, UInt) => Bool,
-  isCsrTrap:(UInt, UInt) => Bool,
-  latch:Boolean = false)
+  isCsrTrap:(UInt, UInt) => Bool)
   (rst:Bool = null)
     extends DebugModuleModule(coreid)(rst)
 {
@@ -104,7 +103,7 @@ class RocketCoreTracer(coreid:Int,
   tracer.io.id := UInt(baseID + coreid*subIDSize + ctmID)
   tracer.io.trace.valid := Bool(false)
 
-  def input_latch[T <: Data](in:T):T = if(latch) RegNext(in) else in
+  def input_latch[T <: Data](in:T):T = RegNext(in)
 
   val wb_valid        = input_latch(io.wb_valid)
   val wb_pc           = input_latch(io.wb_pc)
@@ -124,7 +123,7 @@ class RocketCoreTracer(coreid:Int,
 
   val csr_eret        = input_latch(io.csr_eret)
   val csr_xcpt        = input_latch(io.csr_xcpt)
-  val csr_prv         = input_latch(io.csr_prv)
+  val csr_prv         = io.csr_prv // updated prv is only available the next cycle
   val csr_wdata       = input_latch(io.csr_wdata)
   val csr_time        = input_latch(io.csr_time)
 

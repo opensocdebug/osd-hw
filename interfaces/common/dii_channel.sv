@@ -13,9 +13,7 @@ package dii_package;
                        input logic        m_last,
                        input logic [15:0] m_data                       
                        );
-      dii_flit_assemble.valid = m_valid;
-      dii_flit_assemble.last  = m_last;
-      dii_flit_assemble.data  = m_data;
+      return dii_flit'{m_valid, m_last, m_data};
    endfunction      
 
 endpackage // dii_package

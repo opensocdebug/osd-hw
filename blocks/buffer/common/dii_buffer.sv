@@ -71,10 +71,17 @@ module dii_buffer
          endfunction // size_count
 
          assign packet_size = BUF_SIZE - find_first_one(data_last_shifted);
-         assign flit_out = dii_flit_assemble(reg_out_valid && |data_last_shifted, data[rp].last, data[rp].data);
+
+         always_comb begin
+            flit_out = data[rp];
+            flit_out.valid = reg_out_valid && |data_last_shifted;
+         end
       end else begin // if (FULLPACKET)
          assign packet_size = 0;
-         assign flit_out = dii_flit_assemble(reg_out_valid, data[rp].last, data[rp].data);
+         always_comb begin
+            flit_out = data[rp];
+            flit_out.valid = reg_out_valid;
+         end
       end
    endgenerate
 

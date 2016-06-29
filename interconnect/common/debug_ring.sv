@@ -3,10 +3,10 @@ import dii_package::dii_flit;
 
 module debug_ring
   #(parameter PORTS = 1,
-    parameter BUFFER_SIZE = 4,
-    parameter PORTIDMAP = 10'h0)
+    parameter BUFFER_SIZE = 4)
    (input clk, rst,
-    input dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,
+    input  [PORTS-1:0][9:0] id_map,
+    input  dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,
     output dii_flit [PORTS-1:0] dii_out, input [PORTS-1:0] dii_out_ready
    );
 
@@ -14,8 +14,7 @@ module debug_ring
    logic [1:0][1:0]    ext_port_ready;
 
    debug_ring_expand
-     #(.PORTS(PORTS), .BUFFER_SIZE(BUFFER_SIZE),
-       .PORTIDMAP(PORTIDMAP))
+     #(.PORTS(PORTS), .BUFFER_SIZE(BUFFER_SIZE))
    ring (
          .*,
          .ext_in        ( ext_port[0]       ),

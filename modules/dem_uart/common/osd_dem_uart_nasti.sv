@@ -12,6 +12,8 @@ module osd_dem_uart_nasti
    (input clk, rst,
     
     input [9:0]                 id,
+
+    output                      irq,
     
     input [ADDR_WIDTH-1:0]      ar_addr,
     input                       ar_valid,
@@ -34,9 +36,9 @@ module osd_dem_uart_nasti
     output                      b_valid,
     input                       b_ready,
                                 
-    input dii_flit              debug_in,
+    input                       dii_flit debug_in,
     output                      debug_in_ready,
-    output dii_flit             debug_out,
+    output                      dii_flit debug_out,
     input                       debug_out_ready
     );
 
@@ -61,6 +63,8 @@ module osd_dem_uart_nasti
    
    osd_dem_uart
      u_uart_emul(.*);
+
+   assign irq = in_valid;
 
    reg                      resp;
    

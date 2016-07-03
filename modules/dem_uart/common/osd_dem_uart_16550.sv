@@ -37,13 +37,14 @@ module osd_dem_uart_16550
 
    always @(*)
      case (bus_addr)
-       REG_LSR: bus_rdata = 8'h60;
+       REG_TXRX: bus_rdata = in_char;
+       REG_LSR: bus_rdata = {7'h30, in_valid};
        default: bus_rdata = 8'h0;
      endcase
    
    assign bus_ack = lcr_7 | (bus_addr != REG_TXRX) | 
                     (bus_write ? (out_ready | drop) : 1'b1);
 
-   assign in_ready = 1;
+   assign in_ready = bus_req & bus_write & (bus_addr == REG_TXRX);
    
 endmodule // osd_dem_uart_16550

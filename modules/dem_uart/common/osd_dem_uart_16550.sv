@@ -45,6 +45,6 @@ module osd_dem_uart_16550
    assign bus_ack = lcr_7 | (bus_addr != REG_TXRX) | 
                     (bus_write ? (out_ready | drop) : 1'b1);
 
-   assign in_ready = bus_req & bus_write & (bus_addr == REG_TXRX);
+   assign in_ready = bus_req & !bus_write & (bus_addr == REG_TXRX);
    
 endmodule // osd_dem_uart_16550

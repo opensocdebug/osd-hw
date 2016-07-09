@@ -1,2 +1,5 @@
 *.pdf
 *~
+
+# Chisel compiled files
+/target

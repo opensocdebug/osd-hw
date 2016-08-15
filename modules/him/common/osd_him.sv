@@ -87,7 +87,7 @@ module osd_him
                egress_active <= 1;
             end
          end else begin 
-            if (dii_egress_ready & dii_egress.last) begin
+            if (dii_egress.valid & dii_egress_ready & dii_egress.last) begin
                egress_active <= 0;
             end
          end

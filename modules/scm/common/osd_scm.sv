@@ -4,7 +4,7 @@ import dii_package::dii_flit;
 module osd_scm
   #(parameter SYSTEMID='x,
     parameter NUM_MOD='x,
-    parameter MAX_PKT_LEN=0)
+    parameter MAX_PKT_LEN=8)
    (input clk, rst,
 
     input [9:0] id,

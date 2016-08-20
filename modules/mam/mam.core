@@ -5,7 +5,7 @@ depend =
   opensocdebug:interfaces:dii_channel
 
 [fileset src_files]
-file_type = verilogSource
+file_type = systemVerilogSource
 usage = sim synth
 files =
   common/osd_mam.sv

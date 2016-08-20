@@ -50,9 +50,7 @@ module osd_scm
 
    always @(posedge clk) begin
       if (rst) begin
-         // hold the full system in reset until we explicitly start it after
-         // loading the memories
-         rst_vector <= 2'b10;
+         rst_vector <= 2'b00;
       end else begin
          if (reg_request & reg_write & (reg_addr == 16'h203))
             rst_vector <= reg_wdata[1:0];

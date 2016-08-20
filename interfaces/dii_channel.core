@@ -8,4 +8,3 @@ usage = sim synth
 files =
   common/dii_channel.sv
   common/dii_channel_flat.sv
-

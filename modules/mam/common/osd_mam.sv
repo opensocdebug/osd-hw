@@ -278,6 +278,8 @@ module osd_mam
         STATE_WRITE: begin
            nxt_write_data_reg[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
            write_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16] = dp_in.data;
+           //nxt_write_data_reg[(wcounter+1)*16-1 -: 16] = dp_in.data;
+           //write_data[(wcounter+1)*16-1 -: 16] = dp_in.data;
            dp_in_ready = 1;
            if (dp_in.valid) begin
               nxt_wcounter = wcounter + 1;

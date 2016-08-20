@@ -48,11 +48,14 @@ module osd_scm
       endcase // case (reg_addr)
    end // always @ (*)
 
-   always_ff @(posedge clk)
-     if (rst)
-       rst_vector <= 2'b00;
-     else
-       if (reg_request & reg_write & (reg_addr == 16'h203))
-         rst_vector <= reg_wdata[1:0];
-
+   always @(posedge clk) begin
+      if (rst) begin
+         // hold the full system in reset until we explicitly start it after
+         // loading the memories
+         rst_vector <= 2'b10;
+      end else begin
+         if (reg_request & reg_write & (reg_addr == 16'h203))
+            rst_vector <= reg_wdata[1:0];
+      end
+   end
 endmodule

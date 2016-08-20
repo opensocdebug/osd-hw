@@ -2,7 +2,7 @@
 //Parameters as in MAM
 
 import dii_package::dii_flit;
-module mam_wb
+module osd_mam_wb
     #(parameter                 DATA_WIDTH  = 16, // in bits, must be multiple of 16
     parameter                   ADDR_WIDTH  = 32,
     parameter MAX_PKT_LEN = 'x,
@@ -64,15 +64,14 @@ module mam_wb
     logic                      read_ready;
 
     osd_mam #(
-		.DATA_WIDTH(DATA_WIDTH),
-		.ADDR_WIDTH(ADDR_WIDTH),
-		.MAX_PKT_LEN(MAX_PKT_LEN),
-		.BASE_ADDR0(BASE_ADDR0),
-		.MEM_SIZE0(MEM_SIZE0))
-	u_mam(.clk(clk_i), .rst(rst_i), .*);
+                .DATA_WIDTH(DATA_WIDTH),
+                .ADDR_WIDTH(ADDR_WIDTH),
+                .MAX_PKT_LEN(MAX_PKT_LEN),
+                .BASE_ADDR0(BASE_ADDR0),
+                .MEM_SIZE0(MEM_SIZE0))
+        u_mam(.clk(clk_i), .rst(rst_i), .*);
 
-	mam_wb_if #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH))
+        osd_mam_wb_if #(.DATA_WIDTH(DATA_WIDTH), .ADDR_WIDTH(ADDR_WIDTH))
     u_mam_wb_if(.*);
 
 endmodule
-

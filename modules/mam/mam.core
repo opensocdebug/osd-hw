@@ -1,6 +1,6 @@
 CAPI=1
 [main]
-name = opensocdebug:modules:mam_wb
+name = opensocdebug:modules:mam
 depend =
   opensocdebug:interfaces:dii_channel
 
@@ -8,6 +8,4 @@ depend =
 file_type = verilogSource
 usage = sim synth
 files =
-  common/mam_wb.sv
   common/osd_mam.sv
-  common/mam_wb_if.sv

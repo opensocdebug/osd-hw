@@ -1,6 +1,6 @@
 //Wishbone Interface for the MAM
 
-module mam_wb_if
+module osd_mam_wb_if
     #(parameter                 DATA_WIDTH  = 16, // in bits, must be multiple of 16
     parameter                   ADDR_WIDTH  = 32)
     (input                      clk_i, rst_i,
@@ -32,37 +32,37 @@ module mam_wb_if
     output reg [1:0]            bte_o,
     output reg [SW-1:0]         sel_o
     );
-    
+
     //Byte select width
     localparam SW = (DATA_WIDTH == 32) ? 4 :
                    (DATA_WIDTH == 16) ? 2 :
                    (DATA_WIDTH ==  8) ? 1 : 'hx;
-    
+
     enum {
         STATE_IDLE, STATE_WRITE_LAST, STATE_WRITE_LAST_WAIT,
         STATE_WRITE, STATE_WRITE_WAIT,
         STATE_READ_LAST, STATE_READ_LAST_BURST, STATE_READ_LAST_WAIT,
         STATE_READ_START, STATE_READ, STATE_READ_WAIT
         } state, nxt_state;
-    
+
     logic                   nxt_stb_o;
     logic                   nxt_cyc_o;
     logic                   nxt_we_o;
     logic [2:0]             nxt_cti_o;
     logic [1:0]             nxt_bte_o;
-    
+
     reg [DATA_WIDTH-1:0]    read_data_reg;
     logic [DATA_WIDTH-1:0]  nxt_read_data_reg;
-    
+
     reg [DATA_WIDTH-1:0]    dat_o_reg;
     logic [DATA_WIDTH-1:0]  nxt_dat_o_reg;
-    
+
     logic [ADDR_WIDTH-1:0]  nxt_addr_o;
-    
+
     reg [13:0]              beats;
     logic [13:0]            nxt_beats;
-    
-    
+
+
     //registers
     always_ff @(posedge clk_i) begin
         if (rst_i) begin
@@ -70,7 +70,7 @@ module mam_wb_if
         end else begin
             state <= nxt_state;
         end
-        
+
 
         stb_o <= nxt_stb_o;
         cyc_o <= nxt_cyc_o;
@@ -82,7 +82,7 @@ module mam_wb_if
         addr_o <= nxt_addr_o;
         beats <= nxt_beats;
     end
-        
+
     //state & output logic
     always_comb begin
         nxt_state = state;
@@ -96,15 +96,15 @@ module mam_wb_if
         nxt_addr_o = addr_o;
         nxt_beats = beats;
         sel_o = '{default:'1};
-        
+
         req_ready = 0;
         write_ready = 0;
         read_valid = 0;
-        
+
         dat_o = dat_o_reg;
         read_data = read_data_reg;
-        
-        
+
+
         case (state)
             STATE_IDLE: begin
                 req_ready = 1;
@@ -146,7 +146,7 @@ module mam_wb_if
                             end else begin
                                 nxt_state = STATE_WRITE_LAST_WAIT;
                                 nxt_stb_o = 0;
-                            end                            
+                            end
                         end // if (req_burst)
                     end else begin // req_rw == 0
                         nxt_we_o = 0;
@@ -242,7 +242,7 @@ module mam_wb_if
             STATE_READ_START: begin
                 nxt_stb_o = 1;
                 if (ack_i) begin
-                    nxt_read_data_reg = dat_i;                    
+                    nxt_read_data_reg = dat_i;
                     nxt_beats = beats - 1;
                     nxt_addr_o = addr_o + DATA_WIDTH/8;
                     if (nxt_beats == 1) begin
@@ -262,7 +262,7 @@ module mam_wb_if
                         end
                     end
                 end
-			end
+                        end
             STATE_READ: begin
                 nxt_stb_o = 1;
                 read_valid = 1;
@@ -301,7 +301,7 @@ module mam_wb_if
                     end else begin
                         nxt_state = STATE_READ_START;
                     end
-                
+
                 end
             end //STATE_READ_WAIT
             STATE_READ_LAST_BURST: begin

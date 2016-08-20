@@ -9,6 +9,5 @@ depend =
 file_type = verilogSource
 usage = sim synth
 files =
-  common/mam_wb.sv
-  common/mam_wb_if.sv
-
+  wishbone/osd_mam_wb.sv
+  wishbone/osd_mam_wb_if.sv

@@ -61,7 +61,6 @@ module osd_mam_wb_if
    reg [13:0]             beats;
    logic [13:0]           nxt_beats;
 
-
    //registers
    always_ff @(posedge clk_i) begin
       if (rst_i) begin
@@ -102,7 +101,6 @@ module osd_mam_wb_if
 
       dat_o = dat_o_reg;
       read_data = read_data_reg;
-
 
       case (state)
         STATE_IDLE: begin

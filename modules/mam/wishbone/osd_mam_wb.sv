@@ -25,23 +25,23 @@ module osd_mam_wb
       parameter BASE_ADDR7  = 'x
       )
    (
-    input                       clk_i, rst_i,
+    input                   clk_i, rst_i,
 
-    input                       dii_flit debug_in, output debug_in_ready,
-    output                      dii_flit debug_out, input debug_out_ready,
+    input                   dii_flit debug_in, output debug_in_ready,
+    output                  dii_flit debug_out, input debug_out_ready,
 
-    input [9:0]                 id,
+    input [9:0]             id,
 
-    output reg                  stb_o,
-    output reg                  cyc_o,
-    input                       ack_i,
-    output reg                  we_o,
-    output reg [ADDR_WIDTH-1:0] addr_o,
-    output reg [DATA_WIDTH-1:0] dat_o,
-    input [DATA_WIDTH-1:0]      dat_i,
-    output reg [2:0]            cti_o,
-    output reg [1:0]            bte_o,
-    output reg [SW-1:0]         sel_o
+    output                  stb_o,
+    output                  cyc_o,
+    input                   ack_i,
+    output                  we_o,
+    output [ADDR_WIDTH-1:0] addr_o,
+    output [DATA_WIDTH-1:0] dat_o,
+    input [DATA_WIDTH-1:0]  dat_i,
+    output [2:0]            cti_o,
+    output [1:0]            bte_o,
+    output [SW-1:0]         sel_o
     );
 
     //Byte select width

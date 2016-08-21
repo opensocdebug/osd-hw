@@ -46,5 +46,19 @@ module osd_stm_mor1kx
    u_stm
      (.*);
 
+   reg [31:0]                    r3_copy;
+
+   always @(posedge clk) begin
+      if (trace_port.wben && (trace_port.wbreg == 3)) begin
+         r3_copy <= trace_port.wbdata;
+      end
+   end
+
+   assign trace_valid = trace_port.valid &&
+                         (trace_port.insn[31:16] == 16'h1500) &&
+                         (trace_port.insn[15:0] != 16'h0);
+
+   assign trace_id = trace_port.insn[15:0];
+   assign trace_value = r3_copy;
 
 endmodule // osd_stm_mor1kx

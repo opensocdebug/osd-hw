@@ -6,9 +6,8 @@ depend =
   opensocdebug:modules:mam
 
 [fileset src_files]
-file_type = verilogSource
+file_type = systemVerilogSource
 usage = sim synth
 files =
-  common/mam_wb.sv
-  common/mam_wb_if.sv
-
+  wishbone/osd_mam_wb.sv
+  wishbone/osd_mam_wb_if.sv

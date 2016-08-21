@@ -18,24 +18,25 @@ import dii_package::dii_flit;
 
 module osd_stm
   #(
-    parameter REG_ADDR_WIDTH = 5 // the address width of the core register file
+    parameter REG_ADDR_WIDTH = 5, // the address width of the core register file
+    parameter XLEN = 64
     )
    (
-    input                        clk, rst,
+    input                       clk, rst,
 
-    input [9:0]                  id,
+    input [9:0]                 id,
 
-    input  dii_flit              debug_in,
-    output                       debug_in_ready,
-    output dii_flit              debug_out,
-    input                        debug_out_ready,
+    input dii_flit              debug_in,
+    output                      debug_in_ready,
+    output dii_flit             debug_out,
+    input                       debug_out_ready,
 
-    input                        trace_valid,
-    input [15:0]                 trace_id,
-    input [63:0]                 trace_value,
+    input                       trace_valid,
+    input [15:0]                trace_id,
+    input [XLEN-1:0]            trace_value,
 
-    output                       trace_reg_enable,
-    output [REG_ADDR_WIDTH-1:0]  trace_reg_addr
+    output                      trace_reg_enable,
+    output [REG_ADDR_WIDTH-1:0] trace_reg_addr
     );
 
    logic        reg_request;
@@ -65,7 +66,7 @@ module osd_stm
    assign reg_err = 1;
 
    // Event width
-   localparam EW = 32 + 16 + 64;
+   localparam EW = 32 + 16 + XLEN;
 
    logic [EW-1:0] sample_data;
    logic          sample_valid;

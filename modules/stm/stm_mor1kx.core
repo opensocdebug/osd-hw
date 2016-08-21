@@ -3,6 +3,7 @@ CAPI=1
 name = opensocdebug:modules:stm_mor1kx
 depend =
   opensocdebug:interfaces:dii_channel
+  opensocdebug:interfaces:mor1kx_trace_exec
   opensocdebug:blocks:timestamp
   opensocdebug:blocks:tracesample
   opensocdebug:blocks:tracepacket

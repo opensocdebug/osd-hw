@@ -15,6 +15,7 @@
 //    Stefan Wallentowitz <stefan@wallentowitz.de>
 
 import dii_package::dii_flit;
+import opensocdebug::mor1kx_trace_exec;
 
 module osd_stm_mor1kx
    (
@@ -25,10 +26,12 @@ module osd_stm_mor1kx
     input  dii_flit              debug_in,
     output                       debug_in_ready,
     output dii_flit              debug_out,
-    input                        debug_out_ready
+    input                        debug_out_ready,
+
+    input mor1kx_trace_exec      trace_port
     );
 
-   localparam XLEN = 32;
+   localparam XLEN = 64;
    localparam REG_ADDR_WIDTH = 5;
 
    logic                         trace_valid;

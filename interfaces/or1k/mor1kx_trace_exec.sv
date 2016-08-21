@@ -19,6 +19,7 @@ package opensocdebug;
    typedef struct packed {
       logic [31:0] insn;
       logic [31:0] pc;
+      logic [31:0] npc;
       logic        valid;
       logic [31:0] wbdata;
       logic [4:0]  wbreg;

@@ -62,8 +62,16 @@ module osd_stm
                .module_out (dp_in),
                .module_out_ready (dp_in_ready));
 
-   assign reg_ack = 1;
-   assign reg_err = 1;
+   always @(*) begin
+      reg_ack = 1;
+      reg_rdata = 'x;
+      reg_err = 0;
+
+      case (reg_addr)
+        16'h200: reg_rdata = 16'(XLEN);
+        default: reg_err = reg_request;
+      endcase // case (reg_addr)
+   end // always @ (*)
 
    // Event width
    localparam EW = 32 + 16 + XLEN;

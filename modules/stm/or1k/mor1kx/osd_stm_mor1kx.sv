@@ -31,7 +31,7 @@ module osd_stm_mor1kx
     input mor1kx_trace_exec      trace_port
     );
 
-   localparam XLEN = 64;
+   localparam XLEN = 32;
    localparam REG_ADDR_WIDTH = 5;
 
    logic                         trace_valid;

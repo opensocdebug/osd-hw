@@ -1,0 +1,12 @@
+CAPI=1
+[main]
+name = opensocdebug:blocks:tracepacket
+
+depend =
+   opensocdebug:interfaces:dii_channel
+
+[fileset src_files]
+file_type = systemVerilogSource
+usage = sim synth
+files =
+  common/osd_trace_packetization.sv

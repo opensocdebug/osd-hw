@@ -77,7 +77,7 @@ module osd_ctm
    assign reg_ack = 1;
    assign reg_err = 1;
 
-   localparam EW = 3 + 32 + 2 + 64 + 64;
+   localparam EW = 3 + 32 + 2 + ADDR_WIDTH + ADDR_WIDTH;
 
    reg [1:0]               prv_reg;
    always_ff @(posedge clk)

@@ -1,0 +1,9 @@
+CAPI=1
+[main]
+name = opensocdebug:interfaces:mor1kx_trace_exec
+
+[fileset src_files]
+file_type = systemVerilogSource
+usage = sim synth
+files =
+  or1k/mor1kx_trace_exec.sv

@@ -316,7 +316,6 @@ module osd_mam_wb_if
            end
         end //STATE_READ_WAIT
         STATE_READ_LAST_BURST: begin
-           read_valid = 1;
            nxt_stb_o = 1;
            if (ack_i) begin
               nxt_stb_o = 0;

@@ -161,16 +161,16 @@ module osd_mam_wb_if
                     if (nxt_beats == 1) begin
                        nxt_cti_o = 3'b111;
                        nxt_state = STATE_READ_LAST;
-                       nxt_stb_o = 0;
+                       nxt_stb_o = 1;
                     end else begin
                        nxt_cti_o = 3'b010;
                        nxt_state = STATE_READ_START;
-                       nxt_stb_o = 0;
+                       nxt_stb_o = 1;
                     end
                  end else begin // !req_burst
                     nxt_cti_o = 3'b111;
                     nxt_state = STATE_READ_LAST;
-                    nxt_stb_o = 0;
+                    nxt_stb_o = 1;
                  end // if (req_burst)
               end // if (req_rw)
            end // if (req_valid)

@@ -83,7 +83,6 @@ module osd_mam_wb_if
          state <= nxt_state;
       end
 
-
       stb_o <= nxt_stb_o;
       cyc_o <= nxt_cyc_o;
       we_o <= nxt_we_o;
@@ -119,10 +118,10 @@ module osd_mam_wb_if
       case (state)
         STATE_IDLE: begin
            req_ready = 1;
+           nxt_beats = req_beats;
+           nxt_addr_o = req_addr;
            if (req_valid) begin
-              nxt_beats = req_beats;
               nxt_cyc_o = 1;
-              nxt_addr_o = req_addr;
               if (req_rw) begin
                  nxt_we_o = 1;
                  if (req_burst) begin

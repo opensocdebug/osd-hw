@@ -56,7 +56,7 @@ module osd_mam_wb_if
    enum { STATE_IDLE, STATE_WRITE_LAST, STATE_WRITE_LAST_WAIT,
           STATE_WRITE, STATE_WRITE_WAIT, STATE_READ_LAST,
           STATE_READ_LAST_BURST, STATE_READ_LAST_WAIT,
-          STATE_READ_START, STATE_READ, STATE_READ_WAIT } state, nxt_state;
+          STATE_READ_START, STATE_READ_WAIT } state, nxt_state;
 
    logic nxt_we_o;
    logic [2:0] nxt_cti_o;
@@ -234,17 +234,6 @@ module osd_mam_wb_if
               nxt_state = STATE_READ_WAIT;
            end
         end
-        STATE_READ: begin
-           stb_o = 1;
-           if (ack_i) begin
-              nxt_read_data_reg = dat_i;
-              nxt_beats = beats - 1;
-              nxt_addr_o = addr_o + DATA_WIDTH/8;
-              nxt_state = STATE_READ_WAIT;
-           end else begin
-              nxt_state = STATE_READ_START;
-           end
-        end //STATE_READ
         STATE_READ_WAIT: begin
            read_valid = 1;
            if (read_ready) begin

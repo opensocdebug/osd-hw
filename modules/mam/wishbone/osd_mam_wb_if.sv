@@ -127,35 +127,32 @@ module osd_mam_wb_if
                  if (req_burst) begin
                     if (nxt_beats == 1) begin
                        nxt_cti_o = 3'b111;
+                       nxt_stb_o = write_valid;
                        if (write_valid) begin
                           nxt_state = STATE_WRITE_LAST;
                           nxt_dat_o_reg = write_data;
-                          nxt_stb_o = 1;
                        end else begin
                           nxt_state = STATE_WRITE_LAST_WAIT;
-                          nxt_stb_o = 0;
                        end
                     end else begin
                        nxt_cti_o = 3'b010;
                        nxt_bte_o = 2'b00;
+                       nxt_stb_o = write_valid;
                        if (write_valid) begin
                           nxt_state = STATE_WRITE;
                           nxt_dat_o_reg = write_data;
-                          nxt_stb_o = 1;
                        end else begin
                           nxt_state = STATE_WRITE_WAIT;
-                          nxt_stb_o = 0;
                        end
                     end
                  end else begin // !req_burst
                     nxt_cti_o = 3'b111;
+                    nxt_stb_o = write_valid;
                     if (write_valid) begin
                        nxt_state = STATE_WRITE_LAST;
                        nxt_dat_o_reg = write_data;
-                       nxt_stb_o = 1;
                     end else begin
                        nxt_state = STATE_WRITE_LAST_WAIT;
-                       nxt_stb_o = 0;
                     end
                  end // if (req_burst)
               end else begin // req_rw == 0

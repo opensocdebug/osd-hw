@@ -272,7 +272,6 @@ module osd_mam_wb_if
         end
         STATE_READ: begin
            nxt_stb_o = 1;
-           read_valid = 1;
            if (ack_i) begin
               nxt_read_data_reg = dat_i;
               nxt_beats = beats - 1;

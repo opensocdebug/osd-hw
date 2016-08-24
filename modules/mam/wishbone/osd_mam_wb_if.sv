@@ -37,7 +37,7 @@ module osd_mam_wb_if
     input                       read_ready, // Acknowledge this data item
 
     output reg                  stb_o,
-    output reg                  cyc_o,
+    output                      cyc_o,
     input                       ack_i,
     output reg                  we_o,
     output reg [ADDR_WIDTH-1:0] addr_o,
@@ -58,7 +58,6 @@ module osd_mam_wb_if
           STATE_READ_LAST_BURST, STATE_READ_LAST_WAIT,
           STATE_READ_START, STATE_READ, STATE_READ_WAIT } state, nxt_state;
 
-   logic nxt_cyc_o;
    logic nxt_we_o;
    logic [2:0] nxt_cti_o;
    logic [1:0] nxt_bte_o;
@@ -82,7 +81,6 @@ module osd_mam_wb_if
          state <= nxt_state;
       end
 
-      cyc_o <= nxt_cyc_o;
       we_o <= nxt_we_o;
       cti_o <= nxt_cti_o;
       bte_o <= nxt_bte_o;
@@ -92,10 +90,11 @@ module osd_mam_wb_if
       beats <= nxt_beats;
    end
 
+   assign cyc_o = stb_o;
+
    //state & output logic
    always_comb begin
       nxt_state = state;
-      nxt_cyc_o = cyc_o;
       nxt_we_o = we_o;
       nxt_cti_o = cti_o;
       nxt_bte_o = 2'b0;
@@ -119,7 +118,6 @@ module osd_mam_wb_if
            nxt_beats = req_beats;
            nxt_addr_o = req_addr;
            if (req_valid) begin
-              nxt_cyc_o = 1;
               if (req_rw) begin
                  nxt_we_o = 1;
                  if (req_burst) begin
@@ -178,7 +176,6 @@ module osd_mam_wb_if
            stb_o = 1;
            if (ack_i) begin
               nxt_state = STATE_IDLE;
-              nxt_cyc_o = 0;
               nxt_cti_o = 3'b000;
            end
         end //STATE_WRITE_LAST
@@ -225,7 +222,6 @@ module osd_mam_wb_if
                read_valid = 1;
                if (read_ready) begin
                   nxt_state = STATE_IDLE;
-                  nxt_cyc_o = 0;
                   nxt_cti_o = 3'b000;
                end
             end // STATE_READ_LAST_WAIT

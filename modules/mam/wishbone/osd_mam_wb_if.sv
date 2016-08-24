@@ -218,33 +218,20 @@ module osd_mam_wb_if
               nxt_state = STATE_READ_LAST_WAIT;
            end
         end //STATE_READ_LAST
-            STATE_READ_LAST_WAIT: begin
-               read_valid = 1;
-               if (read_ready) begin
-                  nxt_state = STATE_IDLE;
-                  nxt_cti_o = 3'b000;
-               end
-            end // STATE_READ_LAST_WAIT
+        STATE_READ_LAST_WAIT: begin
+           read_valid = 1;
+           if (read_ready) begin
+              nxt_state = STATE_IDLE;
+              nxt_cti_o = 3'b000;
+           end
+        end // STATE_READ_LAST_WAIT
         STATE_READ_START: begin
            stb_o = 1;
            if (ack_i) begin
               nxt_read_data_reg = dat_i;
               nxt_beats = beats - 1;
               nxt_addr_o = addr_o + DATA_WIDTH/8;
-              if (nxt_beats == 1) begin
-                 if (read_ready) begin
-                    nxt_state = STATE_READ_LAST_BURST;
-                    nxt_cti_o = 3'b111;
-                 end else begin
-                    nxt_state = STATE_READ_WAIT;
-                 end
-              end else begin
-                 if (read_ready) begin
-                    nxt_state = STATE_READ;
-                 end else begin
-                    nxt_state = STATE_READ_WAIT;
-                 end
-              end
+              nxt_state = STATE_READ_WAIT;
            end
         end
         STATE_READ: begin
@@ -253,20 +240,7 @@ module osd_mam_wb_if
               nxt_read_data_reg = dat_i;
               nxt_beats = beats - 1;
               nxt_addr_o = addr_o + DATA_WIDTH/8;
-              if (nxt_beats == 1) begin
-                 if (read_ready) begin
-                    nxt_state = STATE_READ_LAST_BURST;
-                    nxt_cti_o = 3'b111;
-                 end else begin
-                    nxt_state = STATE_READ_WAIT;
-                 end
-              end else begin
-                 if (read_ready) begin
-                    nxt_state = STATE_READ;
-                 end else begin
-                    nxt_state = STATE_READ_WAIT;
-                 end
-              end
+              nxt_state = STATE_READ_WAIT;
            end else begin
               nxt_state = STATE_READ_START;
            end

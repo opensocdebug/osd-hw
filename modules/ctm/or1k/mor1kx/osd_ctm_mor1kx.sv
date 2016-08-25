@@ -60,11 +60,9 @@ module osd_ctm_mor1kx
 
    assign trace_valid = trace_port.valid;
    assign trace_pc = trace_port.pc;
-   assign trace_npc = trace_port.npc;
-   assign trace_jal = (trace_port.insn[31:26] == 6'h1) ||
-                      (trace_port.insn[31:26] == 6'h12);
-   assign trace_jalr = (trace_port.insn[31:26] == 6'h11) &&
-                       (trace_port.insn[15:11] == 5'h9);
+   assign trace_npc = trace_port.jbtarget;
+   assign trace_jal = trace_port.jal;
+   assign trace_jalr = trace_port.jr;
 
 
 endmodule // osd_stm_mor1kx

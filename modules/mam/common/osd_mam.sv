@@ -380,8 +380,8 @@ module osd_mam
               dp_out.last = (counter == MAX_PKT_LEN-1) ||
                             ((wcounter == DATA_WIDTH/16 - 1) && (req_beats == 1));
               dp_out.data = read_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16];
-              nxt_wcounter = wcounter + 1;
               if (dp_out_ready) begin
+                 nxt_wcounter = wcounter + 1;
                  if (wcounter == DATA_WIDTH/16-1) begin
                     nxt_req_beats = req_beats - 1;
                     nxt_wcounter = 0;

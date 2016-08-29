@@ -1,0 +1,10 @@
+CAPI=1
+[main]
+name = opensocdebug:blocks:tracesample
+depend =
+
+[fileset src_files]
+file_type = systemVerilogSource
+usage = sim synth
+files =
+  common/osd_tracesample.sv

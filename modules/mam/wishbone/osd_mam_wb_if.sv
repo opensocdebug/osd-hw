@@ -139,7 +139,7 @@ module osd_mam_wb_if
            if (ack_i) begin
                 if (beats == 0) begin
                     nxt_state = STATE_IDLE;
-                end else begin // beats != 1
+                end else begin // beats != 0
                     write_ready = 1;
                     nxt_addr_o = addr_o + DATA_WIDTH/8;
                     if (write_valid) begin

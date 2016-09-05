@@ -43,8 +43,8 @@ module osd_mam_wb_if
     output reg [ADDR_WIDTH-1:0] addr_o,
     output reg [DATA_WIDTH-1:0] dat_o,
     input [DATA_WIDTH-1:0]      dat_i,
-    output reg [2:0]            cti_o,
-    output reg [1:0]            bte_o,
+    output [2:0]            cti_o,
+    output [1:0]            bte_o,
     output reg [SW-1:0]         sel_o
     );
 

@@ -53,9 +53,8 @@ module osd_mam_wb_if
                    (DATA_WIDTH == 16) ? 2 :
                    (DATA_WIDTH ==  8) ? 1 : 'hx;
 
-   enum { STATE_IDLE, STATE_WRITE_LAST, STATE_WRITE_LAST_WAIT,
-          STATE_WRITE, STATE_WRITE_WAIT, STATE_READ,
-          STATE_READ_WAIT } state, nxt_state;
+   enum { STATE_IDLE, STATE_WRITE, STATE_WRITE_WAIT,
+            STATE_READ, STATE_READ_WAIT } state, nxt_state;
 
    logic nxt_we_o;
 
@@ -114,50 +113,19 @@ module osd_mam_wb_if
            nxt_addr_o = req_addr;
            if (req_valid) begin
               if (req_rw) begin
-                 nxt_we_o = 1;
-                 if (req_burst) begin
-                    if (nxt_beats == 1) begin
-                       if (write_valid) begin
-                          nxt_state = STATE_WRITE_LAST;
-                          nxt_dat_o_reg = write_data;
-                       end else begin
-                          nxt_state = STATE_WRITE_LAST_WAIT;
-                       end
-                    end else begin
-                       if (write_valid) begin
-                          nxt_state = STATE_WRITE;
-                          nxt_dat_o_reg = write_data;
-                       end else begin
-                          nxt_state = STATE_WRITE_WAIT;
-                       end
-                    end
-                 end else begin // !req_burst
-                    if (write_valid) begin
-                       nxt_state = STATE_WRITE_LAST;
-                       nxt_dat_o_reg = write_data;
-                    end else begin
-                       nxt_state = STATE_WRITE_LAST_WAIT;
-                    end
-                 end // if (req_burst)
+                 nxt_we_o = 1;                    
+                if (write_valid) begin
+                    nxt_state = STATE_WRITE;
+                    nxt_dat_o_reg = write_data;
+                end else begin
+                    nxt_state = STATE_WRITE_WAIT;
+                end
               end else begin // req_rw == 0
                  nxt_we_o = 0;
                  nxt_state = STATE_READ;
               end // if (req_rw)
            end // if (req_valid)
         end //STATE_IDLE
-        STATE_WRITE_LAST_WAIT: begin
-           write_ready = 1;
-           if (write_valid) begin
-              nxt_state = STATE_WRITE_LAST;
-              nxt_dat_o_reg = write_data;
-           end
-        end //STATE_WRITE_LAST_WAIT
-        STATE_WRITE_LAST: begin
-           stb_o = 1;
-           if (ack_i) begin
-              nxt_state = STATE_IDLE;
-           end
-        end //STATE_WRITE_LAST
         STATE_WRITE_WAIT: begin
            write_ready = 1;
            if (write_valid) begin
@@ -169,24 +137,19 @@ module osd_mam_wb_if
         STATE_WRITE: begin
            stb_o = 1;
            if (ack_i) begin
-              write_ready = 1;
-              nxt_addr_o = addr_o + DATA_WIDTH/8;
-                    if (beats == 1) begin
-                       if (write_valid) begin
-                          nxt_state = STATE_WRITE_LAST;
-                          nxt_dat_o_reg = write_data;
-                       end else begin
-                          nxt_state = STATE_WRITE_LAST_WAIT;
-                       end
-                    end else begin // beats != 1
-                       if (write_valid) begin
-                          nxt_state = STATE_WRITE;
-                          nxt_dat_o_reg = write_data;
-                          nxt_beats = beats - 1;
-                       end else begin
-                          nxt_state = STATE_WRITE_WAIT;
-                       end
-                    end // if (beats == 1)
+                if (beats == 0) begin
+                    nxt_state = STATE_IDLE;
+                end else begin // beats != 1
+                    write_ready = 1;
+                    nxt_addr_o = addr_o + DATA_WIDTH/8;
+                    if (write_valid) begin
+                        nxt_state = STATE_WRITE;
+                        nxt_dat_o_reg = write_data;
+                        nxt_beats = beats - 1;
+                    end else begin
+                        nxt_state = STATE_WRITE_WAIT;
+                    end
+                end // if (beats == 0)
            end // if (ack_i)
         end // STATE_WRITE
         STATE_READ: begin

@@ -77,8 +77,8 @@ module osd_mam
    endfunction // endian_conv
 
    logic [DATA_WIDTH-1:0] read_data_m, write_data_m;
-   assign read_data_m = ENDIAN ? endian_conv(read_data)    : read_data;
-   assign write_data  = ENDIAN ? endian_conv(write_data_m) : write_data_m;
+   assign read_data_m = ENDIAN ? read_data    : endian_conv(read_data);
+   assign write_data  = ENDIAN ? write_data_m : endian_conv(write_data_m);
 
    logic        reg_request;
    logic        reg_write;

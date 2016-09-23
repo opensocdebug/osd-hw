@@ -36,7 +36,8 @@ module osd_mam
     parameter MEM_SIZE6   = 'x,
     parameter BASE_ADDR6  = 'x,
     parameter MEM_SIZE7   = 'x,
-    parameter BASE_ADDR7  = 'x
+    parameter BASE_ADDR7  = 'x,
+    parameter ENDIAN      = 1   // 0 little-endian, 1 big-endian
     )
    (
     input                         clk, rst,
@@ -62,6 +63,22 @@ module osd_mam
     input [DATA_WIDTH-1:0]        read_data, // Read data
     output reg                    read_ready // Acknowledge this data item
    );
+
+   initial begin
+      assert(DATA_WIDTH[2:0] == 0)
+        else $fatal(1, "datawidth of MAM read/write port must be times of bytes!");
+   end
+
+   function logic [DATA_WIDTH-1:0] endian_conv(input logic [DATA_WIDTH-1:0] din);
+      int i;
+      int total = DATA_WIDTH/8;
+      for(i=0; i<total; i++)
+        endian_conv[i*8 +: 8] = din[(total-i-1)*8 +: 8];
+   endfunction // endian_conv
+
+   logic [DATA_WIDTH-1:0] read_data_m, write_data_m;
+   assign read_data_m = ENDIAN ? endian_conv(read_data)    : read_data;
+   assign write_data  = ENDIAN ? endian_conv(write_data_m) : write_data_m;
 
    logic        reg_request;
    logic        reg_write;
@@ -217,7 +234,7 @@ module osd_mam
       dp_out.last = 0;
       req_valid = 0;
       write_valid = 0;
-      write_data = write_data_reg;
+      write_data_m = write_data_reg;
       read_ready = 0;
 
       case (state)
@@ -379,7 +396,7 @@ module osd_mam
               dp_out.valid = 1;
               dp_out.last = (counter == MAX_PKT_LEN-1) ||
                             ((wcounter == DATA_WIDTH/16 - 1) && (req_beats == 1));
-              dp_out.data = read_data[(DATA_WIDTH/16-wcounter)*16-1 -: 16];
+              dp_out.data = read_data_m[(DATA_WIDTH/16-wcounter)*16-1 -: 16];
               if (dp_out_ready) begin
                  nxt_wcounter = wcounter + 1;
                  if (wcounter == DATA_WIDTH/16-1) begin

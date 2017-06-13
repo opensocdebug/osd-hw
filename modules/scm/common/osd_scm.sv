@@ -17,7 +17,8 @@
 import dii_package::dii_flit;
 
 module osd_scm
-  #(parameter SYSTEMID='x,
+  #(parameter SYSTEM_VENDOR_ID='x,
+    parameter SYSTEM_DEVICE_ID='x,
     parameter NUM_MOD='x,
     parameter MAX_PKT_LEN=8)
    (input clk, rst,
@@ -55,10 +56,11 @@ module osd_scm
       reg_err = 0;
 
       case (reg_addr)
-        16'h200: reg_rdata = 16'(SYSTEMID);
-        16'h201: reg_rdata = 16'(NUM_MOD);
-        16'h202: reg_rdata = 16'(MAX_PKT_LEN);
-        16'h203: reg_rdata = {14'h0, rst_vector};
+        16'h200: reg_rdata = 16'(SYSTEM_VENDOR_ID);
+        16'h201: reg_rdata = 16'(SYSTEM_DEVICE_ID);
+        16'h202: reg_rdata = 16'(NUM_MOD);
+        16'h203: reg_rdata = 16'(MAX_PKT_LEN);
+        16'h204: reg_rdata = {14'h0, rst_vector};
         default: reg_err = reg_request;
       endcase // case (reg_addr)
    end // always @ (*)

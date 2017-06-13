@@ -31,7 +31,7 @@ module osd_regaccess_layer
     parameter MAX_REG_SIZE = 16)
    (input clk, rst,
 
-    input [9:0]   id,
+    input [15:0]  id,
 
     input         dii_flit debug_in, output logic debug_in_ready,
     output        dii_flit debug_out, input debug_out_ready,

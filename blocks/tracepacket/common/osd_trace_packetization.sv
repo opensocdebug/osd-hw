@@ -22,7 +22,7 @@ module osd_trace_packetization
     input             clk,
     input             rst,
 
-    input [9:0]       id,
+    input [15:0]      id,
 
     input [WIDTH-1:0] trace_data,
     input             trace_overflow,

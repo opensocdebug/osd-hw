@@ -45,7 +45,7 @@ module osd_mam
     input                         dii_flit debug_in, output debug_in_ready,
     output                        dii_flit debug_out, input debug_out_ready,
 
-    input [9:0]                   id,
+    input [15:0]                  id,
 
     output reg                    req_valid, // Start a new memory access request
     input                         req_ready, // Acknowledge the new memory access request

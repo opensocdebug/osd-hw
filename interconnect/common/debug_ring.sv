@@ -21,7 +21,7 @@ module debug_ring
   #(parameter PORTS = 1,
     parameter BUFFER_SIZE = 4)
    (input clk, rst,
-    input  [PORTS-1:0][9:0] id_map,
+    input  [PORTS-1:0][15:0] id_map,
     input  dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,
     output dii_flit [PORTS-1:0] dii_out, input [PORTS-1:0] dii_out_ready
    );

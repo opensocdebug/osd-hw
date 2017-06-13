@@ -23,7 +23,7 @@ module osd_scm
     parameter MAX_PKT_LEN=8)
    (input clk, rst,
 
-    input [9:0] id,
+    input [15:0] id,
 
     input dii_flit debug_in, output debug_in_ready,
     output dii_flit debug_out, input debug_out_ready,

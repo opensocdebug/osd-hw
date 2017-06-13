@@ -19,7 +19,9 @@ import dii_package::dii_flit;
 
 module debug_ring
   #(parameter PORTS = 1,
-    parameter BUFFER_SIZE = 4)
+    parameter BUFFER_SIZE = 4,
+    parameter SUBNET_BITS = 6,
+    parameter LOCAL_SUBNET = 0)
    (input clk, rst,
     input  [PORTS-1:0][15:0] id_map,
     input  dii_flit [PORTS-1:0] dii_in, output [PORTS-1:0] dii_in_ready,

@@ -54,7 +54,7 @@ module osd_stm
    logic        dp_out_ready, dp_in_ready;
 
    osd_regaccess_layer
-     #(.MODID(16'h4), .MODVERSION(16'h0),
+     #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h4), .MOD_VERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1))
    u_regaccess(.*,
                .module_in (dp_out),

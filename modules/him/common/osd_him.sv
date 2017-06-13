@@ -117,6 +117,4 @@ module osd_him
                    .flit_in_ready (dii_in_ready),
                    .flit_out (dii_egress),
                    .flit_out_ready (dii_egress_ready));
-
-
 endmodule // osd_him

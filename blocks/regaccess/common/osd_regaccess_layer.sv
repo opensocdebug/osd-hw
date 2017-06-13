@@ -16,9 +16,17 @@
 
 import dii_package::dii_flit;
 
+/**
+ * Register access layer
+ *
+ * This module handles all debug register accesses in a debug link and leaves
+ * all other packet types to be handled by user logic.
+ */
 module osd_regaccess_layer
-  #(parameter MODID = 'x,
-    parameter MODVERSION = 'x,
+  #(parameter MOD_VENDOR = 'x,
+    parameter MOD_TYPE = 'x,
+    parameter MOD_VERSION = 'x,
+    parameter MOD_EVENT_DEST = 'x,
     parameter CAN_STALL = 0,
     parameter MAX_REG_SIZE = 16)
    (input clk, rst,
@@ -46,7 +54,11 @@ module osd_regaccess_layer
    logic          regaccess_in_ready, regaccess_out_ready;
 
    osd_regaccess
-     #(.MODID(MODID), .MODVERSION(MODVERSION), .CAN_STALL(CAN_STALL),
+     #(.MOD_VENDOR(MOD_VENDOR),
+       .MOD_TYPE(MOD_TYPE),
+       .MOD_EVENT_DEST(MOD_EVENT_DEST),
+       .MOD_VERSION(MOD_VERSION),
+       .CAN_STALL(CAN_STALL),
        .MAX_REG_SIZE(MAX_REG_SIZE))
    u_regaccess
      (.*,

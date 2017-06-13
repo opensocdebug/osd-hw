@@ -1,4 +1,4 @@
-// Copyright 2016 by the authors
+// Copyright 2016-2017 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad
 // Hardware License, Version 0.51 (the "License"); you may not use
@@ -44,7 +44,7 @@ module osd_scm
    assign cpu_rst = rst_vector[1] | rst;
 
    osd_regaccess
-     #(.MODID(16'h1), .MODVERSION(16'h0),
+     #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h1), .MOD_VERSION(16'h0),
        .MAX_REG_SIZE(16))
    u_regaccess(.*,
                .stall ());

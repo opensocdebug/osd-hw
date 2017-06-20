@@ -1,3 +1,4 @@
+// XXX: THIS MODULE REQUIRES FIXING IN PACKETATION TO WORK WITH 16 BIT ADDRESSES
 // Copyright 2016 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad

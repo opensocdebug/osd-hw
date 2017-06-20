@@ -1,3 +1,5 @@
+// XXX: This is very likely broken after the change of the packaging format
+// (TYPE moved to flit 3). However, the code isn't exactly easy to understand.
 // Copyright 2016 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad
@@ -64,7 +66,7 @@ module osd_regaccess_demux
       regaccess <= nxt_regaccess;
 
       if (in_transfer)
-        buf_reg <= { in.last, in.data };
+         buf_reg <= { in.last, in.data };
    end
 
    logic active;

@@ -1,0 +1,174 @@
+0 
+45
++acc+1
++cli+4
++define+COCOTB_SIM=1
++itf+/nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/vcsdp.tab
++memcbk
++vcsd
++vpi
++vpi
+-Mamsrun=
+-Masflags=
+-Mcc=gcc
+-Mcfl= -pipe -fPIC -O -I/nfs/tools/synopsys/vcs-mx/M-2017.03-1/include
+-Mcplusplus=g++
+-Mcrt0=
+-Mcrtn=
+-Mcsrc=
+-Mexternalobj=
+-Mldflags=-L/usr/lib/x86_64-linux-gnu -L/lib/x86_64-linux-gnu -Wl,--no-as-needed -rdynamic
+-Mobjects= /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/libvirsim.so /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/liberrorinf.so /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/libsnpsmalloc.so
+-Mout=simv
+-Msaverestoreobj=/nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/vcs_save_restore_new.o
+-Msyslibs=-ldl -lm
+-Mvcsaceobjs=
+-Mxcflags= -pipe -fPIC -I/nfs/tools/synopsys/vcs-mx/M-2017.03-1/include
+-P
+-Xcbug=0x1
+-debug=3
+-full64
+-gen_obj
+-load
+-picarchive
+-sverilog
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/buffer/common/osd_fifo.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/tracepacket/common/osd_trace_packetization.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/tracesample/common/osd_tracesample.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess_demux.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess_layer.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/timestamp/common/osd_timestamp.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../interconnect/common/ring_router_mux.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../interfaces/common/dii_channel.sv
+/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../common/osd_stm.sv
+/nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/bin/vcs1
+libvpi.so
+pli.tab
+106
+sysc_uni_pwd=/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/sim_build
+_LMFILES_=/nfs/lis/tools/Modules/3.2.8/modulefiles/veripool/verilator/latest:/nfs/lis/tools/Modules/3.2.8/modulefiles/synopsys/vcs-mx/latest
+XMODIFIERS=
+XDG_VTNR=7
+XDG_SESSION_TYPE=x11
+XDG_SESSION_PATH=/org/freedesktop/DisplayManager/Session1
+XDG_SESSION_ID=c4
+XDG_SESSION_DESKTOP=xubuntu
+XDG_SEAT_PATH=/org/freedesktop/DisplayManager/Seat0
+XDG_SEAT=seat0
+XDG_RUNTIME_DIR=/run/user/3803432
+XDG_MENU_PREFIX=xfce-
+XDG_GREETER_DATA_DIR=/var/lib/lightdm-data/ga94foy
+XDG_DATA_DIRS=/usr/share/xubuntu:/usr/share/xfce4:/usr/local/share/:/usr/share/:/var/lib/snapd/desktop:/usr/share
+XDG_CURRENT_DESKTOP=XFCE
+XDG_CONFIG_DIRS=/etc/xdg/xdg-xubuntu:/usr/share/upstart/xdg:/etc/xdg:/etc/xdg
+XAUTHORITY=/home/ga94foy/.Xauthority
+VMR_MODE_FLAG=64
+VERSION=1.0
+VCS_MX_HOME_INTERNAL=1
+VCS_MODE_FLAG=64
+VCS_HOME=/nfs/tools/synopsys/vcs-mx/M-2017.03-1
+VCS_DEPTH=0
+VCS_BIN_DIR=/nfs/tools/synopsys/vcs-mx/M-2017.03-1/bin
+VCS_ARG_ADDED_FOR_TMP=1
+VCS_ARCH=linux64
+USER_DIR=/home/ga94foy/src/cocotb
+UPSTART_SESSION=unix:abstract=/com/ubuntu/upstart-session/3803432/30857
+UPSTART_JOB=startxfce4
+UPSTART_INSTANCE=
+UPSTART_EVENTS=started xsession
+UNAME=/bin/uname
+TOPLEVEL=osd_stm
+TOOL_HOME=/nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64
+SSH_AUTH_SOCK=/run/user/3803432/keyring/ssh
+SNPS_VCS_INTERNAL_UBUNTU_PRE_LDFLAGS=-Wl,--no-as-needed 
+SNPS_VCS_INTERNAL_LINKER_NEEDS_NO_AS_NEEDED=1
+SNPS_VCS_CLANG_PATH=/fs/src/interfaces/LLVM_Project/QSCM/opt/llvm-3.9.1/linux64
+SIM_ROOT=/home/ga94foy/src/cocotb
+SIM_BUILD=sim_build
+SIM_ARGS=-gui
+SIM=vcs
+SESSION_MANAGER=local/stu29:@/tmp/.ICE-unix/31017,unix/stu29:/tmp/.ICE-unix/31017
+SESSIONTYPE=
+SESSION=xubuntu
+SCRNAME=vcs
+SCRIPT_NAME=vcs
+QT_STYLE_OVERRIDE=gtk
+QT_LINUX_ACCESSIBILITY_ALWAYS_ON=1
+QT_IM_MODULE=
+QT_ACCESSIBILITY=1
+QT4_IM_MODULE=
+PYTHONPATH=/home/ga94foy/src/optimsoc/objdir/dist/host/lib/python2.7/site-packages:/home/ga94foy/src/optimsoc/objdir/dist/host/lib64/python2.7/site-packages:
+PKG_CONFIG_PATH=/home/ga94foy/src/optimsoc/objdir/dist/host/share/pkgconfig:/home/ga94foy/src/optimsoc/objdir/dist/host/lib/pkgconfig:/home/ga94foy/src/optimsoc/objdir/dist/host/lib64/pkgconfig:/home/ga94foy/src/optimsoc/objdir/dist/soc/sw/share/pkgconfig:/nfs/lis/tools/veripool/verilator/3.906/share/pkgconfig
+OVA_UUM=0
+OS=Linux
+OPTIMSOC_VERSION=2016.1-git086cd8af3484
+OPTIMSOC_RTL=/home/ga94foy/src/optimsoc/objdir/dist/soc/hw
+OPTIMSOC=/home/ga94foy/src/optimsoc/objdir/dist
+MODULE_VERSION_STACK=3.2.8
+MODULE_VERSION=3.2.8
+MODULESHOME=/nfs/lis/tools/Modules/3.2.8
+MODULEPATH=/nfs/lis/tools/Modules/versions:/nfs/lis/tools/Modules/$MODULE_VERSION/modulefiles:/nfs/lis/tools/Modules/modulefiles
+MFLAGS=-w
+MANDATORY_PATH=/usr/share/gconf/xubuntu.mandatory.path
+MAKE_TERMOUT=/dev/pts/12
+MAKE_TERMERR=/dev/pts/12
+MAKEOVERRIDES=${-*-command-variables-*-}
+MAKELEVEL=2
+MAKEFLAGS=w -- SIM=vcs SIM_ARGS=-gui
+LOADEDMODULES=veripool/verilator/latest:synopsys/vcs-mx/latest
+LISNOC_RTL=/home/ga94foy/src/optimsoc/objdir/dist/external/lisnoc/rtl
+LISNOC=/home/ga94foy/src/optimsoc/objdir/dist/external/lisnoc
+LIB_OBJ_DIR=/home/ga94foy/src/cocotb/build/obj/x86_64
+LIB_DIR=/home/ga94foy/src/cocotb/build/libs/x86_64
+LIBRARY_PATH=/usr/lib/x86_64-linux-gnu
+LESSOPEN=| /usr/bin/lesspipe %s
+LESSCLOSE=/usr/bin/lesspipe %s %s
+LC_ALL=C
+KRB5CCNAME=FILE:/tmp/krb5cc_3803432_SdYb2X
+JOB=dbus
+INSTANCE=
+INCLUDES=-I/home/ga94foy/src/cocotb/include -I/usr/include/python2.7
+IM_CONFIG_PHASE=1
+GTK_OVERLAY_SCROLLING=0
+GTK_IM_MODULE=
+GPG_AGENT_INFO=/home/ga94foy/.gnupg/S.gpg-agent:0:1
+GNOME_KEYRING_PID=
+GNOME_KEYRING_CONTROL=
+GLADE_PIXMAP_PATH=:
+GLADE_MODULE_PATH=:
+GLADE_CATALOG_PATH=:
+GDM_LANG=en_US
+GDMSESSION=xubuntu
+FUSESOC_CORES=/home/ga94foy/src/optimsoc/objdir/dist/soc/hw:/home/ga94foy/src/optimsoc/objdir/dist/external/lisnoc:/home/ga94foy/src/optimsoc/objdir/dist/external/opensocdebug/hardware:/home/ga94foy/src/optimsoc/objdir/dist/external/extra_cores:/home/ga94foy/src/optimsoc/objdir/dist/external/mor1kx:/home/ga94foy/src/optimsoc/objdir/dist/external/glip:
+DESKTOP_SESSION=xubuntu
+DEFAULTS_PATH=/usr/share/gconf/xubuntu.default.path
+DBUS_SESSION_BUS_ADDRESS=unix:abstract=/tmp/dbus-F60VJZIRC6
+CPATH=/usr/include/x86_64-linux-gnu
+COLORTERM=xfce4-terminal
+COCOTB=/home/ga94foy/src/cocotb
+CLUTTER_IM_MODULE=
+CLUTTER_BACKEND=x11
+BUILD_DIR=/home/ga94foy/src/cocotb/build
+BASH_FUNC_module%%=() {  eval `/nfs/lis/tools/Modules/$MODULE_VERSION/bin/modulecmd bash $*`_}
+ARCH=x86_64
+0
+12
+1506422918 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/tracepacket/common/osd_trace_packetization.sv
+1506422696 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/buffer/common/osd_fifo.sv
+1506422696 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../.././blocks/tracesample/common/osd_tracesample.sv
+1506422696 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/timestamp/common/osd_timestamp.sv
+1506422696 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../interconnect/common/ring_router_mux.sv
+1506422918 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess_demux.sv
+1506422918 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess.sv
+1506422918 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../blocks/regaccess/common/osd_regaccess_layer.sv
+1504537528 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../common/osd_stm.sv
+1506422696 /nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/../../../interfaces/common/dii_channel.sv
+1492398253 /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/vcsdp.tab
+1506429976 pli.tab
+4
+0 
+1492400637 /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/libvirsim.so
+1492399970 /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/liberrorinf.so
+1492399941 /nfs/tools/synopsys/vcs-mx/M-2017.03-1/linux64/lib/libsnpsmalloc.so
+1506429979 simv.daidir

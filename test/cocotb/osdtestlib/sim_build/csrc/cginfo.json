@@ -1,0 +1,120 @@
+{
+    "Misc": {
+        "cwd": "/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/sim_build",
+        "csrc": "csrc",
+        "csrc_abs": "/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/sim_build/csrc",
+        "daidir": "simv.daidir",
+        "daidir_abs": "/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/sim_build/simv.daidir",
+        "archive_dir": "archive.0",
+        "default_output_dir": "csrc"
+    },
+    "CurCompileModules": [
+        "...MASTER...",
+        "...MASTER...",
+        "_vcs_unit__940749892",
+        "_vcs_unit__940749892",
+        "std",
+        "std",
+        "dii_package",
+        "dii_package",
+        "osd_stm",
+        "osd_stm"
+    ],
+    "LVLData": [
+        "SIM"
+    ],
+    "MlibObjs": {},
+    "CompileStatus": "Successful",
+    "PrevCompiledModules": {},
+    "SIMBData": {
+        "bytes": 103530,
+        "out": "amcQwB.o",
+        "archive": "archive.0/_24378_archive_1.a"
+    },
+    "NameTable": {
+        "_vcs_unit__940749892": [
+            "_vcs_unit__940749892",
+            "BuLep",
+            "module",
+            1
+        ],
+        "std": [
+            "std",
+            "reYIK",
+            "module",
+            2
+        ],
+        "dii_package": [
+            "dii_package",
+            "x1b07",
+            "module",
+            3
+        ],
+        "osd_stm": [
+            "osd_stm",
+            "DFYxT",
+            "module",
+            4
+        ],
+        "...MASTER...": [
+            "SIM",
+            "amcQw",
+            "module",
+            5
+        ]
+    },
+    "CompileStrategy": "fullobj",
+    "PEModules": [],
+    "stat": {
+        "mop/quad": 2.3020482240082965,
+        "quadSpeed": 37086.538461538468,
+        "ru_self_cgstart": {
+            "ru_utime_sec": 0.13200000000000001,
+            "ru_minflt": 10558,
+            "ru_stime_sec": 0.024,
+            "ru_majflt": 0,
+            "ru_maxrss_kb": 107048,
+            "ru_nvcsw": 519,
+            "ru_nivcsw": 35
+        },
+        "totalObjSize": 275378,
+        "ru_childs_cgstart": {
+            "ru_utime_sec": 0.0,
+            "ru_minflt": 199,
+            "ru_stime_sec": 0.0,
+            "ru_majflt": 0,
+            "ru_maxrss_kb": 26228,
+            "ru_nvcsw": 4,
+            "ru_nivcsw": 2
+        },
+        "nMops": 8879,
+        "Frontend(%)": 55.932203389830519,
+        "nQuads": 3857,
+        "outputSizePerQuad": 71.396940627430652,
+        "ru_childs_end": {
+            "ru_utime_sec": 0.0,
+            "ru_minflt": 199,
+            "ru_stime_sec": 0.0,
+            "ru_majflt": 0,
+            "ru_maxrss_kb": 26228,
+            "ru_nvcsw": 4,
+            "ru_nivcsw": 2
+        },
+        "ru_self_end": {
+            "ru_utime_sec": 0.23599999999999999,
+            "ru_minflt": 12895,
+            "ru_stime_sec": 0.032000000000000001,
+            "ru_majflt": 0,
+            "ru_maxrss_kb": 117804,
+            "ru_nvcsw": 667,
+            "ru_nivcsw": 43
+        },
+        "mopSpeed": 85375.000000000015,
+        "CodeGen(%)": 44.067796610169488,
+        "peak_mem_kb": 267000
+    },
+    "CurCompileUdps": {},
+    "CompileProcesses": [
+        "cgproc.24378.json"
+    ]
+}

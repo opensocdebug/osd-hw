@@ -1,0 +1,588 @@
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 13:48 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506599290
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe6592c90       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+13000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 4]
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+30000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 0]
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+47000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+49001000000000.00ns INFO     cocotb.regression                         regression.py:223  in handle_result                   Test Passed: test_stm
+49001000000000.00ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Passed 1 tests (0 skipped)
+49001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    PASS     49001000000000.00         10.59   4628896560823.14  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+49001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 0                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 49001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 10.97 S                                **
+                                                                                                                             **                        SIM / REAL TIME : 4468216494945.77 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+49001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 49001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 14:34 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506602076
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [1, 1, 8192, 4]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6529690       decorators.py:118  in send                            Expected dest to be 0x0, got 0x1
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+26001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     26001000000000.00          2.85   9111296666279.01  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 26001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 2.96 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 8782338887036.69 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 26001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 14:38 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506602303
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [1, 1, 8192, 4]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe4a5d690       decorators.py:118  in send                            Expected dest to be 0x0, got 0x1
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+26001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     26001000000000.00          2.84   9169406542108.72  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 26001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.18 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 8177091754735.76 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 26001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 14:50 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506603041
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [1, 1, 8192, 4]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [2, 1, 8192, 0]
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+41000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6529690       decorators.py:118  in send                            Expected dest to be 0x0, got 0x2
+41001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+41001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+41001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     41001000000000.00          2.90   14134776414534.57  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+41001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 41001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.28 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 12497957529200.25 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+41001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 41001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 14:51 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506603115
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [1, 1, 8192, 4]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [2, 1, 8192, 0]
+40000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+41000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+43001000000000.00ns INFO     cocotb.regression                         regression.py:223  in handle_result                   Test Passed: test_stm
+43001000000000.00ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Passed 1 tests (0 skipped)
+43001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    PASS     43001000000000.00          2.84   15160750870763.24  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+43001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 0                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 43001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.22 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 13342923047433.63 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+43001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 43001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:04 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506603873
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [2, 1, 8192, 0]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6529690       decorators.py:118  in send                            Expected dest to be 0x1, got 0x2
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+26001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     26001000000000.00          3.22   8084667294623.50  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 26001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.62 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 7176534610283.65 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 26001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:10 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506604207
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+12000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 0]
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+29000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6521790       decorators.py:118  in send                            Expected dest to be 0x1, got 0x0
+29001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+29001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+29001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     29001000000000.00          2.79   10392004951705.92  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+29001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 29001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.66 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 7921803162950.88 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+29001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 29001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:11 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506604311
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [2, 1, 8192, 0]
+25000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+26000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6529690       decorators.py:118  in send                            Expected dest to be 0x1, got 0x2
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+26001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+26001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     26001000000000.00          2.24   11594999820742.08  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 26001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 2.60 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 9992467200930.63 NS/S                  **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+26001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 26001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:16 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506604580
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+17000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:508  in evaluate_packet                 Passed the test!
+31000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:213  in RegRead                         Answer of the dut:
+31000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         [2, 1, 8192, 0]
+31000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:219  in RegRead                         Read process was successful!
+38000000000000.00ns WARNING  ..ne.evaluate_packet.0x7fffe6529690       decorators.py:118  in send                            Expected dest to be 0x0, got 0x2
+38001000000000.00ns ERROR    cocotb.regression                         regression.py:263  in handle_result                   Test Failed: test_stm (result was TestFailure)
+38001000000000.00ns ERROR    cocotb.regression                         regression.py:173  in tear_down                       Failed 1 out of 1 tests (0 skipped)
+38001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    FAIL     38001000000000.00          2.77   13739480821822.04  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+38001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 1                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 38001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.14 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 12097729717913.75 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+38001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 38001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:18 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506604710
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+17000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 0]
+27000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+34000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 0]
+44000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+51000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+53001000000000.00ns INFO     cocotb.regression                         regression.py:223  in handle_result                   Test Passed: test_stm
+53001000000000.00ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Passed 1 tests (0 skipped)
+53001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    PASS     53001000000000.00          2.37   22377927187631.08  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+53001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 0                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 53001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 2.77 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 19130931693729.96 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+53001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 53001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:20 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506604855
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 0]
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+22000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 0]
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+33000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+35001000000000.00ns INFO     cocotb.regression                         regression.py:223  in handle_result                   Test Passed: test_stm
+35001000000000.00ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Passed 1 tests (0 skipped)
+35001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    PASS     35001000000000.00          2.65   13198785167715.25  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+35001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 0                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 35001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 3.07 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 11390335921135.54 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+35001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 35001.
+
+Warning-[RT_UO] Unsupported option
+  Unsupported option '-full64' is ignored
+
+Chronologic VCS simulator copyright 1991-2017
+Contains Synopsys proprietary information.
+Compiler version M-2017.03-1_Full64; Runtime version M-2017.03-1_Full64;  Sep 28 15:24 2017
+     -.--ns INFO     cocotb.gpi                                GpiCommon.cpp:91   in gpi_print_registered_impl       VPI registered
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:248  in embed_sim_init                  Running on Chronologic Simulation VCS Release  version M-2017.03-1_Full64
+  0.00ns INFO     cocotb.gpi                                  gpi_embed.c:249  in embed_sim_init                  Python interpreter initialised and cocotb loaded!
+  0.00ns INFO     cocotb                                      __init__.py:115  in _initialise_testbench           Running tests with Cocotb v1.0 from /home/ga94foy/src/cocotb
+  0.00ns INFO     cocotb                                      __init__.py:131  in _initialise_testbench           Seeding Python random module with 1506605049
+  0.00ns INFO     cocotb.regression                         regression.py:167  in initialise                      Found test test_stm.test_stm
+  0.00ns INFO     cocotb.regression                         regression.py:287  in execute                         Running test 1/1: test_stm
+  0.00ns INFO     ..coroutine.test_stm.0x7fffe916b0d0       decorators.py:191  in send                            Starting test: "test_stm"
+                                                                                                                  Description: 
+                                                                                                                      Try accessing the design
+                                                                                                                      
+  0.00ns INFO     cocotb.osd_stm                        modtestclasses.py:56   in init                            Resetting DUT
+VCD+ Writer M-2017.03-1_Full64 Copyright (c) 1991-2017 by Synopsys Inc.
+The file '/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/inter.vpd' was opened successfully.
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 1]
+10000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+11000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 4]
+21000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+22000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:214  in RegRead                         Answer of the dut:
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:215  in RegRead                         [0, 1, 8192, 0]
+32000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:220  in RegRead                         Read process was successful!
+33000000000000.00ns INFO     cocotb.osd_stm                        modtestclasses.py:509  in evaluate_packet                 Passed the test!
+35001000000000.00ns INFO     cocotb.regression                         regression.py:223  in handle_result                   Test Passed: test_stm
+35001000000000.00ns INFO     cocotb.regression                         regression.py:176  in tear_down                       Passed 1 tests (0 skipped)
+35001000000000.00ns INFO     cocotb.regression                         regression.py:341  in _log_test_summary               ***************************************************************************
+                                                                                                                             ** TEST               PASS/FAIL  SIM TIME(NS)  REAL TIME(S)  RATIO(NS/S) **
+                                                                                                                             ***************************************************************************
+                                                                                                                             ** test_stm.test_stm    PASS     35001000000000.00          2.58   13546164213781.33  **
+                                                                                                                             ***************************************************************************
+                                                                                                                             
+35001000000000.00ns INFO     cocotb.regression                         regression.py:358  in _log_sim_summary                *************************************************************************************
+                                                                                                                             **                                 ERRORS : 0                                      **
+                                                                                                                             *************************************************************************************
+                                                                                                                             **                               SIM TIME : 35001000000000.00 NS                   **
+                                                                                                                             **                              REAL TIME : 2.97 S                                 **
+                                                                                                                             **                        SIM / REAL TIME : 11797536059974.51 NS/S                 **
+                                                                                                                             *************************************************************************************
+                                                                                                                             
+35001000000000.00ns INFO     cocotb.regression                         regression.py:184  in tear_down                       Shutting down...
+Simulation complete, time is 35001.

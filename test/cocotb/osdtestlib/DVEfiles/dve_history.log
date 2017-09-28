@@ -1,0 +1,185 @@
+# Preference setting overrides
+gui_create_pref_key -category {Globals} -key {load_detail_for_funcov} -value_type {bool} -value {false}
+
+# State setting overrides
+gui_state_default_create -off -ini
+gui_set_state_value -category Layout -key child_console_size_x -value 1919
+gui_set_state_value -category Layout -key child_console_size_y -value 420
+gui_set_state_value -category Layout -key child_data_coltype -value 90
+gui_set_state_value -category Layout -key child_data_colvalue -value 47
+gui_set_state_value -category Layout -key child_data_colvariable -value 265
+gui_set_state_value -category Layout -key child_data_size_x -value 324
+gui_set_state_value -category Layout -key child_data_size_y -value 648
+gui_set_state_value -category Layout -key child_driver_size_x -value 1158
+gui_set_state_value -category Layout -key child_driver_size_y -value 361
+gui_set_state_value -category Layout -key child_hier_col3 -value {-1}
+gui_set_state_value -category Layout -key child_hier_colhier -value 256
+gui_set_state_value -category Layout -key child_hier_colpd -value 0
+gui_set_state_value -category Layout -key child_hier_size_x -value 322
+gui_set_state_value -category Layout -key child_hier_size_y -value 648
+gui_set_state_value -category Layout -key child_source_docknewline -value false
+gui_set_state_value -category Layout -key child_source_pos_x -value {-2}
+gui_set_state_value -category Layout -key child_source_pos_y -value {-15}
+gui_set_state_value -category Layout -key child_source_size_x -value 1276
+gui_set_state_value -category Layout -key child_source_size_y -value 643
+gui_set_state_value -category Layout -key child_wave_colname -value 183
+gui_set_state_value -category Layout -key child_wave_colvalue -value 183
+gui_set_state_value -category Layout -key child_wave_left -value 370
+gui_set_state_value -category Layout -key child_wave_right -value 901
+gui_set_state_value -category Layout -key main_pos_x -value 1280
+gui_set_state_value -category Layout -key main_pos_y -value 24
+gui_set_state_value -category Layout -key main_size_x -value 3199
+gui_set_state_value -category Layout -key main_size_y -value 1199
+gui_set_state_value -category Layout -key stand_source_child_docknewline -value false
+gui_set_state_value -category Layout -key stand_source_child_pos_x -value {-2}
+gui_set_state_value -category Layout -key stand_source_child_pos_y -value {-15}
+gui_set_state_value -category Layout -key stand_source_child_size_x -value 1270
+gui_set_state_value -category Layout -key stand_source_child_size_y -value 640
+gui_set_state_value -category Layout -key stand_wave_child_docknewline -value false
+gui_set_state_value -category Layout -key stand_wave_child_pos_x -value {-2}
+gui_set_state_value -category Layout -key stand_wave_child_pos_y -value {-15}
+gui_set_state_value -category Layout -key stand_wave_child_size_x -value 1281
+gui_set_state_value -category Layout -key stand_wave_child_size_y -value 859
+gui_set_state_value -category Layout -key stand_wave_top_pos_x -value 2
+gui_set_state_value -category Layout -key stand_wave_top_pos_y -value 227
+gui_set_state_value -category Layout -key stand_wave_top_size_x -value 1278
+gui_set_state_value -category Layout -key stand_wave_top_size_y -value 1198
+gui_create_state_key -category FindDialog -key m_pMatchCase -value_type bool -value false
+gui_create_state_key -category FindDialog -key m_pMatchWord -value_type bool -value false
+gui_create_state_key -category FindDialog -key m_pUseCombo -value_type string -value {}
+gui_create_state_key -category FindDialog -key m_pWrapAround -value_type bool -value true
+gui_create_state_key -category Widget_History -key {dlgSimSetup|m_setupTab|tab pages|SimTab|m_VPDCombo} -value_type string -value inter.vpd
+gui_create_state_key -category Widget_History -key {dlgSimSetup|m_setupTab|tab pages|SimTab|m_argsCombo} -value_type string -value {{-ucligui +define+COCOTB_SIM=1 -full64} {+define+COCOTB_SIM=1 -full64}}
+gui_create_state_key -category Widget_History -key {dlgSimSetup|m_setupTab|tab pages|SimTab|m_curDirCombo} -value_type string -value {/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib /nas/ei/home/ga94foy/src/optimsoc/external/opensocdebug/hardware/modules/stm/test}
+gui_create_state_key -category Widget_History -key {dlgSimSetup|m_setupTab|tab pages|SimTab|m_exeCombo} -value_type string -value {/nas/ei/home/ga94foy/src/hardware/test/cocotb/osdtestlib/sim_build/simv /nas/ei/home/ga94foy/src/optimsoc/external/opensocdebug/hardware/modules/stm/test/sim_build/simv sim_build/simv}
+gui_state_default_create -off
+
+# Begin command logging
+gui_sim_run Ucli -exe sim_build/simv -args {-ucligui  +define+COCOTB_SIM=1 -full64} -dir sim_build
+gui_list_select -id Hier.1 -current_item_name osd_stm -current_item_type Scope  -selected  { osd_stm   }
+gui_list_select -id Data.1 -selected  { osd_stm.debug_out_ready   }
+gui_list_select_all -id Data.1
+gui_open_window Wave
+gui_list_add -id Wave.1 -from Data.1 { osd_stm.clk osd_stm.rst {osd_stm.id[15:0]} osd_stm.debug_in osd_stm.debug_in_ready osd_stm.debug_out osd_stm.debug_out_ready osd_stm.trace_valid {osd_stm.trace_id[15:0]} {osd_stm.trace_value[63:0]} osd_stm.trace_reg_enable {osd_stm.trace_reg_addr[4:0]} osd_stm.reg_request osd_stm.reg_write {osd_stm.reg_addr[15:0]} {osd_stm.reg_size[1:0]} {osd_stm.reg_wdata[15:0]} osd_stm.reg_ack osd_stm.reg_err {osd_stm.reg_rdata[15:0]} osd_stm.stall osd_stm.dp_out osd_stm.dp_in osd_stm.dp_out_ready osd_stm.dp_in_ready {osd_stm.sample_data[111:0]} osd_stm.sample_valid {osd_stm.timestamp[31:0]} {osd_stm.fifo_data[111:0]} osd_stm.fifo_overflow osd_stm.fifo_valid osd_stm.fifo_ready {osd_stm.packet_data[111:0]} osd_stm.packet_overflow osd_stm.packet_valid osd_stm.packet_ready {osd_stm.REG_ADDR_WIDTH[31:0]} {osd_stm.XLEN[31:0]} {osd_stm.EW[31:0]} } -insertionbar
+gui_sim_continue  
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_list_expand -id  Wave.1   osd_stm.debug_in
+gui_wv_scroll_hslidermove -id  Wave.1 479
+gui_list_expand -id  Wave.1   osd_stm.debug_out
+gui_wv_scroll_hslidermove -id  Wave.1 2805
+gui_wv_scroll_hslidermove -id  Wave.1 2491
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 225
+gui_wv_scroll_hslidermove -id  Wave.1 1083
+gui_wv_scroll_hslidermove -id  Wave.1 1083
+gui_wv_scroll_hslidermove -id  Wave.1 2201
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 941
+gui_wv_scroll_hslidermove -id  Wave.1 1077
+gui_wv_scroll_hslidermove -id  Wave.1 479
+gui_wv_scroll_hslidermove -id  Wave.1 101
+gui_wv_scroll_hslidermove -id  Wave.1 947
+gui_wv_scroll_vslidermove -id  Wave.1 427
+gui_wv_scroll_hslidermove -id  Wave.1 1213
+gui_wv_scroll_hslidermove -id  Wave.1 947
+gui_wv_scroll_hslidermove -id  Wave.1 1213
+gui_wv_scroll_hslidermove -id  Wave.1 1089
+gui_wv_scroll_hslidermove -id  Wave.1 1047
+gui_wv_scroll_hslidermove -id  Wave.1 704
+gui_wv_scroll_hslidermove -id  Wave.1 325
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 160
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 870
+gui_list_expand -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_list_collapse -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_wv_scroll_hslidermove -id  Wave.1 314
+gui_wv_scroll_hslidermove -id  Wave.1 450
+gui_wv_scroll_hslidermove -id  Wave.1 580
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 1832
+gui_wv_scroll_hslidermove -id  Wave.1 1635
+gui_wv_scroll_hslidermove -id  Wave.1 1994
+gui_marker_select -id  Wave.1 { C1 }
+gui_marker_move -id  Wave.1 C1 31000
+gui_wv_zoom_timerange -id  Wave.1 26046 30808
+gui_wv_scroll_hslidermove -id  Wave.1 4524
+gui_wv_zoom_timerange -id  Wave.1 26005 28713
+gui_wv_scroll_hslidermove -id  Wave.1 7910
+gui_marker_move -id  Wave.1 C1 26069
+gui_marker_move -id  Wave.1 C1 26327
+gui_marker_move -id  Wave.1 C1 26093
+gui_marker_move -id  Wave.1 C1 26644
+gui_marker_move -id  Wave.1 C1 26896
+gui_wv_scroll_hslidermove -id  Wave.1 8460
+gui_marker_move -id  Wave.1 C1 29032
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 8018
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 0.5
+gui_zoom -window Wave.1 -factor 2
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_marker_move -id  Wave.1 C1 4427
+gui_marker_move -id  Wave.1 C1 3431
+gui_marker_move -id  Wave.1 C1 8460
+gui_wv_scroll_hslidermove -id  Wave.1 775
+gui_wv_scroll_hslidermove -id  Wave.1 1064
+gui_marker_move -id  Wave.1 C1 20117
+gui_marker_move -id  Wave.1 C1 22699
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 2721
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 2721
+gui_wv_scroll_hslidermove -id  Wave.1 2653
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 670
+gui_wv_scrollright -id  Wave.1  page
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 1343
+gui_wv_scroll_hslidermove -id  Wave.1 1118
+gui_list_expand -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_wv_scroll_hslidermove -id  Wave.1 899
+gui_list_collapse -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_list_expand -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_list_collapse -id  Wave.1   {osd_stm.debug_in.data[15:0]}
+gui_wv_scroll_hslidermove -id  Wave.1 616
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_sim_restart
+gui_sim_continue  
+gui_list_expand -id  Wave.1   {osd_stm.debug_out.data[15:0]}
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_list_collapse -id  Wave.1   {osd_stm.debug_out.data[15:0]}
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 2472
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_wv_scroll_hslidermove -id  Wave.1 2406
+gui_wv_scroll_hslidermove -id  Wave.1 603
+gui_wv_scroll_hslidermove -id  Wave.1 0
+gui_sim_restart
+gui_sim_continue  
+gui_wv_scroll_hslidermove -id  Wave.1 0

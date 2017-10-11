@@ -1,0 +1,24 @@
+module: test_stm
+
+sources:
+  - ../../../interfaces/common/dii_channel.sv
+  - ../../../blocks/buffer/common/dii_buffer.sv
+  - ../../../blocks/regaccess/common/osd_regaccess.sv
+  - ../../../blocks/regaccess/common/osd_regaccess_demux.sv
+  - ../../../interconnect/common/debug_ring_expand.sv
+  - ../../../interconnect/common/ring_router_demux.sv
+  - ../../../interconnect/common/ring_router.sv
+  - ../../../interconnect/common/ring_router_mux.sv
+  - ../../../interconnect/common/ring_router_mux_rr.sv
+  - ../common/osd_stm.sv
+
+toplevel: osd_stm
+
+simulators:
+  - vcs
+
+parameters:
+  SYSTEM_VENDOR_ID: 1
+  SYSTEM_DEVICE_ID: 1
+  NUM_MOD: 1
+  MAX_PKT_LEN: 8

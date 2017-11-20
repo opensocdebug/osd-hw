@@ -39,10 +39,13 @@ module osd_trace_packetization
 
    localparam FILL_LAST = NUM_FLITS*16 - WIDTH;
 
-   reg [COUNTER_WIDTH-1:0] counter;
+   reg [COUNTER_WIDTH-1:0]   counter;
    logic [COUNTER_WIDTH-1:0] nxt_counter;
 
-   enum { IDLE, SOURCE, STATUS, EVENT } state, nxt_state;
+   enum { IDLE, DESTINATION, SOURCE, FLAGS, STATUS, EVENT } state, nxt_state;
+
+   localparam TYPE_SUB_OVERFLOW = 4'h5;
+   localparam TYPE_SUB_REGULAR = 4'h0;
 
    always_ff @(posedge clk) begin
       if (rst) begin
@@ -67,21 +70,30 @@ module osd_trace_packetization
            debug_out.data = 16'h0;
            if (trace_valid) begin
               debug_out.valid = 1;
+              // XXX: Currently we always send to address 0x0000
+              debug_out.data = 16'h0;
               if (debug_out_ready) begin
                  nxt_state = SOURCE;
               end
            end
         end
         SOURCE: begin
-           debug_out.data[15:14] = 2'h2;           // Trace event
-           debug_out.data[13:12] = 2'h0;           // Reserved
-           debug_out.data[11]    = trace_overflow; // Status info
-           debug_out.data[10]    = 1'b0;           // Bulk packet
-           debug_out.data[9:0]   = id;
            debug_out.valid = 1;
+           debug_out.data = id;
+
+           if (debug_out_ready) begin
+              nxt_state = FLAGS;
+           end
+        end // case: SOURCE
+        FLAGS: begin
+           debug_out.data[15:14] = 2'b10; // TYPE == EVENT
+           debug_out.data[13:10] = trace_overflow ? TYPE_SUB_OVERFLOW : TYPE_SUB_REGULAR;
+           debug_out.data[9:0] = 10'h0; // reserved
+           debug_out.valid = 1;
+
            nxt_counter = 0;
            if (debug_out_ready)
-             nxt_state = trace_overflow ? STATUS : EVENT;
+              nxt_state = trace_overflow ? STATUS : EVENT;
         end // case: SOURCE
         STATUS: begin
            debug_out.valid = 1;

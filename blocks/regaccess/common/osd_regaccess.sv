@@ -59,15 +59,14 @@ module osd_regaccess
    localparam REG_MOD_TYPE       = 16'h1;
    localparam REG_MOD_VERSION    = 16'h2;
    localparam REG_MOD_CS         = 16'h3;
+   localparam REG_MOD_CS_ACTIVE  = 0;
    localparam REG_MOD_EVENT_DEST = 16'h4;
 
-   localparam CS_STALL = 5'h1;
-
    // Registers
-   reg          mod_cs_stall;
-   logic        nxt_mod_cs_stall;
+   reg          mod_cs_active;
+   logic        nxt_mod_cs_active;
 
-   assign stall = CAN_STALL ? mod_cs_stall : 0;
+   assign stall = CAN_STALL ? ~mod_cs_active : 0;
 
    // State machine
    enum {
@@ -105,10 +104,10 @@ module osd_regaccess
    always @(posedge clk) begin
       if (rst) begin
          state <= STATE_IDLE;
-         mod_cs_stall <= 1;
+         mod_cs_active <= 0;
       end else begin
          state <= nxt_state;
-         mod_cs_stall <= nxt_mod_cs_stall;
+         mod_cs_active <= nxt_mod_cs_active;
       end
       resp_dest <= nxt_resp_dest;
       reqresp_value <= nxt_reqresp_value;
@@ -128,7 +127,7 @@ module osd_regaccess
       nxt_reqresp_value = reqresp_value;
       nxt_resp_error = resp_error;
 
-      nxt_mod_cs_stall = mod_cs_stall;
+      nxt_mod_cs_active = mod_cs_active;
 
       debug_in_ready = 0;
       debug_out = 0;
@@ -191,6 +190,7 @@ module osd_regaccess
                     REG_MOD_VENDOR: nxt_reqresp_value = 16'(MOD_VENDOR);
                     REG_MOD_TYPE: nxt_reqresp_value = 16'(MOD_TYPE);
                     REG_MOD_VERSION: nxt_reqresp_value = 16'(MOD_VERSION);
+                    REG_MOD_CS: nxt_reqresp_value = {15'h0, ~stall};
                     REG_MOD_EVENT_DEST: nxt_reqresp_value = 16'(MOD_EVENT_DEST);
                     default: nxt_resp_error = 1;
                  endcase // case (debug_in.data)
@@ -229,15 +229,8 @@ module osd_regaccess
               end else begin
                  case (req_addr)
                    REG_MOD_CS: begin
-                      if (debug_in.data[15:11] === CS_STALL) begin
-                         if (!CAN_STALL) begin
-                            nxt_resp_error = 1;
-                         end else begin
-                            nxt_mod_cs_stall = debug_in.data[0];
-                         end
-                      end else begin
-                         nxt_resp_error = 1;
-                      end
+                      nxt_mod_cs_active = debug_in.data[REG_MOD_CS_ACTIVE];
+                      nxt_resp_error = 0;
                    end
                  endcase // case (req_addr)
 

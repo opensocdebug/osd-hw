@@ -1,5 +1,13 @@
 *.pdf
 *~
 
+*.pyc
+
 # Chisel compiled files
 /target
+
+# Editor/IDE Project files
+/.project
+/.pydevproject
+/.settings/
+/.svproject

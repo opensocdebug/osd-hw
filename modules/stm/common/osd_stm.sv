@@ -55,7 +55,7 @@ module osd_stm
 
    osd_regaccess_layer
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h4), .MOD_VERSION(16'h0),
-       .MAX_REG_SIZE(16), .CAN_STALL(1))
+       .MAX_REG_SIZE(16), .CAN_STALL(1), .MOD_EVENT_DEST(16'h0))
    u_regaccess(.*,
                .module_in (dp_out),
                .module_in_ready (dp_out_ready),

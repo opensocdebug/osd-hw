@@ -122,6 +122,14 @@ class DiPacket:
         MOD_CS = 3
         MOD_EVENT_DEST = 4
 
+    class SCM_REG(IntEnum):
+        """SCM Register map"""
+        SYSTEM_VENDOR_ID = 0x0200
+        SYSTEM_DEVICE_ID = 0x0201
+        NUM_MOD = 0x0202
+        MAX_PKT_LEN = 0x0203
+        SYSRST = 0x0204
+
     def __init__(self):
         self.dest = None
         self.src = None
@@ -251,75 +259,85 @@ class RegAccess:
         rx_packet = DiPacket()
         driver = NocDriver()
 
-        if word_width == 16:
-            type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_16.value
-            exp_type_sub = \
-                DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_16.value
-        elif word_width == 32:
-            type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_32.value
-            exp_type_sub = \
-                DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_32.value
-        elif word_width == 64:
-            type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_64.value
-            exp_type_sub = \
-                DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_64.value
-        elif word_width == 128:
-            type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_128.value
-            exp_type_sub = \
-                DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_128.value
-        else:
-            raise RegAccessFailedException("An invalid register width "
-                                           "parameter was chosen!")
+        try:
+            if word_width == 16:
+                type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_16.value
+                exp_type_sub = \
+                    DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_16.value
+            elif word_width == 32:
+                type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_32.value
+                exp_type_sub = \
+                    DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_32.value
+            elif word_width == 64:
+                type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_64.value
+                exp_type_sub = \
+                    DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_64.value
+            elif word_width == 128:
+                type_sub = DiPacket.TYPE_SUB.REQ_READ_REG_128.value
+                exp_type_sub = \
+                    DiPacket.TYPE_SUB.RESP_READ_REG_SUCCESS_128.value
+            else:
+                raise RegAccessFailedException("An invalid register width " +
+                                               "parameter was chosen!")
 
-        tx_packet.set_contents(dest=dest, src=src,
-                               type=DiPacket.TYPE.REG.value,
-                               type_sub=type_sub, payload=[regaddr])
+            tx_packet.set_contents(dest=dest, src=src,
+                                   type=DiPacket.TYPE.REG.value,
+                                   type_sub=type_sub, payload=[regaddr])
 
-        yield driver.send_packet(dut=dut, packet=tx_packet)
+            yield driver.send_packet(dut=dut, packet=tx_packet)
 
-        # Get response
-        rx_packet = yield driver.receive_packet(dut)
-        dut._log.debug(str(rx_packet))
+            # Get response
+            rx_packet = yield driver.receive_packet(dut)
 
-        # Check response
-        if rx_packet.dest != src:
-            raise RegAccessFailedException("Expected destination to be 0x%x, "
-                                           "got 0x%x" % (src, rx_packet.dest))
+            # Check response
+            if rx_packet.dest != src:
+                dut._log.info(str(src))
+                dut._log.info(str(rx_packet))
+                raise RegAccessFailedException("Expected destination to be "
+                                               "0x%x, got 0x%x" %
+                                               (src, rx_packet.dest))
 
-        if rx_packet.src != dest:
-            raise RegAccessFailedException("Expected source to be 0x%x, got "
-                                           "0x%x" % (dest, rx_packet.src))
+            if rx_packet.src != dest:
+                raise RegAccessFailedException("Expected source to be 0x%x, "
+                                               "got 0x%x" %
+                                               (dest, rx_packet.src))
 
-        if rx_packet.type != DiPacket.TYPE.REG.value:
-            raise RegAccessFailedException("Expected type to be %s, got %s" %
-                                           (DiPacket.TYPE.REG.name,
-                                            DiPacket.TYPE(rx_packet.type).name))
+            if rx_packet.type != DiPacket.TYPE.REG.value:
+                raise RegAccessFailedException("Expected type to be %s, got %s"
+                                               % (DiPacket.TYPE.REG.name,
+                                                  DiPacket.TYPE(rx_packet.type).name))
 
-        if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_READ_REG_ERROR.value:
-            raise RegAccessFailedException("Module returned RESP_READ_REG_ERROR")
+            if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_READ_REG_ERROR.value:
+                raise RegAccessFailedException("Module returned RESP_READ_REG_ERROR")
 
-        if rx_packet.type_sub != exp_type_sub:
-            raise RegAccessFailedException("Expected subtype to be %s, got %s" %
-                                           (DiPacket.TYPE_SUB(exp_type_sub).name,
-                                            DiPacket.TYPE_SUB(rx_packet.type_sub).name))
+            if rx_packet.type_sub != exp_type_sub:
+                raise RegAccessFailedException("Expected subtype to be %s, got %s" %
+                                               (DiPacket.TYPE_SUB(exp_type_sub).name,
+                                                DiPacket.TYPE_SUB(rx_packet.type_sub).name))
 
-        # Extract register value from response
-        rx_value = 0
-        nr_words = int((word_width / 16))
+            # Extract register value from response
+            rx_value = 0
+            nr_words = int((word_width / 16))
 
-        if len(rx_packet.payload) != nr_words:
-            raise RegAccessFailedException("Expected %d payload words in "
-                                           "response, got %d." %
-                                           (nr_words, len(rx_packet.payload)))
+            if len(rx_packet.payload) != nr_words:
+                raise RegAccessFailedException("Expected %d payload words in "
+                                               "response, got %d." %
+                                               (nr_words, len(rx_packet.payload)))
 
-        for w in range(0, nr_words):
-            shift_bit = (nr_words - w - 1) * 16
-            rx_value |= rx_packet.payload[w] << shift_bit
+            for w in range(0, nr_words):
+                shift_bit = (nr_words - w - 1) * 16
+                rx_value |= rx_packet.payload[w] << shift_bit
 
-        dut._log.debug("Successfully read %d bit register 0x%04x from module at "
-                       "DI address 0x%04x. Got value 0x%x."
-                       % (word_width, regaddr, dest, rx_value))
+            dut._log.debug("Successfully read %d bit register 0x%04x from "
+                           "module at DI address 0x%04x. Got value 0x%x."
+                           % (word_width, regaddr, dest, rx_value))
+
+        except RegAccessFailedException as reg_acc_error:
+            dut._log.info(reg_acc_error.message)
+            rx_value = None
+
         raise ReturnValue(rx_value)
+
 
     @cocotb.coroutine
     def write_register(self, dut, dest, src, word_width, regaddr,
@@ -343,45 +361,96 @@ class RegAccess:
         rx_packet = DiPacket()
         driver = NocDriver()
 
-        if word_width == 16:
-            type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_16.value
-            words = 1
-        elif word_width == 32:
-            type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_32.value
-            words = 2
-        elif word_width == 64:
-            type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_64.value
-            words = 3
-        elif word_width == 128:
-            type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_128.value
-            words = 4
-        else:
-            raise RegAccessFailedException("An invalid register width "
-                                           "parameter was chosen!")
+        try:
+            if word_width == 16:
+                type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_16.value
+                words = 1
+            elif word_width == 32:
+                type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_32.value
+                words = 2
+            elif word_width == 64:
+                type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_64.value
+                words = 3
+            elif word_width == 128:
+                type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_128.value
+                words = 4
+            else:
+                raise RegAccessFailedException("An invalid register width "
+                                               "parameter was chosen!")
 
-        # Assemble payload of REG debug packet
-        payload = [regaddr]
-        value_words = []
-        for w in range(0, words):
-            payload.append((value >> ((words - 1 - w) * 16)) & 0xFFFF)
+            # Assemble payload of REG debug packet
+            payload = [regaddr]
+            value_words = []
+            for w in range(0, words):
+                payload.append((value >> ((words - 1 - w) * 16)) & 0xFFFF)
 
-        tx_packet.set_contents(dest=dest, src=src,
-                               type=DiPacket.TYPE.REG.value,
-                               type_sub=type_sub, payload=payload)
+            tx_packet.set_contents(dest=dest, src=src,
+                                   type=DiPacket.TYPE.REG.value,
+                                   type_sub=type_sub, payload=payload)
 
-        yield driver.send_packet(dut, tx_packet)
+            yield driver.send_packet(dut, tx_packet)
 
-        rx_packet = yield driver.receive_packet(dut)
+            rx_packet = yield driver.receive_packet(dut)
 
-        if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_WRITE_REG_ERROR.value:
-            raise RegAccessFailedException("An error occurred during the "
-                                           "write process!")
+            if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_WRITE_REG_ERROR.value:
+                raise RegAccessFailedException("An error occurred during the "
+                                               "write process!")
 
-        if rx_packet.type_sub != DiPacket.TYPE_SUB.RESP_WRITE_REG_SUCCESS.value:
-            raise RegAccessFailedException("Expected subtype to be %s, got %s" %
-                                           (DiPacket.TYPE_SUB.RESP_WRITE_REG_SUCCESS.name,
-                                            DiPacket.TYPE_SUB(rx_packet.type_sub).name))
+            if rx_packet.type_sub != DiPacket.TYPE_SUB.RESP_WRITE_REG_SUCCESS.value:
+                raise RegAccessFailedException("Expected subtype to be %s, got %s" %
+                                               (DiPacket.TYPE_SUB.RESP_WRITE_REG_SUCCESS.name,
+                                                DiPacket.TYPE_SUB(rx_packet.type_sub).name))
 
-        dut._log.debug("Successfully wrote %d bit register 0x%04x of module at "
-                       "DI address 0x%04x."
-                       % (word_width, regaddr, dest))
+            dut._log.debug("Successfully wrote %d bit register 0x%04x of module at "
+                           "DI address 0x%04x."
+                           % (word_width, regaddr, dest))
+            success = True
+
+        except RegAccessFailedException as reg_acc_error:
+            dut._log.info(reg_acc_error.message)
+            success = False
+
+        raise ReturnValue(success)
+
+    @cocotb.coroutine
+    def assert_reg_value(self, dut, dest, src, regaddr, exp_value):
+        """ Assert that a register contains an expected value """
+
+        rx_value = yield self.read_register(dut, dest, src, 16, regaddr)
+
+        if rx_value != exp_value:
+            raise TestFailure("Read value 0x%04x from register %x, expected 0x%04x."
+                              % (rx_value, regaddr, exp_value))
+
+    @cocotb.coroutine
+    def test_base_registers(self, dut, dest, src, values):
+        """
+        Read the 5 base registers and compare the response with the desired value
+        """
+
+        driver = NocDriver()
+
+        dut._log.info("Check contents of MOD_VENDOR")
+        yield self.assert_reg_value(dut, dest, src,
+                                    DiPacket.BASE_REG.MOD_VENDOR.value,
+                                    values[0])
+
+        dut._log.info("Check contents of MOD_TYPE")
+        yield self.assert_reg_value(dut, dest, src,
+                                    DiPacket.BASE_REG.MOD_TYPE.value,
+                                    values[1])
+
+        dut._log.info("Check contents of MOD_VERSION")
+        yield self.assert_reg_value(dut, dest, src,
+                                    DiPacket.BASE_REG.MOD_VERSION.value,
+                                    values[2])
+
+        dut._log.info("Check contents of MOD_CS")
+        yield self.assert_reg_value(dut, dest, src,
+                                    DiPacket.BASE_REG.MOD_CS.value,
+                                    values[3])
+
+        dut._log.info("Check contents of MOD_EVENT_DEST")
+        yield self.assert_reg_value(dut, dest, src,
+                                    DiPacket.BASE_REG.MOD_EVENT_DEST.value,
+                                    values[4])

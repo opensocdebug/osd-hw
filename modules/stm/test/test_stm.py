@@ -31,18 +31,28 @@ TRACE_EVENT_TEST_COUNT = 1000
 
 
 @cocotb.coroutine
-def _assert_reg_value(dut, regaddr, exp_value):
-    """ Assert that a register contains an expected value """
-    access = RegAccess()
-    rx_value = yield access.read_register(dut=dut, dest=MODULE_DI_ADDRESS,
-                                          src=SENDER_DI_ADDRESS,
-                                          word_width=16,
-                                          regaddr=regaddr)
+def _init_dut(dut):
 
-    if rx_value != exp_value:
-        raise TestFailure("Read value 0x%04x from register %x, expected 0x%04x."
-                          % (rx_value, regaddr, exp_value))
+    # Setup clock
+    cocotb.fork(Clock(dut.clk, 1000).start())
 
+    # Dump design parameters for debugging
+    dut._log.info("PARAMETER: XLEN is %d" % dut.XLEN.value.integer)
+    dut._log.info("PARAMETER: REG_ADDR_WIDTH is %d" %
+                  dut.REG_ADDR_WIDTH.value.integer)
+
+    # Reset
+    dut._log.info("Resetting DUT")
+    dut.rst <= 1
+
+    dut.id <= MODULE_DI_ADDRESS
+
+    dut.debug_out_ready <= 1
+    dut.trace_valid <= 0
+
+    for _ in range(2):
+        yield RisingEdge(dut.clk)
+    dut.rst <= 0
 
 @cocotb.coroutine
 def _assert_trace_event(dut, trace_id, trace_value):
@@ -96,77 +106,45 @@ def _activate_module(dut):
                                 value=1)
 
 
-@cocotb.coroutine
-def _init_dut(dut):
-    # Setup clock
-    cocotb.fork(Clock(dut.clk, 1000).start())
-
-    # Dump design parameters for debugging
-    dut._log.info("PARAMETER: XLEN is %d" % dut.XLEN.value.integer)
-    dut._log.info("PARAMETER: REG_ADDR_WIDTH is %d" %
-                  dut.REG_ADDR_WIDTH.value.integer)
-
-    # Reset
-    dut._log.info("Resetting DUT")
-    dut.rst <= 1
-
-    dut.id <= MODULE_DI_ADDRESS
-
-    dut.debug_out_ready <= 1
-    dut.trace_valid <= 0
-
-    for _ in range(2):
-        yield RisingEdge(dut.clk)
-    dut.rst <= 0
-
-
-@cocotb.test()
-def test_stm_base_registers(dut):
-    """
-    Read the 5 base registers and compare the response with the desired value
-    """
-
-    yield _init_dut(dut)
-
-    dut._log.info("Check contents of MOD_VENDOR")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_VENDOR.value, 1)
-
-    dut._log.info("Check contents of MOD_TYPE")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_TYPE.value, 4)
-
-    dut._log.info("Check contents of MOD_VERSION")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_VERSION.value, 0)
-
-    dut._log.info("Check contents of MOD_CS")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_CS.value, 0)
-
-    dut._log.info("Check contents of MOD_EVENT_DEST")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_EVENT_DEST.value,
-                            SENDER_DI_ADDRESS)
-
-
 @cocotb.test()
 def test_stm_activation(dut):
     """
     Check if STM is handling the activation bit correctly
     """
+    driver = NocDriver()
+    access = RegAccess()
 
     yield _init_dut(dut)
 
     dut._log.info("Check contents of MOD_CS")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_CS.value, 0)
+    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+                                  DiPacket.BASE_REG.MOD_CS.value, 0)
 
     yield _activate_module(dut)
 
     dut._log.info("Check contents of MOD_CS")
-    yield _assert_reg_value(dut, DiPacket.BASE_REG.MOD_CS.value, 1)
+    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+                                  DiPacket.BASE_REG.MOD_CS.value, 1)
 
+@cocotb.test()
+def test_stm_base_registers(dut):
+    """
+    Check if STM properly generates trace events
+    """
+
+    access = RegAccess()
+
+    yield _init_dut(dut)
+    yield access.test_base_registers(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+                                     [1, 4, 0, 0, SENDER_DI_ADDRESS])
 
 @cocotb.test()
 def test_stm_trace_events(dut):
     """
     Check if STM properly generates trace events
     """
+    driver = NocDriver()
+    access = RegAccess()
 
     yield _init_dut(dut)
 
@@ -177,7 +155,7 @@ def test_stm_trace_events(dut):
         for _ in range(0, random.randint(0, 100)):
             yield RisingEdge(dut.clk)
 
-        trace_id = random.randint(0, 2**16 - 1)
-        trace_value = random.randint(0, 2**32 - 1)
+        trace_id = random.randint(0, 2 ** 16 - 1)
+        trace_value = random.randint(0, 2 ** 32 - 1)
 
         yield _assert_trace_event(dut, trace_id, trace_value)

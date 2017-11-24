@@ -46,7 +46,7 @@ module osd_scm
 
    osd_regaccess
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h1), .MOD_VERSION(16'h0),
-       .MAX_REG_SIZE(16))
+       .MAX_REG_SIZE(16), .MOD_EVENT_DEST(16'h0))
    u_regaccess(.*,
                .stall ());
 
@@ -69,7 +69,7 @@ module osd_scm
       if (rst) begin
          rst_vector <= 2'b00;
       end else begin
-         if (reg_request & reg_write & (reg_addr == 16'h203))
+         if (reg_request & reg_write & (reg_addr == 16'h204))
             rst_vector <= reg_wdata[1:0];
       end
    end

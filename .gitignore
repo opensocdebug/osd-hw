@@ -11,3 +11,7 @@
 /.pydevproject
 /.settings/
 /.svproject
+
+# Unit test temporary files
+DVEfiles/
+ucli.key

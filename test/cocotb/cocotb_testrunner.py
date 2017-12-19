@@ -110,8 +110,9 @@ class CocotbTest():
 
         # HDL parameters (passed to toplevel module in the design)
         args_hdl_params = []
-        for name, value in self.manifest["parameters"].items():
-            args_hdl_params.append("-pvalue+{}={}".format(name, value))
+        if "parameters" in self.manifest:
+            for name, value in self.manifest["parameters"].items():
+                args_hdl_params.append("-pvalue+{}={}".format(name, value))
 
         sim_args = "+lint=all"
         compile_args = "+lint=all -timescale=1ns/10ps " + " ".join(args_hdl_params)

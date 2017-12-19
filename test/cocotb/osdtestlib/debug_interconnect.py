@@ -130,6 +130,12 @@ class DiPacket:
         MAX_PKT_LEN = 0x0203
         SYSRST = 0x0204
 
+    class MAM_REG(IntEnum):
+        """MAM Register map"""
+        AW = 0x0200
+        DW = 0x0201
+        REGIONS = 0x0202
+
     def __init__(self):
         self.dest = None
         self.src = None

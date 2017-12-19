@@ -17,8 +17,8 @@
 import dii_package::dii_flit;
 
 module osd_mam
-  #(parameter DATA_WIDTH  = 16, // in bits, must be multiple of 16
-    parameter ADDR_WIDTH  = 32,
+  #(parameter DATA_WIDTH  = 16, // data width in bits, must be multiple of 16
+    parameter ADDR_WIDTH  = 32, // address width in bits
     parameter MAX_PKT_LEN = 'x,
     parameter REGIONS     = 1,
     parameter MEM_SIZE0   = 'x,
@@ -99,14 +99,14 @@ module osd_mam
 
    osd_regaccess_layer
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h3), .MOD_VERSION(16'h0),
-       .MAX_REG_SIZE(16), .CAN_STALL(0))
+       .MOD_EVENT_DEST(16'h0), .MAX_REG_SIZE(16), .CAN_STALL(0))
    u_regaccess(.*,
                .module_in (dp_out),
                .module_in_ready (dp_out_ready),
                .module_out (dp_in),
                .module_out_ready (dp_in_ready));
 
-   assign reg_ack = 1;
+   assign reg_ack = 1'b1;
 
    logic [63:0] base_addr [8];
    assign base_addr[0] = 64'(BASE_ADDR0);
@@ -128,7 +128,7 @@ module osd_mam
    assign mem_size[7] = 64'(MEM_SIZE7);
 
    always_comb begin
-      reg_err = 0;
+      reg_err = 1'b0;
       reg_rdata = 16'hx;
 
       if (reg_addr[15:7] == 9'h4) // 0x200
@@ -136,13 +136,13 @@ module osd_mam
           16'h200: reg_rdata = 16'(DATA_WIDTH);
           16'h201: reg_rdata = 16'(ADDR_WIDTH);
           16'h202: reg_rdata = 16'(REGIONS);
-          default: reg_err = 1;
+          default: reg_err = 1'b1;
         endcase
       else if (reg_addr[15:7] == 9'h5) // 0x280-0x300
         if (reg_addr[3])
-          reg_err = 1;
+          reg_err = 1'b1;
         else if (reg_addr[6:4] > REGIONS)
-          reg_err = 1;
+          reg_err = 1'b1;
         else if (reg_addr[2] == 0) // addr
           case (reg_addr[1:0])
             0: reg_rdata = base_addr[reg_addr[6:4]][15:0];

@@ -61,9 +61,9 @@ def _cpu_reset(dut):
     be observed.
     """
 
-    access = RegAccess()
+    access = RegAccess(dut)
 
-    yield access.write_register(dut=dut, dest=MODULE_DI_ADDRESS,
+    yield access.write_register(dest=MODULE_DI_ADDRESS,
                                 src=SENDER_DI_ADDRESS,
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
@@ -72,7 +72,7 @@ def _cpu_reset(dut):
     if dut.cpu_rst != 1:
         raise TestFailure("CPU reset signal could not be set!")
 
-    yield access.write_register(dut=dut, dest=MODULE_DI_ADDRESS,
+    yield access.write_register(dest=MODULE_DI_ADDRESS,
                                 src=SENDER_DI_ADDRESS,
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
@@ -88,9 +88,9 @@ def _sys_reset(dut):
     will be observed.
     """
 
-    access = RegAccess()
+    access = RegAccess(dut)
 
-    yield access.write_register(dut=dut, dest=MODULE_DI_ADDRESS,
+    yield access.write_register(dest=MODULE_DI_ADDRESS,
                                 src=SENDER_DI_ADDRESS,
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
@@ -99,7 +99,7 @@ def _sys_reset(dut):
     if dut.sys_rst != 1:
         raise TestFailure("System reset signal could not be set!")
 
-    yield access.write_register(dut=dut, dest=MODULE_DI_ADDRESS,
+    yield access.write_register(dest=MODULE_DI_ADDRESS,
                                 src=SENDER_DI_ADDRESS,
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
@@ -114,12 +114,11 @@ def test_scm_baseregisters(dut):
     Read the 5 additional registers of the SCM and compares the response
     with the desired value
     """
-    access = RegAccess()
-    driver = NocDriver()
-
+    access = RegAccess(dut)
+    
     yield _init_dut(dut)
 
-    yield access.test_base_registers(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.test_base_registers(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                      [1, 1, 0, 1, SENDER_DI_ADDRESS])
 
 @cocotb.test()
@@ -128,29 +127,28 @@ def test_scm_extended(dut):
     Read the 5 additional registers of the SCM and compares the response
     with the desired value
     """
-    access = RegAccess()
-    driver = NocDriver()
+    access = RegAccess(dut)
 
     yield _init_dut(dut)
 
     dut._log.info("Check contents of SYSTEM_VENDOR_ID")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.SCM_REG.SYSTEM_VENDOR_ID.value, 1)
 
     dut._log.info("Check contents of SYSTEM_DEVICE_ID")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.SCM_REG.SYSTEM_DEVICE_ID.value, 1)
 
     dut._log.info("Check contents of NUM_MOD")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.SCM_REG.NUM_MOD.value, 1)
 
     dut._log.info("Check contents of MAX_PKT_LEN")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.SCM_REG.MAX_PKT_LEN.value, 8)
 
     dut._log.info("Check contents of SYSRST")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.SCM_REG.SYSRST.value, 0)
 
 

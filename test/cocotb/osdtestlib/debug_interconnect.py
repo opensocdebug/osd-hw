@@ -24,42 +24,45 @@ class NocDriver:
     Transport individual flits between debug modules and process their reaction
     """
 
+    def __init__(self, dut):
+        """Construct a new NocDriver object
+
+        Args:
+            dut (SimHandle): Entity interfacing with the bus
+        """
+        self.dut = dut
+
     @cocotb.coroutine
-    def _send_flit(self, dut, flit, is_last):
-        dut.debug_in.data <= flit
-        dut.debug_in.last <= is_last
-        dut.debug_in.valid <= 1
+    def _send_flit(self, flit, is_last):
+        self.dut.debug_in.data <= flit
+        self.dut.debug_in.last <= is_last
+        self.dut.debug_in.valid <= 1
 
-        yield RisingEdge(dut.clk)
+        yield RisingEdge(self.dut.clk)
 
-        while not dut.debug_in_ready.value:
+        while not self.dut.debug_in_ready.value:
             yield RisingEdge(dut.clk)
 
-        dut.debug_in.valid <= 0
+        self.dut.debug_in.valid <= 0
 
     @cocotb.coroutine
-    def send_packet(self, dut, packet):
+    def send_packet(self, packet):
         """Transmit a complete packet to a chosen debug module
 
         Args:
-            dut:            device under test
             packet:         debug interconnect packet
         """
 
-        driver = NocDriver()
         flits = packet.flits
 
         for i in range(0, len(flits)):
             is_last = (i == (len(flits) - 1))
-            yield driver._send_flit(dut, flits[i], is_last)
+            yield self._send_flit(flits[i], is_last)
 
     @cocotb.coroutine
-    def receive_packet(self, dut):
+    def receive_packet(self):
         """
         Receive a packet from the debug interconnect
-
-        Args:
-            dut:            device under test.
 
         Returns:
             DiPacket
@@ -67,18 +70,18 @@ class NocDriver:
 
         flits = []
         while True:
-            yield RisingEdge(dut.clk)
+            yield RisingEdge(self.dut.clk)
 
-            if dut.debug_out.valid.value:
-                flits.append(dut.debug_out.data.value.integer)
+            if self.dut.debug_out.valid.value:
+                flits.append(self.dut.debug_out.data.value.integer)
 
-                if dut.debug_out.last.value:
+                if self.dut.debug_out.last.value:
                     break
 
         pkg = DiPacket()
         pkg.flits = flits
 
-        dut._log.debug("Received packet " + str(pkg))
+        self.dut._log.debug("Received packet " + str(pkg))
 
         raise ReturnValue(pkg)
 
@@ -243,14 +246,17 @@ class RegAccess:
     Access registers of debug modules
     """
 
+    def __init__(self, dut):
+        self.dut = dut
+        self.driver = NocDriver(self.dut)
+
     @cocotb.coroutine
-    def read_register(self, dut, dest, src, word_width, regaddr):
+    def read_register(self, dest, src, word_width, regaddr):
         """
         Read a value from a specified register and return the read value to
         the user.
 
         Args:
-            dut:            device under test.
             dest:           DI address of the target module.
             src:            DI address of the sending module.
             word_width:     choose between 16, 32, 64 and 128 bit register
@@ -263,7 +269,6 @@ class RegAccess:
         """
         tx_packet = DiPacket()
         rx_packet = DiPacket()
-        driver = NocDriver()
 
         try:
             if word_width == 16:
@@ -290,15 +295,15 @@ class RegAccess:
                                    type=DiPacket.TYPE.REG.value,
                                    type_sub=type_sub, payload=[regaddr])
 
-            yield driver.send_packet(dut=dut, packet=tx_packet)
+            yield self.driver.send_packet(tx_packet)
 
             # Get response
-            rx_packet = yield driver.receive_packet(dut)
+            rx_packet = yield self.driver.receive_packet()
 
             # Check response
             if rx_packet.dest != src:
-                dut._log.info(str(src))
-                dut._log.info(str(rx_packet))
+                self.dut._log.info(str(src))
+                self.dut._log.info(str(rx_packet))
                 raise RegAccessFailedException("Expected destination to be "
                                                "0x%x, got 0x%x" %
                                                (src, rx_packet.dest))
@@ -334,9 +339,9 @@ class RegAccess:
                 shift_bit = (nr_words - w - 1) * 16
                 rx_value |= rx_packet.payload[w] << shift_bit
 
-            dut._log.debug("Successfully read %d bit register 0x%04x from "
-                           "module at DI address 0x%04x. Got value 0x%x."
-                           % (word_width, regaddr, dest, rx_value))
+            self.dut._log.debug("Successfully read %d bit register 0x%04x from "
+                                "module at DI address 0x%04x. Got value 0x%x."
+                                % (word_width, regaddr, dest, rx_value))
 
         except RegAccessFailedException as reg_acc_error:
             dut._log.info(reg_acc_error.message)
@@ -346,14 +351,13 @@ class RegAccess:
 
 
     @cocotb.coroutine
-    def write_register(self, dut, dest, src, word_width, regaddr,
+    def write_register(self, dest, src, word_width, regaddr,
                        value):
         """
         Write a new value into a register specified by the user and read
         the response to tell the user if the write process was successful
 
         Args:
-            dut:            device under test.
             dest:           id of the target module.
             src:            id of the sending module.
             word_width:     choose between 16, 32, 64 and 128 bit register
@@ -365,7 +369,6 @@ class RegAccess:
         """
         tx_packet = DiPacket()
         rx_packet = DiPacket()
-        driver = NocDriver()
 
         try:
             if word_width == 16:
@@ -394,9 +397,9 @@ class RegAccess:
                                    type=DiPacket.TYPE.REG.value,
                                    type_sub=type_sub, payload=payload)
 
-            yield driver.send_packet(dut, tx_packet)
+            yield self.driver.send_packet(tx_packet)
 
-            rx_packet = yield driver.receive_packet(dut)
+            rx_packet = yield self.driver.receive_packet()
 
             if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_WRITE_REG_ERROR.value:
                 raise RegAccessFailedException("An error occurred during the "
@@ -407,56 +410,54 @@ class RegAccess:
                                                (DiPacket.TYPE_SUB.RESP_WRITE_REG_SUCCESS.name,
                                                 DiPacket.TYPE_SUB(rx_packet.type_sub).name))
 
-            dut._log.debug("Successfully wrote %d bit register 0x%04x of module at "
+            self.dut._log.debug("Successfully wrote %d bit register 0x%04x of module at "
                            "DI address 0x%04x."
                            % (word_width, regaddr, dest))
             success = True
 
         except RegAccessFailedException as reg_acc_error:
-            dut._log.info(reg_acc_error.message)
+            self.dut._log.info(reg_acc_error.message)
             success = False
 
         raise ReturnValue(success)
 
     @cocotb.coroutine
-    def assert_reg_value(self, dut, dest, src, regaddr, exp_value):
+    def assert_reg_value(self, dest, src, regaddr, exp_value):
         """ Assert that a register contains an expected value """
 
-        rx_value = yield self.read_register(dut, dest, src, 16, regaddr)
+        rx_value = yield self.read_register(dest, src, 16, regaddr)
 
         if rx_value != exp_value:
             raise TestFailure("Read value 0x%04x from register %x, expected 0x%04x."
                               % (rx_value, regaddr, exp_value))
 
     @cocotb.coroutine
-    def test_base_registers(self, dut, dest, src, values):
+    def test_base_registers(self, dest, src, values):
         """
         Read the 5 base registers and compare the response with the desired value
         """
 
-        driver = NocDriver()
-
-        dut._log.info("Check contents of MOD_VENDOR")
-        yield self.assert_reg_value(dut, dest, src,
+        self.dut._log.info("Check contents of MOD_VENDOR")
+        yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_VENDOR.value,
                                     values[0])
 
-        dut._log.info("Check contents of MOD_TYPE")
-        yield self.assert_reg_value(dut, dest, src,
+        self.dut._log.info("Check contents of MOD_TYPE")
+        yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_TYPE.value,
                                     values[1])
 
-        dut._log.info("Check contents of MOD_VERSION")
-        yield self.assert_reg_value(dut, dest, src,
+        self.dut._log.info("Check contents of MOD_VERSION")
+        yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_VERSION.value,
                                     values[2])
 
-        dut._log.info("Check contents of MOD_CS")
-        yield self.assert_reg_value(dut, dest, src,
+        self.dut._log.info("Check contents of MOD_CS")
+        yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_CS.value,
                                     values[3])
 
-        dut._log.info("Check contents of MOD_EVENT_DEST")
-        yield self.assert_reg_value(dut, dest, src,
+        self.dut._log.info("Check contents of MOD_EVENT_DEST")
+        yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_EVENT_DEST.value,
                                     values[4])

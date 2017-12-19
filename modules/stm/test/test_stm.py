@@ -61,8 +61,8 @@ def _assert_trace_event(dut, trace_id, trace_value):
     of a new debug event packet which will be read and evaluated.
     """
 
-    generator = StmTraceGenerator()
-    driver = NocDriver()
+    generator = StmTraceGenerator(dut)
+    driver = NocDriver(dut)
 
     # Build expected packet
     expected_packet = DiPacket()
@@ -83,8 +83,8 @@ def _assert_trace_event(dut, trace_id, trace_value):
     exp_payload_mask[0] = 0
     exp_payload_mask[1] = 0
 
-    yield generator.trigger_event(dut, trace_id, trace_value)
-    rcv_pkg = yield driver.receive_packet(dut)
+    yield generator.trigger_event(trace_id, trace_value)
+    rcv_pkg = yield driver.receive_packet()
 
     if not rcv_pkg.equal_to(dut, expected_packet, exp_payload_mask):
         raise TestFailure("The STM generated an unexpected debug event packet!")
@@ -97,9 +97,9 @@ def _activate_module(dut):
     enable emitting debug event packets.
     """
 
-    access = RegAccess()
+    access = RegAccess(dut)
 
-    yield access.write_register(dut=dut, dest=MODULE_DI_ADDRESS,
+    yield access.write_register(dest=MODULE_DI_ADDRESS,
                                 src=SENDER_DI_ADDRESS,
                                 word_width=16,
                                 regaddr=DiPacket.BASE_REG.MOD_CS.value,
@@ -111,19 +111,19 @@ def test_stm_activation(dut):
     """
     Check if STM is handling the activation bit correctly
     """
-    driver = NocDriver()
-    access = RegAccess()
+    driver = NocDriver(dut)
+    access = RegAccess(dut)
 
     yield _init_dut(dut)
 
     dut._log.info("Check contents of MOD_CS")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.BASE_REG.MOD_CS.value, 0)
 
     yield _activate_module(dut)
 
     dut._log.info("Check contents of MOD_CS")
-    yield access.assert_reg_value(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                   DiPacket.BASE_REG.MOD_CS.value, 1)
 
 @cocotb.test()
@@ -132,10 +132,10 @@ def test_stm_base_registers(dut):
     Check if STM properly generates trace events
     """
 
-    access = RegAccess()
+    access = RegAccess(dut)
 
     yield _init_dut(dut)
-    yield access.test_base_registers(dut, MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
+    yield access.test_base_registers(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
                                      [1, 4, 0, 0, SENDER_DI_ADDRESS])
 
 @cocotb.test()
@@ -143,8 +143,6 @@ def test_stm_trace_events(dut):
     """
     Check if STM properly generates trace events
     """
-    driver = NocDriver()
-    access = RegAccess()
 
     yield _init_dut(dut)
 

@@ -66,7 +66,7 @@ module osd_regaccess
    reg          mod_cs_active;
    logic        nxt_mod_cs_active;
 
-   assign stall = CAN_STALL ? ~mod_cs_active : 0;
+   assign stall = CAN_STALL ? ~mod_cs_active : 1'b0;
 
    // State machine
    enum {

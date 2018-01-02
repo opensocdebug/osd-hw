@@ -53,6 +53,9 @@ module osd_stm
    dii_flit dp_out, dp_in;
    logic        dp_out_ready, dp_in_ready;
 
+   // This module cannot receive packets other than register access packets
+   assign dp_in_ready = 1'b0;
+
    osd_regaccess_layer
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h4), .MOD_VERSION(16'h0),
        .MAX_REG_SIZE(16), .CAN_STALL(1), .MOD_EVENT_DEST(16'h0))

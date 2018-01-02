@@ -11,7 +11,6 @@
 
 import os
 import yaml
-import sys
 import glob
 import argparse
 import subprocess
@@ -101,7 +100,7 @@ class CocotbTest():
         """
         Generate Makefile for running cocotb with Synopsys VCS
         """
-        makefile = "# Auto-generated Makefile by OpTiMSoC for Synopsys VCS\n"
+        makefile = "# Auto-generated Makefile by cocotb_testrunner for Synopsys VCS\n"
         makefile += "PYTHONPATH := " + pythonpath + ":$(PYTHONPATH)\n"
         makefile += "SIM=vcs\n"
         makefile += "VERILOG_SOURCES=" + " \\\n\t".join(self.manifest["sources"]) + "\n"
@@ -131,12 +130,15 @@ class CocotbTest():
         with open("{}/Makefile".format(self.objdir), "w") as fp_makefile:
             fp_makefile.write(makefile_contents)
 
-    def run(self, gui, loglevel='INFO', seed=None):
+    def run(self, gui, loglevel='INFO', seed=None, testcase=None):
         self._prepare_objdir()
 
         env = os.environ
         env['PYTHONPATH'] = self.manifest['manifest_dir']
         env['COCOTB_LOG_LEVEL'] = loglevel
+
+        if testcase:
+            env['TESTCASE'] = testcase
 
         make_args = []
         sim_args = ""
@@ -156,11 +158,11 @@ class CocotbTestRunner:
         self.objdir = objdir
         self.tests = []
 
-    def run_tests(self, gui=False, loglevel='INFO', seed=None):
+    def run_tests(self, gui=False, loglevel='INFO', seed=None, testcase=None):
         """
         Run all discovered tests
         """
-        if gui and len(self.tests) > 1:
+        if (gui or testcase) and len(self.tests) > 1:
             print("You cannot run multiple tests with GUI. Please run again "
                   "with a single test.")
             exit(1)
@@ -168,7 +170,7 @@ class CocotbTestRunner:
         for t in self.tests:
             t.objdir = os.path.join(self.objdir, t.manifest['toplevel'])
             ensure_directory(t.objdir, recursive=True)
-            t.run(gui, loglevel, seed)
+            t.run(gui, loglevel, seed, testcase)
 
 
     def discover_tests(self):
@@ -179,7 +181,6 @@ class CocotbTestRunner:
         for f in test_manifests:
             cocotb_test = CocotbTest(manifest_path=f)
             self.tests.append(cocotb_test)
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Testrunner for cocotb testbenches')
@@ -193,6 +194,10 @@ if __name__ == '__main__':
                         help="show GUI[default: %(default)s]")
     parser.add_argument("--seed", type=int, required=False,
                         help="set a fixed seed for the test run")
+    parser.add_argument("-t", "--testcase", required=False,
+                        help="only run the specified testcases. Expects a "
+                        "comma-separated list of test function names, e.g. "
+                        "'test_basic,test_advanced'.")
     parser.add_argument('dir', nargs='?', default=os.getcwd())
 
     args = parser.parse_args()
@@ -201,8 +206,9 @@ if __name__ == '__main__':
     testrunner.discover_tests()
 
     if len(testrunner.tests) == 0:
-       print("No test manifests (*.manifest.yaml) found in " +
-             testrunner.test_search_base)
-       exit(1)
+        print("No test manifests (*.manifest.yaml) found in " +
+              testrunner.test_search_base)
+        exit(1)
 
-    testrunner.run_tests(gui=args.gui, loglevel=args.loglevel, seed=args.seed)
+    testrunner.run_tests(gui=args.gui, loglevel=args.loglevel, seed=args.seed,
+                         testcase=args.testcase)

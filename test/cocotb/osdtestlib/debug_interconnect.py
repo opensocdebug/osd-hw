@@ -4,7 +4,7 @@
 
     Access the Debug Interconnect in OSD
 
-    :copyright: Copyright 2017 by the Open SoC Debug team
+    :copyright: Copyright 2017-2018 by the Open SoC Debug team
     :license: MIT, see LICENSE for details.
 """
 

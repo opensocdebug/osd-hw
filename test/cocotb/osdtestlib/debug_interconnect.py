@@ -170,6 +170,11 @@ class DiPacket:
 
     @flits.setter
     def flits(self, flits):
+        if len(flits) < 3:
+            flits_str = '[{}]'.format(', '.join(hex(x) for x in flits))
+            raise TestFailure("Packets must consist of at least 3 flits, got "
+                "%d flits: %s" % (len(flits), flits_str))
+
         self.dest = flits[0]
         self.src = flits[1]
         self.type = (flits[2] & 0xC000) >> 14

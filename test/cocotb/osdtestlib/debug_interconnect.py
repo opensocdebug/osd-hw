@@ -197,7 +197,7 @@ class DiPacket:
         self.type_sub = type_sub
         self.payload = payload
 
-    def equal_to(self, dut, other_packet, mask):
+    def equal_to(self, dut, other_packet, mask=None):
         """Compares a packet with another packet and outputs if both are equal
 
         Args:
@@ -209,6 +209,9 @@ class DiPacket:
         Returns:
             True if the packets are equal (modulo the mask), False otherwise
         """
+
+        if not mask:
+            mask = [1] * len(self.payload)
 
         if self.dest != other_packet.dest:
             dut._log.error("Expected DEST to be 0x%x, got 0x%x" %

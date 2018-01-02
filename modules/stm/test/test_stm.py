@@ -14,7 +14,7 @@ from cocotb.clock import Clock
 from cocotb.result import TestFailure
 from cocotb.triggers import RisingEdge
 
-from osdtestlib.debug_interconnect import NocDriver, RegAccess, DiPacket
+from osdtestlib.debug_interconnect import NocDiReader, RegAccess, DiPacket
 from osdtestlib.soc_interface import StmTraceGenerator
 from osdtestlib.exceptions import *
 
@@ -42,12 +42,11 @@ def _init_dut(dut):
                   dut.REG_ADDR_WIDTH.value.integer)
 
     # Reset
-    dut._log.info("Resetting DUT")
+    dut._log.debug("Resetting DUT")
     dut.rst <= 1
 
     dut.id <= MODULE_DI_ADDRESS
 
-    dut.debug_out_ready <= 1
     dut.trace_valid <= 0
 
     for _ in range(2):
@@ -61,8 +60,8 @@ def _assert_trace_event(dut, trace_id, trace_value):
     of a new debug event packet which will be read and evaluated.
     """
 
-    generator = StmTraceGenerator(dut)
-    driver = NocDriver(dut)
+    generator = StmTraceGenerator()
+    reader = NocDiReader(dut, dut.clk)
 
     # Build expected packet
     expected_packet = DiPacket()
@@ -83,8 +82,11 @@ def _assert_trace_event(dut, trace_id, trace_value):
     exp_payload_mask[0] = 0
     exp_payload_mask[1] = 0
 
-    yield generator.trigger_event(trace_id, trace_value)
-    rcv_pkg = yield driver.receive_packet()
+    yield generator.trigger_event(dut, trace_id, trace_value)
+    rcv_pkg = yield reader.receive_packet(set_ready=True)
+
+    if not rcv_pkg:
+        raise TestFailure("No response received!")
 
     if not rcv_pkg.equal_to(dut, expected_packet, exp_payload_mask):
         raise TestFailure("The STM generated an unexpected debug event packet!")
@@ -111,7 +113,6 @@ def test_stm_activation(dut):
     """
     Check if STM is handling the activation bit correctly
     """
-    driver = NocDriver(dut)
     access = RegAccess(dut)
 
     yield _init_dut(dut)

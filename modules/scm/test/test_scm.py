@@ -14,7 +14,7 @@ from cocotb.clock import Clock
 from cocotb.result import TestFailure
 from cocotb.triggers import RisingEdge
 
-from osdtestlib.debug_interconnect import NocDriver, RegAccess, DiPacket
+from osdtestlib.debug_interconnect import RegAccess, DiPacket
 from osdtestlib.exceptions import *
 
 import random
@@ -43,7 +43,7 @@ def _init_dut(dut):
                   dut.MAX_PKT_LEN.value.integer)
 
     # Reset
-    dut._log.info("Resetting DUT")
+    dut._log.debug("Resetting DUT")
     dut.rst <= 1
 
     dut.id <= MODULE_DI_ADDRESS
@@ -95,7 +95,6 @@ def _sys_reset(dut):
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
                                 value=1)
-
     if dut.sys_rst != 1:
         raise TestFailure("System reset signal could not be set!")
 
@@ -104,7 +103,6 @@ def _sys_reset(dut):
                                 word_width=16,
                                 regaddr=DiPacket.SCM_REG.SYSRST.value,
                                 value=0)
-
     if dut.sys_rst != 0:
         raise TestFailure("System reset signal could not be reset!")
 

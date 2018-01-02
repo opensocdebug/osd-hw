@@ -9,41 +9,57 @@
 """
 
 import cocotb
-from cocotb.triggers import Timer
-from cocotb.clock import Clock
-from cocotb.result import TestFailure, ReturnValue
+from cocotb.result import TestFailure, ReturnValue, TestError
 from cocotb.triggers import RisingEdge
+from cocotb.drivers import BusDriver
 
-from osdtestlib.exceptions import Error, RegAccessFailedException
+from osdtestlib.exceptions import RegAccessFailedException
 
 from enum import IntEnum
 
 
-class NocDriver:
+class AliasBusDriver(BusDriver):
     """
-    Transport individual flits between debug modules and process their reaction
+    Extension of the cocotb.BusDriver to support aliases for signal names
     """
 
-    def __init__(self, dut):
-        """Construct a new NocDriver object
+    def __init__(self, entity, name, clock, signal_aliases={}):
+        for i in range(len(self._signals)):
+            if self._signals[i] in signal_aliases:
+                self._signals[i] = signal_aliases[self._signals[i]]
 
-        Args:
-            dut (SimHandle): Entity interfacing with the bus
-        """
-        self.dut = dut
+        super().__init__(entity, name, clock)
+
+        for signal_name, alias_name in signal_aliases.items():
+            setattr(self.bus, signal_name, getattr(self.bus, alias_name))
+            self.bus._signals[signal_name] = getattr(self.bus, signal_name)
+
+
+class NocDiWriter(AliasBusDriver):
+    """
+    Writer for the OSD Debug Interconnect implemented as NoC
+    """
+
+    def __init__(self, entity, clock, signal_aliases={}):
+        self._signals = ["debug_in", "debug_in_ready"]
+
+        super().__init__(entity, "", clock, signal_aliases)
+
+        # drive default values
+        self.bus.debug_in.valid.setimmediatevalue(0)
 
     @cocotb.coroutine
     def _send_flit(self, flit, is_last):
-        self.dut.debug_in.data <= flit
-        self.dut.debug_in.last <= is_last
-        self.dut.debug_in.valid <= 1
+        self.bus.debug_in.data <= flit
+        self.bus.debug_in.last <= is_last
+        self.bus.debug_in.valid <= 1
 
-        yield RisingEdge(self.dut.clk)
+        yield RisingEdge(self.clock)
 
-        while not self.dut.debug_in_ready.value:
-            yield RisingEdge(dut.clk)
+        while not self.bus.debug_in_ready.value:
+            yield RisingEdge(self.clock)
 
-        self.dut.debug_in.valid <= 0
+        self.bus.debug_in.valid <= 0
 
     @cocotb.coroutine
     def send_packet(self, packet):
@@ -59,29 +75,69 @@ class NocDriver:
             is_last = (i == (len(flits) - 1))
             yield self._send_flit(flits[i], is_last)
 
+
+class NocDiReader(AliasBusDriver):
+    """
+    Reader for the OSD Debug Interconnect implemented as NoC
+    """
+
+    # number of idle cycles until we consider a read request to have timed out
+    read_timeout_cycles = 1000
+
+    def __init__(self, entity, clock, signal_aliases={}):
+        self._signals = ["debug_out", "debug_out_ready"]
+
+        super().__init__(entity, "", clock, signal_aliases)
+
+        # drive default values
+        self.bus.debug_out_ready.setimmediatevalue(0)
+
     @cocotb.coroutine
-    def receive_packet(self):
+    def receive_packet(self, set_ready=False):
         """
         Receive a packet from the debug interconnect
+
+        Args:
+            set_ready(bool): Set the ready signal to tell the DUT we can receive
+                             data. If set to True, this function will handle the
+                             ready signal. If set to False, you must set the
+                             ready signal yourself. This mode is useful for
+                             toggling the ready signal during the receive
+                             operation to achieve greater coverage of edge
+                             cases.
 
         Returns:
             DiPacket
         """
 
         flits = []
+        wait_time = 0
+
+        if set_ready:
+            self.bus.debug_out_ready <= 1
+
         while True:
-            yield RisingEdge(self.dut.clk)
-
-            if self.dut.debug_out.valid.value:
-                flits.append(self.dut.debug_out.data.value.integer)
-
-                if self.dut.debug_out.last.value:
+            if self.bus.debug_out.valid.value and self.bus.debug_out_ready.value:
+                flits.append(self.bus.debug_out.data.value.integer)
+                if self.bus.debug_out.last.value:
                     break
+            else:
+                wait_time += 1
+
+            if wait_time >= self.read_timeout_cycles:
+                self.log.warning("packet receive timed out after %d idle cycles"
+                                 % self.read_timeout_cycles)
+                raise ReturnValue(None)
+
+            yield RisingEdge(self.clock)
+
+        if set_ready:
+            self.bus.debug_out_ready <= 0
 
         pkg = DiPacket()
         pkg.flits = flits
 
-        self.dut._log.debug("Received packet " + str(pkg))
+        self.log.debug("Received packet " + str(pkg))
 
         raise ReturnValue(pkg)
 
@@ -254,9 +310,17 @@ class RegAccess:
     Access registers of debug modules
     """
 
-    def __init__(self, dut):
+    def __init__(self, dut, reader=None, writer=None):
         self.dut = dut
-        self.driver = NocDriver(self.dut)
+        if not reader:
+            self.reader = NocDiReader(self.dut, dut.clk)
+        else:
+            self.reader = reader
+
+        if not writer:
+            self.writer = NocDiWriter(self.dut, dut.clk)
+        else:
+            self.writer = writer
 
     @cocotb.coroutine
     def read_register(self, dest, src, word_width, regaddr):
@@ -303,10 +367,10 @@ class RegAccess:
                                    type=DiPacket.TYPE.REG.value,
                                    type_sub=type_sub, payload=[regaddr])
 
-            yield self.driver.send_packet(tx_packet)
+            yield self.writer.send_packet(tx_packet)
 
             # Get response
-            rx_packet = yield self.driver.receive_packet()
+            rx_packet = yield self.reader.receive_packet(set_ready=True)
 
             # Check response
             if rx_packet.dest != src:
@@ -327,7 +391,8 @@ class RegAccess:
                                                   DiPacket.TYPE(rx_packet.type).name))
 
             if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_READ_REG_ERROR.value:
-                raise RegAccessFailedException("Module returned RESP_READ_REG_ERROR")
+                raise RegAccessFailedException(
+                    "Module returned RESP_READ_REG_ERROR")
 
             if rx_packet.type_sub != exp_type_sub:
                 raise RegAccessFailedException("Expected subtype to be %s, got %s" %
@@ -352,15 +417,14 @@ class RegAccess:
                                 % (word_width, regaddr, dest, rx_value))
 
         except RegAccessFailedException as reg_acc_error:
-            dut._log.info(reg_acc_error.message)
+            self.dut._log.info(reg_acc_error.message)
             rx_value = None
 
         raise ReturnValue(rx_value)
 
-
     @cocotb.coroutine
-    def write_register(self, dest, src, word_width, regaddr,
-                       value):
+    def write_register(self, dest, src, word_width, regaddr, value,
+                       fatal_errors=True):
         """
         Write a new value into a register specified by the user and read
         the response to tell the user if the write process was successful
@@ -397,7 +461,6 @@ class RegAccess:
 
             # Assemble payload of REG debug packet
             payload = [regaddr]
-            value_words = []
             for w in range(0, words):
                 payload.append((value >> ((words - 1 - w) * 16)) & 0xFFFF)
 
@@ -405,9 +468,12 @@ class RegAccess:
                                    type=DiPacket.TYPE.REG.value,
                                    type_sub=type_sub, payload=payload)
 
-            yield self.driver.send_packet(tx_packet)
+            yield self.writer.send_packet(tx_packet)
 
-            rx_packet = yield self.driver.receive_packet()
+            rx_packet = yield self.reader.receive_packet(set_ready=True)
+
+            if not rx_packet:
+                raise RegAccessFailedException("No response packet received.")
 
             if rx_packet.type_sub == DiPacket.TYPE_SUB.RESP_WRITE_REG_ERROR.value:
                 raise RegAccessFailedException("An error occurred during the "
@@ -419,13 +485,16 @@ class RegAccess:
                                                 DiPacket.TYPE_SUB(rx_packet.type_sub).name))
 
             self.dut._log.debug("Successfully wrote %d bit register 0x%04x of module at "
-                           "DI address 0x%04x."
-                           % (word_width, regaddr, dest))
+                                "DI address 0x%04x."
+                                % (word_width, regaddr, dest))
             success = True
 
         except RegAccessFailedException as reg_acc_error:
-            self.dut._log.info(reg_acc_error.message)
-            success = False
+            if fatal_errors:
+                raise TestError(reg_acc_error.message)
+            else:
+                self.dut._log.info(reg_acc_error.message)
+                success = False
 
         raise ReturnValue(success)
 

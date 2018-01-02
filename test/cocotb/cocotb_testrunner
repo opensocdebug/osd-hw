@@ -3,7 +3,12 @@
 # Run cocotb_testrunner.py in a virtual environment and install cocotb with it
 #
 
+set -e
+
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+COCOTB_GIT_URL=https://github.com/potentialventures/cocotb
+COCOTB_GIT_REF=f1297a71e09ddc10c64b413dcf4da441cb7b69bf
 
 if [ -z "$OBJDIR" ]; then
   OBJDIR=/tmp/cocotb_testrunner_objdir
@@ -11,7 +16,8 @@ fi
 
 function install_cocotb
 {
-  git clone https://github.com/potentialventures/cocotb "$OBJDIR/cocotb"
+  git clone "$COCOTB_GIT_URL" "$OBJDIR/cocotb"
+  (cd "$OBJDIR/cocotb"; git checkout "$COCOTB_GIT_REF")
   export COCOTB=$OBJDIR/cocotb
 }
 

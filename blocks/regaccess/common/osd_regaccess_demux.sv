@@ -40,8 +40,8 @@ module osd_regaccess_demux
    } bufdata;
 
    bufdata buf_reg[3];
-   logic buf_reg_is_regaccess[3];
-   logic buf_reg_is_bypass[3];
+   logic [2:0] buf_reg_is_regaccess;
+   logic [2:0] buf_reg_is_bypass;
 
    logic do_tag, mark_bypass, mark_regaccess;
    assign do_tag = buf_reg[2].valid & buf_reg[1].valid & buf_reg[0].valid &
@@ -91,8 +91,13 @@ module osd_regaccess_demux
             buf_reg[0].data <= in.data;
             buf_reg[0].last <= in.last;
             buf_reg[0].valid <= in.valid & in_ready;
-            buf_reg_is_regaccess[0] <= pkg_is_regaccess | mark_regaccess;
-            buf_reg_is_bypass[0] <= pkg_is_bypass | mark_bypass;
+            if (buf_reg[0].valid & !buf_reg[0].last) begin
+               buf_reg_is_regaccess[0] <= pkg_is_regaccess | mark_regaccess;
+               buf_reg_is_bypass[0] <= pkg_is_bypass | mark_bypass;
+            end else begin
+               buf_reg_is_regaccess[0] <= pkg_is_regaccess;
+               buf_reg_is_bypass[0] <= pkg_is_bypass;
+            end
 
             if (!keep_1) begin
                buf_reg[1] <= buf_reg[0];
@@ -126,8 +131,12 @@ module osd_regaccess_demux
    assign out_bypass.valid = buf_reg[2].valid
       & (buf_reg_is_bypass[2] | mark_bypass);
 
+   logic no_buf_entry_is_tagged;
+   assign no_buf_entry_is_tagged = ~do_tag & ~(|buf_reg_is_regaccess | |buf_reg_is_bypass);
 
    assign in_ready = (out_bypass_ready & out_reg_ready) |
       (out_bypass_ready & (buf_reg_is_bypass[2] | mark_bypass)) |
-      (out_reg_ready & (buf_reg_is_regaccess[2] | mark_regaccess));
+      (out_reg_ready & (buf_reg_is_regaccess[2] | mark_regaccess)) |
+      no_buf_entry_is_tagged;
+
 endmodule // osd_regaccess_demux

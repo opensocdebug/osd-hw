@@ -286,7 +286,7 @@ module osd_mam
         end
         STATE_ADDR: begin
            dp_in_ready = 1;
-           nxt_req_addr[(counter+1)*16-1 -: 16] = dp_in.data;
+           nxt_req_addr[ADDR_WIDTH - counter*16 - 1 -: 16] = dp_in.data;
            if (dp_in.valid) begin
               nxt_counter = counter + 1;
               if (counter == ADDR_WORDS - 1) begin

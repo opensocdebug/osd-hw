@@ -75,17 +75,17 @@ module osd_regaccess_demux
 
    always_ff @(posedge clk) begin
       if (rst) begin
-         buf_reg[0].valid = 0;
-         buf_reg_is_regaccess[0] = 0;
-         buf_reg_is_bypass[0] = 0;
+         buf_reg[0].valid <= 0;
+         buf_reg_is_regaccess[0] <= 0;
+         buf_reg_is_bypass[0] <= 0;
 
-         buf_reg[1].valid = 0;
-         buf_reg_is_regaccess[1] = 0;
-         buf_reg_is_bypass[1] = 0;
+         buf_reg[1].valid <= 0;
+         buf_reg_is_regaccess[1] <= 0;
+         buf_reg_is_bypass[1] <= 0;
 
-         buf_reg[2].valid = 0;
-         buf_reg_is_regaccess[2] = 0;
-         buf_reg_is_bypass[2] = 0;
+         buf_reg[2].valid <= 0;
+         buf_reg_is_regaccess[2] <= 0;
+         buf_reg_is_bypass[2] <= 0;
       end else begin
          if (in_ready) begin
             buf_reg[0].data <= in.data;

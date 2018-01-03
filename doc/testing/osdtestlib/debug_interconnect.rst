@@ -1,3 +1,3 @@
-.. automodule:: osdtestlib.debug_interconnect
+.. automodule:: osdtestlib.asserts
    :members:
    :undoc-members:

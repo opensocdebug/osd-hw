@@ -8,5 +8,6 @@ Cocotb Test Framework
    :caption: API Documentation
 
    debug_interconnect.rst
+   asserts.rst
    exceptions.rst
    soc_interface.rst

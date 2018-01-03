@@ -49,7 +49,7 @@ module osd_mam
 
     output reg                    req_valid, // Start a new memory access request
     input                         req_ready, // Acknowledge the new memory access request
-    output reg                    req_rw, // 0: Read, 1: Write
+    output reg                    req_we, // 0: Read, 1: Write
     output reg [ADDR_WIDTH-1:0]   req_addr, // Request base address
     output reg                    req_burst, // 0 for single beat access, 1 for incremental burst
     output reg [12:0]             req_beats, // Burst length in number of words
@@ -186,7 +186,7 @@ module osd_mam
 
    // Combinational part of interface
    logic [13:0]                      nxt_req_beats;
-   logic                             nxt_req_rw;
+   logic                             nxt_req_we;
    logic                             nxt_req_burst;
    logic                             nxt_req_sync;
    logic [ADDR_WIDTH-1:0]            nxt_req_addr;
@@ -206,7 +206,7 @@ module osd_mam
       end
 
       req_beats <= nxt_req_beats;
-      req_rw <= nxt_req_rw;
+      req_we <= nxt_req_we;
       req_burst <= nxt_req_burst;
       req_addr <= nxt_req_addr;
       req_sync <= nxt_req_sync;
@@ -228,7 +228,7 @@ module osd_mam
       nxt_in_packet = in_packet;
       nxt_is_last_flit = is_last_flit;
       nxt_write_strb = write_strb;
-      nxt_req_rw = req_rw;
+      nxt_req_we = req_we;
       nxt_req_burst = req_burst;
       nxt_req_sync = req_sync;
       nxt_req_addr = req_addr;
@@ -258,7 +258,7 @@ module osd_mam
         STATE_CMD: begin
            dp_in_ready = 1;
            nxt_write_strb = dp_in.data[DATA_WIDTH/8-1:0];
-           nxt_req_rw = dp_in.data[15];
+           nxt_req_we = dp_in.data[15];
            nxt_req_burst = dp_in.data[14];
            nxt_req_sync = dp_in.data[13];
 
@@ -287,7 +287,7 @@ module osd_mam
            req_valid = 1;
            if (req_ready) begin
               nxt_is_last_flit = 0;
-              if (req_rw) begin
+              if (req_we) begin
                  if (req_burst) begin
                     if (is_last_flit) begin
                        nxt_state = STATE_WRITE_PACKET;

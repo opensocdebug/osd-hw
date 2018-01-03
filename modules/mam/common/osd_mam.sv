@@ -160,7 +160,7 @@ module osd_mam
    end
 
    enum {
-         STATE_INACTIVE, STATE_CMD_SKIP, STATE_CMD, STATE_ADDR,
+         STATE_INACTIVE, STATE_DI_SRC, STATE_DI_FLAGS, STATE_HDR, STATE_ADDR,
          STATE_REQUEST, STATE_WRITE_PACKET, STATE_WRITE, STATE_WRITE_WAIT,
          STATE_READ_PACKET, STATE_READ, STATE_READ_WAIT, STATE_WRITE_SINGLE,
          STATE_WRITE_SINGLE_WAIT, STATE_SYNC_WAIT, STATE_SYNC_PACKET
@@ -195,6 +195,9 @@ module osd_mam
    reg   [DATA_WIDTH-1:0]            write_data_reg;
    logic [DATA_WIDTH-1:0]            nxt_write_data_reg;
 
+   logic [15:0]                      req_di_src;
+   logic [15:0]                      nxt_req_di_src;
+
    // This is the number of (16 bit) words needed to form an address
    localparam ADDR_WORDS = ADDR_WIDTH >> 4;
 
@@ -210,6 +213,7 @@ module osd_mam
       req_burst <= nxt_req_burst;
       req_addr <= nxt_req_addr;
       req_sync <= nxt_req_sync;
+      req_di_src <= nxt_req_di_src;
       counter <= nxt_counter;
       write_data_reg <= nxt_write_data_reg;
       wcounter <= nxt_wcounter;
@@ -232,6 +236,7 @@ module osd_mam
       nxt_req_burst = req_burst;
       nxt_req_sync = req_sync;
       nxt_req_addr = req_addr;
+      nxt_req_di_src = req_di_src;
 
       dp_in_ready = 0;
       dp_out.valid = 0;
@@ -246,16 +251,23 @@ module osd_mam
          STATE_INACTIVE: begin
             dp_in_ready = 1;
             if (dp_in.valid) begin
-               nxt_state = STATE_CMD_SKIP;
+               nxt_state = STATE_DI_SRC;
             end
          end
-        STATE_CMD_SKIP: begin
+        STATE_DI_SRC: begin
            dp_in_ready = 1;
+           nxt_req_di_src = dp_in.data;
            if (dp_in.valid) begin
-              nxt_state = STATE_CMD;
+              nxt_state = STATE_DI_FLAGS;
            end
         end
-        STATE_CMD: begin
+        STATE_DI_FLAGS: begin
+           dp_in_ready = 1;
+           if (dp_in.valid) begin
+              nxt_state = STATE_HDR;
+           end
+        end
+        STATE_HDR: begin
            dp_in_ready = 1;
            nxt_write_strb = dp_in.data[DATA_WIDTH/8-1:0];
            nxt_req_we = dp_in.data[15];
@@ -309,7 +321,7 @@ module osd_mam
            dp_in_ready = 1;
            if (dp_in.valid) begin
               nxt_counter = counter + 1;
-              if (counter == 1) begin
+              if (counter == 2) begin
                  nxt_state = STATE_WRITE;
               end
            end
@@ -425,14 +437,21 @@ module osd_mam
         STATE_SYNC_PACKET: begin
            dp_out.valid = 1;
            if (counter == 0) begin
-              dp_out.data = 16'h0;
+              // DI DEST
+              dp_out.data = req_di_src;
+           end else if (counter == 1) begin
+              // DI SRC
+              dp_out.data = id;
            end else begin
-              dp_out.data = { 2'b01, 4'b1111, id };
+              // DI FLAGS
+              dp_out.data[15:14] = 2'b10;   // FLAGS.TYPE = EVENT
+              dp_out.data[13:10] = 4'b0000; // FLAGS.TYPE_SUB = 0
+              dp_out.data[9:0] = 10'h0;     // reserved
               dp_out.last = 1;
            end
            if (dp_out_ready) begin
               nxt_counter = counter + 1;
-              if (counter == 1) begin
+              if (counter == 2) begin
                  nxt_state = STATE_INACTIVE;
               end
            end
@@ -440,13 +459,20 @@ module osd_mam
         STATE_READ_PACKET: begin
            dp_out.valid = 1;
            if (counter == 0) begin
-              dp_out.data = 16'h0;
+              // DI DEST
+              dp_out.data = req_di_src;
+           end else if (counter == 1) begin
+              // DI SRC
+              dp_out.data = id;
            end else begin
-              dp_out.data = { 2'b01, 4'b1111, id };
+              // DI FLAGS
+              dp_out.data[15:14] = 2'b10;   // FLAGS.TYPE = EVENT
+              dp_out.data[13:10] = 4'b0000; // FLAGS.TYPE_SUB = 0
+              dp_out.data[9:0] = 10'h0;     // reserved
            end
            if (dp_out_ready) begin
               nxt_counter = counter + 1;
-              if (counter == 1) begin
+              if (counter == 2) begin
                  nxt_state = STATE_READ;
               end
            end
@@ -454,7 +480,7 @@ module osd_mam
         STATE_READ: begin
            if (read_valid) begin
               dp_out.valid = 1;
-              dp_out.last = (counter == MAX_PKT_LEN-1) ||
+              dp_out.last = (counter == MAX_PKT_LEN - 2) ||
                             ((wcounter == DATA_WIDTH/16 - 1) && (req_beats == 1));
               dp_out.data = read_data_m[(DATA_WIDTH/16-wcounter)*16-1 -: 16];
               if (dp_out_ready) begin
@@ -467,7 +493,7 @@ module osd_mam
                     if (req_beats == 1) begin
                        nxt_state = STATE_INACTIVE;
                     end else begin
-                       if (counter == MAX_PKT_LEN - 1) begin
+                       if (counter == MAX_PKT_LEN - 2) begin
                           nxt_state = STATE_READ_PACKET;
                           nxt_counter = 0;
                        end else begin
@@ -475,7 +501,7 @@ module osd_mam
                        end
                     end
                  end else begin
-                    if (counter == MAX_PKT_LEN - 1) begin
+                    if (counter == MAX_PKT_LEN - 2) begin
                        nxt_state = STATE_READ_PACKET;
                        nxt_counter = 0;
                     end else begin

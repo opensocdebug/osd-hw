@@ -185,7 +185,7 @@ module osd_mam
    logic                             nxt_is_last_flit;
 
    // Combinational part of interface
-   logic [13:0]                      nxt_req_beats;
+   logic [12:0]                      nxt_req_beats;
    logic                             nxt_req_we;
    logic                             nxt_req_burst;
    logic                             nxt_req_sync;
@@ -269,15 +269,15 @@ module osd_mam
         end
         STATE_HDR: begin
            dp_in_ready = 1;
-           nxt_write_strb = dp_in.data[DATA_WIDTH/8-1:0];
            nxt_req_we = dp_in.data[15];
            nxt_req_burst = dp_in.data[14];
            nxt_req_sync = dp_in.data[13];
 
+           nxt_write_strb = dp_in.data[DATA_WIDTH/8-1:0];
            if (nxt_req_burst)
-             nxt_req_beats = dp_in.data[12:0];
+             nxt_req_beats = {5'h0, dp_in.data[7:0]};
            else
-             nxt_req_beats = 1;
+             nxt_req_beats = 13'h1;
 
            if (dp_in.valid) begin
               nxt_state = STATE_ADDR;

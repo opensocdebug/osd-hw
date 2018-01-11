@@ -74,6 +74,8 @@ module osd_mam
 
    function logic [DATA_WIDTH-1:0] endian_conv(input logic [DATA_WIDTH-1:0] din);
       int i;
+      // should be "static int", but unsupported by Verilator currently, see
+      // https://www.veripool.org/issues/546-Verilator-Support-static-inside-task
       int total = DATA_WIDTH/8;
       for(i=0; i<total; i++)
         endian_conv[i*8 +: 8] = din[(total-i-1)*8 +: 8];

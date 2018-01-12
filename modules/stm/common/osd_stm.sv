@@ -48,6 +48,8 @@ module osd_stm
    logic        reg_err;
    logic [15:0] reg_rdata;
 
+   logic [15:0] event_dest;
+
    logic                   stall;
 
    dii_flit dp_out, dp_in;
@@ -58,8 +60,9 @@ module osd_stm
 
    osd_regaccess_layer
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h4), .MOD_VERSION(16'h0),
-       .MAX_REG_SIZE(16), .CAN_STALL(1), .MOD_EVENT_DEST(16'h0))
+       .MAX_REG_SIZE(16), .CAN_STALL(1), .MOD_EVENT_DEST_DEFAULT(16'h0))
    u_regaccess(.*,
+               .event_dest (event_dest),
                .module_in (dp_out),
                .module_in_ready (dp_out_ready),
                .module_out (dp_in),
@@ -128,6 +131,7 @@ module osd_stm
    u_packetization(.clk             (clk),
                    .rst             (rst),
                    .id              (id),
+                   .event_dest      (event_dest),
                    .trace_data      (packet_data),
                    .trace_overflow  (packet_overflow),
                    .trace_valid     (packet_valid),

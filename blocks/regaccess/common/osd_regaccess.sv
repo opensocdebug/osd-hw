@@ -28,7 +28,7 @@ module osd_regaccess
   #(parameter MOD_VENDOR = 'x,     // module vendor
     parameter MOD_TYPE = 'x,       // module type
     parameter MOD_VERSION = 'x,    // module version
-    parameter MOD_EVENT_DEST = 'x, // event destination
+    parameter MOD_EVENT_DEST_DEFAULT = 'x, // default event destination
     parameter CAN_STALL = 0,
     parameter MAX_REG_SIZE = 16)
    (input clk, rst,
@@ -47,6 +47,7 @@ module osd_regaccess
     input         reg_err,
     input [15:0]  reg_rdata,
 
+    output [15:0] event_dest,
     output        stall);
 
    localparam ACCESS_SIZE_16  = 2'b00;
@@ -65,8 +66,11 @@ module osd_regaccess
    // Registers
    reg          mod_cs_active;
    logic        nxt_mod_cs_active;
+   reg [15:0]   mod_event_dest;
+   reg [15:0]   nxt_mod_event_dest;
 
    assign stall = CAN_STALL ? ~mod_cs_active : 1'b0;
+   assign event_dest = mod_event_dest;
 
    // State machine
    enum {
@@ -105,9 +109,11 @@ module osd_regaccess
       if (rst) begin
          state <= STATE_IDLE;
          mod_cs_active <= 0;
+         mod_event_dest <= 16'(MOD_EVENT_DEST_DEFAULT);
       end else begin
          state <= nxt_state;
          mod_cs_active <= nxt_mod_cs_active;
+         mod_event_dest <= nxt_mod_event_dest;
       end
       resp_dest <= nxt_resp_dest;
       reqresp_value <= nxt_reqresp_value;
@@ -128,6 +134,7 @@ module osd_regaccess
       nxt_resp_error = resp_error;
 
       nxt_mod_cs_active = mod_cs_active;
+      nxt_mod_event_dest = mod_event_dest;
 
       debug_in_ready = 0;
       debug_out = 0;
@@ -180,6 +187,7 @@ module osd_regaccess
                  end else begin
                     nxt_req_addr = debug_in.data;
                     case (debug_in.data)
+                      REG_MOD_EVENT_DEST: nxt_resp_error = 0;
                       REG_MOD_CS: nxt_resp_error = 0;
                       default: nxt_resp_error = 1;
                     endcase // case (debug_in.data)
@@ -191,7 +199,7 @@ module osd_regaccess
                     REG_MOD_TYPE: nxt_reqresp_value = 16'(MOD_TYPE);
                     REG_MOD_VERSION: nxt_reqresp_value = 16'(MOD_VERSION);
                     REG_MOD_CS: nxt_reqresp_value = {15'h0, ~stall};
-                    REG_MOD_EVENT_DEST: nxt_reqresp_value = 16'(MOD_EVENT_DEST);
+                    REG_MOD_EVENT_DEST: nxt_reqresp_value = mod_event_dest;
                     default: nxt_resp_error = 1;
                  endcase // case (debug_in.data)
               end
@@ -228,10 +236,14 @@ module osd_regaccess
                    nxt_state = STATE_DROP;
               end else begin
                  case (req_addr)
-                   REG_MOD_CS: begin
-                      nxt_mod_cs_active = debug_in.data[REG_MOD_CS_ACTIVE];
-                      nxt_resp_error = 0;
-                   end
+                    REG_MOD_CS: begin
+                       nxt_mod_cs_active = debug_in.data[REG_MOD_CS_ACTIVE];
+                       nxt_resp_error = 0;
+                    end
+                    REG_MOD_EVENT_DEST: begin
+                       nxt_mod_event_dest = debug_in.data;
+                       nxt_resp_error = 0;
+                    end
                  endcase // case (req_addr)
 
                  if (debug_in.last) begin

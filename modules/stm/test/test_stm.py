@@ -137,7 +137,8 @@ def test_stm_base_registers(dut):
 
     yield _init_dut(dut)
     yield access.test_base_registers(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
-                                     [1, 4, 0, 0, SENDER_DI_ADDRESS])
+                                     mod_vendor=1, mod_type=4, mod_version=0,
+                                     can_stall=True)
 
 @cocotb.test()
 def test_stm_trace_events(dut):

@@ -16,6 +16,7 @@ from cocotb.drivers import BusDriver
 from osdtestlib.exceptions import RegAccessFailedException
 
 from enum import IntEnum
+import random
 
 
 class AliasBusDriver(BusDriver):
@@ -509,32 +510,51 @@ class RegAccess:
                               % (rx_value, regaddr, exp_value))
 
     @cocotb.coroutine
-    def test_base_registers(self, dest, src, values):
+    def test_base_registers(self, dest, src, mod_vendor, mod_type, mod_version,
+                            can_stall):
         """
-        Read the 5 base registers and compare the response with the desired value
+        Test the functionality of the base registers
         """
 
         self.dut._log.info("Check contents of MOD_VENDOR")
         yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_VENDOR.value,
-                                    values[0])
+                                    mod_vendor)
 
         self.dut._log.info("Check contents of MOD_TYPE")
         yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_TYPE.value,
-                                    values[1])
+                                    mod_type)
 
         self.dut._log.info("Check contents of MOD_VERSION")
         yield self.assert_reg_value(dest, src,
                                     DiPacket.BASE_REG.MOD_VERSION.value,
-                                    values[2])
+                                    mod_version)
 
-        self.dut._log.info("Check contents of MOD_CS")
-        yield self.assert_reg_value(dest, src,
-                                    DiPacket.BASE_REG.MOD_CS.value,
-                                    values[3])
+        # Check MOD_CS (only the MOD_CS_ACTIVE bit is used for now)
+        default_value = yield self.read_register(dest, src, 16,
+                                                 DiPacket.BASE_REG.MOD_CS.value)
 
-        self.dut._log.info("Check contents of MOD_EVENT_DEST")
-        yield self.assert_reg_value(dest, src,
-                                    DiPacket.BASE_REG.MOD_EVENT_DEST.value,
-                                    values[4])
+        yield self.write_register(dest, src, 16, DiPacket.BASE_REG.MOD_CS.value,
+                                  1)
+
+        after_write = yield self.read_register(dest, src, 16,
+                                               DiPacket.BASE_REG.MOD_CS.value)
+
+        if can_stall:
+            if after_write != 1:
+                raise TestFailure("Expected MOD_CS_ACTIVE of module %u to be "
+                                  "1, but got 0x%x." % (dest, after_write))
+        else:
+            if after_write != default_value:
+                raise TestFailure("Module %u cannot be stalled, but writing "
+                                  "MOD_CS_ACTIVE still had an effect." % dest)
+
+        # Check MOD_EVENT_DEST (write and read back)
+        event_dest = random.randint(0, 0xFF)
+        yield self.write_register(dest, src, 16,
+                                  DiPacket.BASE_REG.MOD_EVENT_DEST.value,
+                                  event_dest)
+        yield self.assert_reg_value(dest, src, DiPacket.BASE_REG.MOD_EVENT_DEST.value,
+                                    event_dest)
+

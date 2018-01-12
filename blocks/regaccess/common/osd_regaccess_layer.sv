@@ -26,7 +26,7 @@ module osd_regaccess_layer
   #(parameter MOD_VENDOR = 'x,
     parameter MOD_TYPE = 'x,
     parameter MOD_VERSION = 'x,
-    parameter MOD_EVENT_DEST = 'x,
+    parameter MOD_EVENT_DEST_DEFAULT = 0,
     parameter CAN_STALL = 0,
     parameter MAX_REG_SIZE = 16)
    (input clk, rst,
@@ -48,6 +48,7 @@ module osd_regaccess_layer
     input         reg_err,
     input [15:0]  reg_rdata,
 
+    output [15:0] event_dest, // DI address of the event destination
     output        stall);
 
    dii_flit       regaccess_in, regaccess_out;
@@ -56,12 +57,13 @@ module osd_regaccess_layer
    osd_regaccess
      #(.MOD_VENDOR(MOD_VENDOR),
        .MOD_TYPE(MOD_TYPE),
-       .MOD_EVENT_DEST(MOD_EVENT_DEST),
+       .MOD_EVENT_DEST_DEFAULT(MOD_EVENT_DEST_DEFAULT),
        .MOD_VERSION(MOD_VERSION),
        .CAN_STALL(CAN_STALL),
        .MAX_REG_SIZE(MAX_REG_SIZE))
    u_regaccess
      (.*,
+      .event_dest (event_dest),
       .debug_in (regaccess_in),
       .debug_in_ready (regaccess_in_ready),
       .debug_out (regaccess_out),

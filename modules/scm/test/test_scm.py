@@ -113,11 +113,12 @@ def test_scm_baseregisters(dut):
     with the desired value
     """
     access = RegAccess(dut)
-    
+
     yield _init_dut(dut)
 
     yield access.test_base_registers(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
-                                     [1, 1, 0, 1, SENDER_DI_ADDRESS])
+                                     mod_vendor=1, mod_type=1, mod_version=0,
+                                     can_stall=False)
 
 @cocotb.test()
 def test_scm_extended(dut):

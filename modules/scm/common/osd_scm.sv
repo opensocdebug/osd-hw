@@ -46,8 +46,9 @@ module osd_scm
 
    osd_regaccess
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h1), .MOD_VERSION(16'h0),
-       .MAX_REG_SIZE(16), .MOD_EVENT_DEST(16'h0))
+       .MAX_REG_SIZE(16))
    u_regaccess(.*,
+               .event_dest (),
                .stall ());
 
    always @(*) begin

@@ -25,6 +25,8 @@ module osd_trace_packetization
 
     input [15:0]      id,
 
+    input [15:0]      event_dest,
+
     input [WIDTH-1:0] trace_data,
     input             trace_overflow,
     input             trace_valid,
@@ -70,8 +72,7 @@ module osd_trace_packetization
            debug_out.data = 16'h0;
            if (trace_valid) begin
               debug_out.valid = 1;
-              // XXX: Currently we always send to address 0x0000
-              debug_out.data = 16'h0;
+              debug_out.data = event_dest;
               if (debug_out_ready) begin
                  nxt_state = SOURCE;
               end

@@ -101,8 +101,9 @@ module osd_mam
 
    osd_regaccess_layer
      #(.MOD_VENDOR(16'h1), .MOD_TYPE(16'h3), .MOD_VERSION(16'h0),
-       .MOD_EVENT_DEST(16'h0), .MAX_REG_SIZE(16), .CAN_STALL(0))
+       .MOD_EVENT_DEST_DEFAULT(16'h0), .MAX_REG_SIZE(16), .CAN_STALL(0))
    u_regaccess(.*,
+               .event_dest (),
                .module_in (dp_out),
                .module_in_ready (dp_out_ready),
                .module_out (dp_in),

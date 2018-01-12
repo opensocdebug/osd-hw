@@ -83,7 +83,8 @@ def test_mam_base_registers(dut):
 
     yield _init_dut(dut)
     yield access.test_base_registers(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
-                                     [1, 3, 0, 1, 0])
+                                     mod_vendor=1, mod_type=3, mod_version=0,
+                                     can_stall=False)
 
 @cocotb.test()
 def test_mam_extended_registers(dut):

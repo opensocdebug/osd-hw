@@ -19,7 +19,7 @@ import dii_package::dii_flit;
 module osd_stm
   #(
     parameter REG_ADDR_WIDTH = 5, // the address width of the core register file
-    parameter XLEN = 64
+    parameter VALWIDTH = 64
     )
    (
     input                       clk, rst,
@@ -33,7 +33,7 @@ module osd_stm
 
     input                       trace_valid,
     input [15:0]                trace_id,
-    input [XLEN-1:0]            trace_value,
+    input [VALWIDTH-1:0]        trace_value,
 
     output                      trace_reg_enable,
     output [REG_ADDR_WIDTH-1:0] trace_reg_addr
@@ -74,13 +74,13 @@ module osd_stm
       reg_err = 0;
 
       case (reg_addr)
-        16'h200: reg_rdata = 16'(XLEN);
+        16'h200: reg_rdata = 16'(VALWIDTH);
         default: reg_err = reg_request;
       endcase // case (reg_addr)
    end // always @ (*)
 
    // Event width
-   localparam EW = 32 + 16 + XLEN;
+   localparam EW = 32 + 16 + VALWIDTH;
 
    logic [EW-1:0] sample_data;
    logic          sample_valid;

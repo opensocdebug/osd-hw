@@ -1,4 +1,3 @@
-// XXX: THIS MODULE REQUIRES FIXING IN PACKETATION TO WORK WITH 16 BIT ADDRESSES
 // Copyright 2016 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad
@@ -36,18 +35,18 @@ module osd_trace_packetization
     input             debug_out_ready
     );
 
-   localparam NUM_FLITS = ((WIDTH + 15) >> 4);
-   localparam COUNTER_WIDTH = $clog2(NUM_FLITS);
+   localparam NUM_PAYLOAD_FLITS = ((WIDTH + 15) >> 4);
+   localparam COUNTER_WIDTH = $clog2(NUM_PAYLOAD_FLITS);
 
-   localparam FILL_LAST = NUM_FLITS*16 - WIDTH;
+   localparam FILL_LAST = NUM_PAYLOAD_FLITS*16 - WIDTH;
 
    reg [COUNTER_WIDTH-1:0]   counter;
    logic [COUNTER_WIDTH-1:0] nxt_counter;
 
-   enum { IDLE, DESTINATION, SOURCE, FLAGS, STATUS, EVENT } state, nxt_state;
+   enum { IDLE, DESTINATION, SOURCE, FLAGS, OVERFLOW, TRACE } state, nxt_state;
 
+   localparam TYPE_SUB_TRACE = 4'h0;
    localparam TYPE_SUB_OVERFLOW = 4'h5;
-   localparam TYPE_SUB_REGULAR = 4'h0;
 
    always_ff @(posedge clk) begin
       if (rst) begin
@@ -88,26 +87,26 @@ module osd_trace_packetization
         end // case: SOURCE
         FLAGS: begin
            debug_out.data[15:14] = 2'b10; // TYPE == EVENT
-           debug_out.data[13:10] = trace_overflow ? TYPE_SUB_OVERFLOW : TYPE_SUB_REGULAR;
+           debug_out.data[13:10] = trace_overflow ? TYPE_SUB_OVERFLOW : TYPE_SUB_TRACE;
            debug_out.data[9:0] = 10'h0; // reserved
            debug_out.valid = 1;
 
            nxt_counter = 0;
            if (debug_out_ready)
-              nxt_state = trace_overflow ? STATUS : EVENT;
-        end // case: SOURCE
-        STATUS: begin
+              nxt_state = trace_overflow ? OVERFLOW : TRACE;
+        end // case: FLAGS
+        OVERFLOW: begin
            debug_out.valid = 1;
-           debug_out.data = {1'b1, 5'h0, trace_data[9:0]};
+           debug_out.data = trace_data[15:0];
            debug_out.last = 1;
            if (debug_out_ready) begin
               nxt_state = IDLE;
               trace_ready = 1;
            end
         end
-        EVENT: begin
+        TRACE: begin
            debug_out.valid = 1;
-           if (counter < NUM_FLITS - 1) begin
+           if (counter < NUM_PAYLOAD_FLITS - 1) begin
               debug_out.data = trace_data[(counter+1)*16-1 -: 16];
               if (debug_out_ready) begin
                  nxt_counter = counter + 1;
@@ -123,7 +122,7 @@ module osd_trace_packetization
                  trace_ready = 1;
                  nxt_state = IDLE;
               end
-           end // else: !if(counter < NUM_FLITS - 1)
+           end // else: !if(counter < NUM_PAYLOAD_FLITS - 1)
         end
       endcase
    end

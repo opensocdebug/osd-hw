@@ -37,7 +37,7 @@ def _init_dut(dut):
     cocotb.fork(Clock(dut.clk, 1000).start())
 
     # Dump design parameters for debugging
-    dut._log.info("PARAMETER: XLEN is %d" % dut.XLEN.value.integer)
+    dut._log.info("PARAMETER: VALWIDTH is %d" % dut.VALWIDTH.value.integer)
     dut._log.info("PARAMETER: REG_ADDR_WIDTH is %d" %
                   dut.REG_ADDR_WIDTH.value.integer)
 
@@ -66,7 +66,7 @@ def _assert_trace_event(dut, trace_id, trace_value):
     # Build expected packet
     expected_packet = DiPacket()
     exp_payload = [0, 0, trace_id]
-    payload_words = int(dut.XLEN.value.integer / 16)
+    payload_words = int(dut.VALWIDTH.value.integer / 16)
     for w in range(0, payload_words):
         exp_payload.append(trace_value >> (w * 16) & 0xFFFF)
 

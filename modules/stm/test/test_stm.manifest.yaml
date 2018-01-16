@@ -18,5 +18,5 @@ simulators:
   - vcs
 
 parameters:
-  XLEN: 32
+  VALWIDTH: 32
   REG_ADDR_WIDTH: 5

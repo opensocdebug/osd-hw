@@ -33,10 +33,7 @@ module osd_stm
 
     input                       trace_valid,
     input [15:0]                trace_id,
-    input [VALWIDTH-1:0]        trace_value,
-
-    output                      trace_reg_enable,
-    output [REG_ADDR_WIDTH-1:0] trace_reg_addr
+    input [VALWIDTH-1:0]        trace_value
     );
 
    logic        reg_request;
@@ -101,7 +98,7 @@ module osd_stm
      #(.WIDTH(32))
    u_timestamp(.clk  (clk),
                .rst  (rst),
-               .enable (1),
+               .enable (1'b1),
                .timestamp (timestamp));
 
    osd_tracesample

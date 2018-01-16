@@ -41,7 +41,7 @@ module osd_tracesample
    endgenerate
 
    assign fifo_overflow = ~passthrough;
-   assign fifo_valid = passthrough ? sample_valid : 1;
+   assign fifo_valid = passthrough ? sample_valid : 1'b1;
 
    logic               ov_increment, ov_saturate, ov_complete, ov_again;
 

@@ -83,9 +83,9 @@ module osd_ctm
       reg_err = 0;
 
       case (reg_addr)
-        16'h200: reg_rdata = 16'(ADDR_WIDTH);
-        16'h201: reg_rdata = 16'(DATA_WIDTH);
-        default: reg_err = reg_request;
+         16'h200: reg_rdata = 16'(ADDR_WIDTH);
+         16'h201: reg_rdata = 16'(DATA_WIDTH);
+         default: reg_err = reg_request;
       endcase // case (reg_addr)
    end // always @ (*)
 
@@ -93,7 +93,7 @@ module osd_ctm
 
    reg [1:0]               prv_reg;
    always_ff @(posedge clk)
-     prv_reg <= trace_prv;
+      prv_reg <= trace_prv;
 
    logic [EW-1:0]          sample_data;
    logic                   sample_valid;

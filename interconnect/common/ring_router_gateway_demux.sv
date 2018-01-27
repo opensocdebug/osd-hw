@@ -24,7 +24,7 @@ module ring_router_gateway_demux
    )(
       input       clk, rst,
       input [15:0] id,
-      input dii_flit in_ring, output in_ring_ready,
+      input dii_flit in_ring, output reg in_ring_ready,
       output dii_flit out_local, input out_local_ready,
       output dii_flit out_ext, input out_ext_ready,
       output dii_flit out_ring, input out_ring_ready
@@ -72,7 +72,7 @@ module ring_router_gateway_demux
    assign switch_local = worm ? worm_local : is_local;
    assign switch_ext = worm ? worm_ext : is_ext;
 
-   always_comb @(*) begin
+   always_comb begin
       out_local.valid = 1'b0;
       out_ext.valid = 1'b0;
       out_ring.valid = 1'b0;

@@ -65,6 +65,12 @@ class CocotbTest():
         self.manifest_path = manifest_path
 
     def _abspath(self, path, basedir):
+        """
+        Return the absolute path for |path| relative to |basedir| with all
+        environment variables expanded.
+        """
+        path = os.path.expandvars(path)
+
         if path.startswith('/'):
             return path
         return os.path.abspath(os.path.join(basedir, path))

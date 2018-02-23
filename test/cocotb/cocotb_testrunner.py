@@ -170,8 +170,7 @@ class CocotbTest():
         subprocess.run(["make"] + make_args, cwd=self.objdir, env=env)
 
 class CocotbTestRunner:
-    def __init__(self, test_search_base, objdir=None):
-        self.test_search_base = test_search_base
+    def __init__(self, objdir=None):
         self.objdir = objdir
         self.tests = []
 
@@ -180,8 +179,9 @@ class CocotbTestRunner:
         Run all discovered tests
         """
         if (gui or testcase) and len(self.tests) > 1:
-            print("You cannot run multiple tests with GUI. Please run again "
-                  "with a single test.")
+            print("Running multiple tests at once is not possible with "
+                  "-g/--gui or -t/--testcase.\nPlease run again with a single "
+                  "test.")
             exit(1)
 
         for t in self.tests:
@@ -189,11 +189,13 @@ class CocotbTestRunner:
             ensure_directory(t.objdir, recursive=True)
             t.run(gui, loglevel, seed, testcase)
 
-
-    def discover_tests(self):
+    def discover_tests(self, search_base):
         self.tests = []
-        search_expr = '{}/**/*.manifest.yaml'.format(self.test_search_base)
-        test_manifests = glob.iglob(search_expr, recursive=True)
+        if os.path.isfile(search_base):
+            test_manifests = [ search_base ]
+        else:
+            search_expr = '{}/**/*.manifest.yaml'.format(self.test_search_base)
+            test_manifests = glob.iglob(search_expr, recursive=True)
 
         for f in test_manifests:
             cocotb_test = CocotbTest(manifest_path=f)
@@ -215,12 +217,12 @@ if __name__ == '__main__':
                         help="only run the specified testcases. Expects a "
                         "comma-separated list of test function names, e.g. "
                         "'test_basic,test_advanced'.")
-    parser.add_argument('dir', nargs='?', default=os.getcwd())
+    parser.add_argument('dir_file', nargs='?', default=os.getcwd())
 
     args = parser.parse_args()
 
-    testrunner = CocotbTestRunner(test_search_base=args.dir, objdir=args.objdir)
-    testrunner.discover_tests()
+    testrunner = CocotbTestRunner(objdir=args.objdir)
+    testrunner.discover_tests(args.dir_file)
 
     if len(testrunner.tests) == 0:
         print("No test manifests (*.manifest.yaml) found in " +

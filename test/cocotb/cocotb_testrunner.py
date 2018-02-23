@@ -87,6 +87,10 @@ class CocotbTest():
         manifest_dir = os.path.dirname(manifest_path)
         manifest['sources'][:] = map(lambda x: self._abspath(x, manifest_dir),
                                      manifest['sources'])
+        if 'include_dirs' in manifest:
+            manifest['include_dirs'][:] =\
+                map(lambda x: self._abspath(x, manifest_dir),
+                    manifest['include_dirs'])
 
         manifest['manifest_dir'] = os.path.abspath(manifest_dir)
         return manifest
@@ -119,8 +123,15 @@ class CocotbTest():
             for name, value in self.manifest["parameters"].items():
                 args_hdl_params.append("-pvalue+{}={}".format(name, value))
 
+        args_incdirs = []
+        if "include_dirs" in self.manifest:
+            for incdir in self.manifest["include_dirs"]:
+                args_incdirs.append("+incdir+{}".format(incdir))
+
         sim_args = "+lint=all"
-        compile_args = "+lint=all -timescale=1ns/10ps " + " ".join(args_hdl_params)
+        compile_args = "+lint=all -timescale=1ns/10ps " +\
+            ' '.join(args_hdl_params) + ' ' +\
+            ' '.join(args_incdirs)
 
         makefile += "SIM_ARGS=" + sim_args + "\n"
         makefile += "COMPILE_ARGS=" + compile_args + "\n"

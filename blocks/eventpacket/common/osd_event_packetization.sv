@@ -34,7 +34,7 @@ module osd_event_packetization #(
    /**
     * The maximum length of a DI packet in flits, including the header flits
     */
-   parameter MAX_PKT_LEN = 8,
+   parameter MAX_PKT_LEN = 12,
 
    /**
     * The maximum number of payload words the packet could consist of.

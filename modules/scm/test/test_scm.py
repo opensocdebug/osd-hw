@@ -144,7 +144,7 @@ def test_scm_extended(dut):
 
     dut._log.info("Check contents of MAX_PKT_LEN")
     yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,
-                                  DiPacket.SCM_REG.MAX_PKT_LEN.value, 8)
+                                  DiPacket.SCM_REG.MAX_PKT_LEN.value, 12)
 
     dut._log.info("Check contents of SYSRST")
     yield access.assert_reg_value(MODULE_DI_ADDRESS, SENDER_DI_ADDRESS,

@@ -21,4 +21,4 @@ simulators:
 parameters:
   VALWIDTH: 32
   REG_ADDR_WIDTH: 5
-  MAX_PKT_LEN: 8
+  MAX_PKT_LEN: 12

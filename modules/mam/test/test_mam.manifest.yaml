@@ -16,7 +16,7 @@ simulators:
 parameters:
   DATA_WIDTH: 32
   ADDR_WIDTH: 32
-  MAX_PKT_LEN: 8
+  MAX_PKT_LEN: 12
   REGIONS: 1
   MEM_SIZE0: 128
   BASE_ADDR0: 0 

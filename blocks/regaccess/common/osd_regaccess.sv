@@ -1,4 +1,4 @@
-// Copyright 2016-2017 by the authors
+// Copyright 2016-2018 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad
 // Hardware License, Version 0.51 (the "License"); you may not use
@@ -14,6 +14,7 @@
 // Authors:
 //    Philipp Wagner <philipp.wagner@tum.de>
 //    Stefan Wallentowitz <stefan@wallentowitz.de>
+//    Max Koenen <max.koenen@tum.de>
 
 import dii_package::dii_flit;
 
@@ -38,17 +39,17 @@ module osd_regaccess
     input dii_flit debug_in, output logic debug_in_ready,
     output dii_flit debug_out, input debug_out_ready,
 
-    output reg    reg_request,
-    output        reg_write,
-    output [15:0] reg_addr,
-    output [1:0]  reg_size,
-    output [15:0] reg_wdata,
-    input         reg_ack,
-    input         reg_err,
-    input [15:0]  reg_rdata,
+    output reg                   reg_request,
+    output                       reg_write,
+    output [15:0]                reg_addr,
+    output [1:0]                 reg_size,
+    output [MAX_REG_SIZE-1:0]    reg_wdata,
+    input                        reg_ack,
+    input                        reg_err,
+    input [MAX_REG_SIZE-1:0]     reg_rdata,
 
-    output [15:0] event_dest,
-    output        stall);
+    output [15:0]                event_dest,
+    output                       stall);
 
    localparam ACCESS_SIZE_16  = 2'b00;
    localparam ACCESS_SIZE_32  = 2'b01;
@@ -83,12 +84,14 @@ module osd_regaccess
    // Local request/response data
    reg                      req_write;
    reg [1:0]                req_size;
+   reg [2:0]                word_it;
    reg [15:0]               req_addr;
    reg [MAX_REG_SIZE-1:0]   reqresp_value;
    reg [15:0]               resp_dest;
    reg                      resp_error;
    logic                    nxt_req_write;
    logic [1:0]              nxt_req_size;
+   logic [2:0]              nxt_word_it;
    logic [15:0]             nxt_req_addr;
    logic [MAX_REG_SIZE-1:0] nxt_reqresp_value;
    logic [15:0]             nxt_resp_dest;
@@ -120,6 +123,7 @@ module osd_regaccess
       resp_error <= nxt_resp_error;
       req_write <= nxt_req_write;
       req_size <= nxt_req_size;
+      word_it <= nxt_word_it;
       req_addr <= nxt_req_addr;
    end
 
@@ -128,6 +132,7 @@ module osd_regaccess
 
       nxt_req_write = req_write;
       nxt_req_size = req_size;
+      nxt_word_it = word_it;
       nxt_req_addr = req_addr;
       nxt_resp_dest = resp_dest;
       nxt_reqresp_value = reqresp_value;
@@ -158,6 +163,12 @@ module osd_regaccess
            debug_in_ready = 1;
            nxt_req_write = debug_in.data[12];
            nxt_req_size = debug_in.data[11:10];
+           case (debug_in.data[11:10])
+              ACCESS_SIZE_16: nxt_word_it = 0;
+              ACCESS_SIZE_32: nxt_word_it = 1;
+              ACCESS_SIZE_64: nxt_word_it = 3;
+              ACCESS_SIZE_128: nxt_word_it = 7;
+           endcase
 
            if (debug_in.valid) begin
               if (|debug_in.data[15:14]) begin
@@ -182,7 +193,7 @@ module osd_regaccess
               if (req_write) begin
                  // LOCAL WRITE
                  if (req_size != ACCESS_SIZE_16) begin
-                    // XXX: only 16 bit writes are supported right now
+                    // only 16 bit writes are supported for local writes
                     nxt_resp_error = 1;
                  end else begin
                     nxt_req_addr = debug_in.data;
@@ -228,13 +239,22 @@ module osd_regaccess
            debug_in_ready = 1;
 
            if (debug_in.valid) begin
-              nxt_reqresp_value = debug_in.data;
               if (req_addr[15:9] != 0) begin
-                 if (debug_in.last)
-                   nxt_state = STATE_EXT_START;
-                 else
-                   nxt_state = STATE_DROP;
+                 nxt_reqresp_value = (reqresp_value & ~(16'hff << word_it*16)) | (debug_in.data << word_it*16);
+                 if (word_it == 0) begin
+                    if (debug_in.last)
+                      nxt_state = STATE_EXT_START;
+                    else
+                      nxt_state = STATE_DROP;
+                 end else begin
+                    if (debug_in.last) begin
+                       nxt_resp_error = 1;
+                       nxt_state = STATE_RESP_HDR_DEST;
+                    end else
+                       nxt_word_it = word_it - 1;
+                 end
               end else begin
+                 nxt_reqresp_value = debug_in.data;
                  case (req_addr)
                     REG_MOD_CS: begin
                        nxt_mod_cs_active = debug_in.data[REG_MOD_CS_ACTIVE];
@@ -303,10 +323,13 @@ module osd_regaccess
         end
         STATE_RESP_VALUE: begin
            debug_out.valid = 1;
-           debug_out.data = reqresp_value[15:0];
-           debug_out.last = 1;
+           debug_out.data = reqresp_value >> word_it*16;
            if (debug_out_ready) begin
-              nxt_state = STATE_IDLE;
+              if (word_it == 0) begin
+                 debug_out.last = 1;
+                 nxt_state = STATE_IDLE;
+              end else
+                 nxt_word_it = word_it - 1;
            end
         end
 

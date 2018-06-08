@@ -113,18 +113,22 @@ module osd_regaccess
          state <= STATE_IDLE;
          mod_cs_active <= 0;
          mod_event_dest <= 16'(MOD_EVENT_DEST_DEFAULT);
+         req_write <= 0;
+         req_addr <= 0;
+         req_size <= 0;
+         reqresp_value <= 0;
       end else begin
          state <= nxt_state;
          mod_cs_active <= nxt_mod_cs_active;
          mod_event_dest <= nxt_mod_event_dest;
+         req_write <= nxt_req_write;
+         req_addr <= nxt_req_addr;
+         req_size <= nxt_req_size;
+         reqresp_value <= nxt_reqresp_value;
       end
       resp_dest <= nxt_resp_dest;
-      reqresp_value <= nxt_reqresp_value;
       resp_error <= nxt_resp_error;
-      req_write <= nxt_req_write;
-      req_size <= nxt_req_size;
       word_it <= nxt_word_it;
-      req_addr <= nxt_req_addr;
    end
 
    always @(*) begin
@@ -184,10 +188,12 @@ module osd_regaccess
            if (reg_addr_is_ext) begin
               nxt_req_addr = debug_in.data;
               if (debug_in.valid) begin
-                 if (req_write)
-                   nxt_state = STATE_WRITE;
-                 else
-                   nxt_state = STATE_EXT_START;
+                 if (req_write) begin
+                    nxt_reqresp_value = 0;
+                    nxt_state = STATE_WRITE;
+                 end else begin
+                    nxt_state = STATE_EXT_START;
+                 end
               end
            end else begin
               if (req_write) begin
@@ -223,6 +229,7 @@ module osd_regaccess
                     end else if (nxt_resp_error) begin
                        nxt_state = STATE_RESP_HDR_DEST;
                     end else begin
+                       nxt_reqresp_value = 0;
                        nxt_state = STATE_WRITE;
                     end
                  end else begin
@@ -240,7 +247,7 @@ module osd_regaccess
 
            if (debug_in.valid) begin
               if (req_addr[15:9] != 0) begin
-                 nxt_reqresp_value = (reqresp_value & ~(16'hff << word_it*16)) | (debug_in.data << word_it*16);
+                 nxt_reqresp_value = (reqresp_value & ~(16'hffff << word_it*16)) | (debug_in.data << word_it*16);
                  if (word_it == 0) begin
                     if (debug_in.last)
                       nxt_state = STATE_EXT_START;

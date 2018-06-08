@@ -56,6 +56,17 @@ module osd_regaccess
    localparam ACCESS_SIZE_64  = 2'b10;
    localparam ACCESS_SIZE_128 = 2'b11;
 
+   // ensure that parameters are set to allowed values
+   initial begin
+      if (MAX_REG_SIZE != 16 && MAX_REG_SIZE != 32 && MAX_REG_SIZE != 64 && MAX_REG_SIZE != 128) begin
+         $fatal("osd_regaccess: MAX_REG_SIZE must be set to '16', '32', '64', or '128'!");
+      end
+   end
+
+   localparam MAX_REQ_SIZE = MAX_REG_SIZE == 16 ? ACCESS_SIZE_16 :
+      MAX_REG_SIZE == 32 ? ACCESS_SIZE_32 :
+      MAX_REG_SIZE == 64 ? ACCESS_SIZE_64 : ACCESS_SIZE_128;
+
    // base register addresses
    localparam REG_MOD_VENDOR     = 16'h0;
    localparam REG_MOD_TYPE       = 16'h1;
@@ -167,18 +178,23 @@ module osd_regaccess
            debug_in_ready = 1;
            nxt_req_write = debug_in.data[12];
            nxt_req_size = debug_in.data[11:10];
-           case (debug_in.data[11:10])
-              ACCESS_SIZE_16: nxt_word_it = 0;
-              ACCESS_SIZE_32: nxt_word_it = 1;
-              ACCESS_SIZE_64: nxt_word_it = 3;
-              ACCESS_SIZE_128: nxt_word_it = 7;
-           endcase
+           if (MAX_REQ_SIZE < debug_in.data[11:10]) begin
+              nxt_resp_error = 1;
+              nxt_state = STATE_DROP;
+           end else begin
+              case (debug_in.data[11:10])
+                 ACCESS_SIZE_16: nxt_word_it = 0;
+                 ACCESS_SIZE_32: nxt_word_it = 1;
+                 ACCESS_SIZE_64: nxt_word_it = 3;
+                 ACCESS_SIZE_128: nxt_word_it = 7;
+              endcase
 
-           if (debug_in.valid) begin
-              if (|debug_in.data[15:14]) begin
-                 nxt_state = STATE_DROP;
-              end else begin
-                 nxt_state = STATE_ADDR;
+              if (debug_in.valid) begin
+                 if (|debug_in.data[15:14]) begin
+                    nxt_state = STATE_DROP;
+                 end else begin
+                    nxt_state = STATE_ADDR;
+                 end
               end
            end
         end
@@ -227,7 +243,7 @@ module osd_regaccess
                        nxt_resp_error = 1;
                        nxt_state = STATE_RESP_HDR_DEST;
                     end else if (nxt_resp_error) begin
-                       nxt_state = STATE_RESP_HDR_DEST;
+                       nxt_state = STATE_DROP;
                     end else begin
                        nxt_reqresp_value = 0;
                        nxt_state = STATE_WRITE;
@@ -321,7 +337,7 @@ module osd_regaccess
            debug_out.last = resp_error | req_write;
 
            if (debug_out_ready) begin
-              if (req_write) begin
+              if (resp_error | req_write) begin
                  nxt_state = STATE_IDLE;
               end else begin
                  nxt_state = STATE_RESP_VALUE;
@@ -352,7 +368,7 @@ module osd_regaccess
         STATE_DROP: begin
            debug_in_ready = 1;
            if (debug_in.valid & debug_in.last) begin
-              nxt_state = STATE_IDLE;
+              nxt_state = STATE_RESP_HDR_DEST;
            end
         end
       endcase // case (state)

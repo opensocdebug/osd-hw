@@ -458,10 +458,10 @@ class RegAccess:
                 words = 2
             elif word_width == 64:
                 type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_64.value
-                words = 3
+                words = 4
             elif word_width == 128:
                 type_sub = DiPacket.TYPE_SUB.REQ_WRITE_REG_128.value
-                words = 4
+                words = 8
             else:
                 raise RegAccessFailedException("An invalid register width "
                                                "parameter was chosen!")

@@ -1,0 +1,16 @@
+module: test_dem_uart_wb
+
+sources:
+  - ../../../interfaces/common/dii_channel.sv
+  - ../../../blocks/regaccess/common/osd_regaccess.sv
+  - ../../../blocks/regaccess/common/osd_regaccess_demux.sv
+  - ../../../blocks/regaccess/common/osd_regaccess_layer.sv
+  - ../../../interconnect/common/ring_router_mux.sv
+  - ../common/osd_dem_uart.sv
+  - ../common/osd_dem_uart_16550.sv
+  - ../common/osd_dem_uart_wb.sv
+
+toplevel: osd_dem_uart_wb
+
+simulators:
+  -vcs

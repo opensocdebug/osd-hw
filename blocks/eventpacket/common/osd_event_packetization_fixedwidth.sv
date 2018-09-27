@@ -56,6 +56,9 @@ module osd_event_packetization_fixedwidth #(
    input [15:0]           dest,
    // Generate an overflow packet
    input                  overflow,
+   
+   // Module specific sub-type (TYPE_SUB)
+   input [2:0]            mod_type_sub,
 
    // a new event is available
    input                  event_available,
@@ -100,6 +103,7 @@ module osd_event_packetization_fixedwidth #(
          .id(id),
          .dest(dest),
          .overflow(overflow),
+         .mod_type_sub(mod_type_sub),
          .event_available(event_available),
          .event_consumed(event_consumed),
 

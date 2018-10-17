@@ -64,15 +64,17 @@ module osd_dem_uart_16550
    logic [7:0]  lcr;
    logic [7:0]  nxt_lcr;
 
-   logic [15:0]   divisor;
-   logic [15:0]   nxt_divisor;
+   logic [15:0] divisor;
+   logic [15:0] nxt_divisor;
 
    // Interrupt enable registers
    logic        erbfi, etbei, elsi;
    logic        nxt_erbfi, nxt_etbei, nxt_elsi;
 
    // Interrupts
-   logic        irq_rbf, irq_tbe, irq_ls;
+   logic        irq_rbf;
+   logic        irq_tbe;
+   logic        irq_ls;
 
    assign irq_rbf = erbfi & in_valid;            // Receive data available
    assign irq_tbe = etbei & (out_ready | drop);  // (THRE) Transmitter holding register empty
@@ -81,8 +83,14 @@ module osd_dem_uart_16550
    assign irq = irq_rbf | irq_tbe | irq_ls;
 
    // FIFO
-   reg          fifo_enable, fifo_rx_clear, fifo_tx_clear, dma_mode;
-   logic        nxt_fifo_enable, nxt_fifo_rx_clear, nxt_fifo_tx_clear, nxt_dma_mode;
+   logic        fifo_enable;
+   logic        fifo_rx_clear;
+   logic        fifo_tx_clear;
+   logic        dma_mode;
+   logic        nxt_fifo_enable;
+   logic        nxt_fifo_rx_clear;
+   logic        nxt_fifo_tx_clear;
+   logic        nxt_dma_mode;
 
    reg          req;
    reg [2:0]    addr;

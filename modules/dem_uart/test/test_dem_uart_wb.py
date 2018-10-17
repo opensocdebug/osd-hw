@@ -431,3 +431,19 @@ def test_uart_16550_registers(dut):
     if res != 0x0:
         raise TestFailure("DLM test failed! Wrote: 0x%x, Read: 0x%x"
                           % (0x0, res))
+
+@cocotb.test()
+def test_uart_read_empty(dut):
+    """
+    Ensure that the bus doesn't block even though no data is available to read
+    """
+
+    yield _init_dut(dut)
+    yield _activate_module(dut)
+
+    # WB master with 10 cycles timeout
+    wb_master = WishboneMaster(dut, dut.clk, timeout=10)
+
+    # Read from Receiver Buffer Register (RBR)
+    ret = yield wb_master.send_cycle([WBOp(adr=0x0, dat=None, sel=0x0)])
+    res = ret.pop(0).datrd & 0xFF

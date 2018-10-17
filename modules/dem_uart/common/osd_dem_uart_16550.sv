@@ -1,4 +1,4 @@
-// Copyright 2016 by the authors
+// Copyright 2016-2018 by the authors
 //
 // Copyright and related rights are licensed under the Solderpad
 // Hardware License, Version 0.51 (the "License"); you may not use
@@ -13,6 +13,7 @@
 //
 // Authors:
 //    Stefan Wallentowitz <stefan@wallentowitz.de>
+//    Thomas Leyk <thomas.leyk@tum.de>
 
 import dii_package::dii_flit;
 
@@ -97,16 +98,8 @@ module osd_dem_uart_16550
    logic        nxt_fifo_tx_clear;
    logic        nxt_dma_mode;
 
-   reg          req;
-   reg [2:0]    addr;
-   reg          write;
-
    always_ff @(posedge clk) begin
       if (rst) begin
-         req <= 1'b0;
-         addr <= 3'h0;
-         write <= 1'b0;
-
          erbfi <= 1'b0;
          etbei <= 1'b0;
          elsi <= 1'b0;
@@ -116,10 +109,6 @@ module osd_dem_uart_16550
          dma_mode <= 1'b0;
          lcr <= 8'h0;
       end else begin
-         req <= bus_req;
-         addr <= bus_addr;
-         write <= bus_write;
-
          erbfi <= nxt_erbfi;
          etbei <= nxt_etbei;
          elsi <= nxt_elsi;
@@ -134,6 +123,8 @@ module osd_dem_uart_16550
 
    logic dlab;
    assign dlab = lcr[7];
+
+   assign bus_ack = bus_req;
 
    always_comb begin
       nxt_erbfi = erbfi;
@@ -150,51 +141,45 @@ module osd_dem_uart_16550
       out_valid = 1'b0;
       in_ready = 1'b0;
       bus_rdata = 8'h0;
-      bus_ack = 1'b0;
 
-      if (req) begin
-         case (addr)
+      if (bus_req) begin
+         case (bus_addr)
             REG_RBR_THR: begin
                if (dlab) begin
-                  if (write) begin
+                  if (bus_write) begin
                      nxt_divisor = {divisor[15:8], bus_wdata};
                   end else begin
                      bus_rdata = divisor[7:0];
                   end
-                  bus_ack = bus_req;
                end else begin
-                  if (write) begin
+                  if (bus_write) begin
                      out_char = bus_wdata;
                      out_valid = 1'b1;
-                     bus_ack = out_ready;
                   end else begin
                      bus_rdata = in_char;
                      in_ready = 1'b1;
-                     bus_ack = in_valid;
                   end
                end
             end
             REG_IER: begin
                if (dlab) begin
                   // Divisor Latch MS (DLM)
-                  if (write) begin
+                  if (bus_write) begin
                      nxt_divisor = {bus_wdata, divisor[7:0]};
                   end else begin
                      bus_rdata = divisor[15:8];
                   end
-                  bus_ack = bus_req;
                end else begin
                   // Interrupt Enable Register (IER)
-                  if (write) begin
+                  if (bus_write) begin
                      {nxt_elsi, nxt_etbei, nxt_erbfi} = bus_wdata[2:0];
                   end else begin
-                     bus_rdata = {5'h0, nxt_elsi, nxt_etbei, nxt_erbfi};
+                     bus_rdata = {5'h0, elsi, etbei, erbfi};
                   end
-                  bus_ack = bus_req;
                end
             end
             REG_IIR_FCR: begin
-               if (write) begin
+               if (bus_write) begin
                   // FIFO Control Register (FCR)
                   {nxt_dma_mode, nxt_fifo_tx_clear, nxt_fifo_rx_clear, nxt_fifo_enable} = bus_wdata[3:0];
                end else begin
@@ -212,16 +197,14 @@ module osd_dem_uart_16550
                      bus_rdata[3:0] = INTR_NONE;
                   end
                end
-               bus_ack = bus_req;
             end
             REG_LCR: begin
                // Line Control Register (LCR)
-               if (write) begin
+               if (bus_write) begin
                   nxt_lcr = bus_wdata;
                end else begin
                   bus_rdata = lcr;
                end
-               bus_ack = bus_req;
             end
             REG_LSR: begin
                // Line Status Register (LSR)
@@ -229,15 +212,9 @@ module osd_dem_uart_16550
                bus_rdata[BIT_LSR_DR] = in_valid;
                bus_rdata[BIT_LSR_TEMT] = out_ready;
                bus_rdata[BIT_LSR_THRE] = out_ready;
-
-               bus_ack = bus_req;
-            end
-            default: begin
-               // Not acknowledging access to unimplemented registers could hang the bus.
-               bus_ack = bus_req;
             end
          endcase
-      end // if (req)
+      end
 
       if (fifo_enable & fifo_rx_clear) begin
          // TODO Clear all data in RXFifo

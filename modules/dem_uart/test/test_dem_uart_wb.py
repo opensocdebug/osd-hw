@@ -9,6 +9,7 @@ import cocotb
 
 from cocotb.clock import Clock
 from cocotb.triggers import RisingEdge, ClockCycles
+from cocotb.result import ReturnValue
 
 from osdtestlib.debug_interconnect import RegAccess, DiPacket, NocDiReader, NocDiWriter
 from osdtestlib.asserts import *
@@ -184,8 +185,6 @@ def _di_to_bus_tx(dut, num_transfers=500, max_delay=100, random_data=False):
 
         data = random.randint(0, 255) if random_data else 0x42
 
-        _di_to_bus_fifo.append(data)
-
         tx_packet.set_contents(dest=MODULE_DI_ADDRESS, src=SENDER_DI_ADDRESS,
                                type=DiPacket.TYPE.EVENT.value, type_sub=0,
                                payload=[data])
@@ -193,6 +192,8 @@ def _di_to_bus_tx(dut, num_transfers=500, max_delay=100, random_data=False):
         yield writer.send_packet(tx_packet)
 
         yield RisingEdge(dut.clk)
+
+        _di_to_bus_fifo.append(data)
 
 @cocotb.coroutine
 def _di_to_bus_rx(dut, num_transfers=500, max_delay=100):
@@ -233,6 +234,28 @@ def test_di_to_bus(dut):
 
     yield read_thread.join()
 
+@cocotb.coroutine
+def _lsr_can_write(dut, wb_master):
+    """
+    Check if the UART LSR register signals space in its output buffers
+    """
+    ret = yield wb_master.send_cycle([WBOp(adr=0x4, dat=None, sel=0x4)])
+    lsr = ret.pop(0).datrd & 0xFF
+
+    # Writing is possible if THRE (bit 5) and TEMPT (bit 6) are set
+    raise ReturnValue(lsr & (1 << 5) and lsr & (1 << 6))
+
+@cocotb.coroutine
+def _lsr_can_read(dut, wb_master):
+    """
+    Check if the UART LSR register signals data available in its input buffer
+    """
+    ret = yield wb_master.send_cycle([WBOp(adr=0x4, dat=None, sel=0x4)])
+    lsr = ret.pop(0).datrd & 0xFF
+
+    # Reading is possible if DR (bit 0) is set
+    raise ReturnValue(lsr & (1 << 0))
+
 @cocotb.test()
 def test_both_directions(dut):
     """
@@ -269,7 +292,10 @@ def test_both_directions(dut):
             for _ in range(random.randint(0, MAX_DELAY)):
                 yield RisingEdge(dut.clk)
 
-            tx_packets -= 1
+            # Check if the UART signals space in its send buffer
+            lsr_can_write = yield _lsr_can_write(dut, wb_master)
+            if not lsr_can_write:
+                continue
 
             data = random.randint(0, 255) if RANDOM_DATA else 0x42
             _bus_to_di_fifo.append(data)
@@ -277,6 +303,8 @@ def test_both_directions(dut):
             yield wb_master.send_cycle([WBOp(adr=0x0, dat=data, sel=0x8)])
 
             yield RisingEdge(dut.clk)
+
+            tx_packets -= 1
         else:
             if not rx_packets:
                 continue
@@ -284,7 +312,10 @@ def test_both_directions(dut):
             for _ in range(random.randint(0, MAX_DELAY)):
                 yield RisingEdge(dut.clk)
 
-            rx_packets -= 1
+            # Check if the UART signals available data in its read buffer
+            lsr_can_read = yield _lsr_can_read(dut, wb_master)
+            if not lsr_can_read:
+                continue
 
             ret = yield wb_master.send_cycle([WBOp(adr=0x0, dat=None, sel=0x8)])
             res = ret.pop(0).datrd & 0xFF
@@ -296,6 +327,8 @@ def test_both_directions(dut):
                                   % (data, res))
 
             yield RisingEdge(dut.clk)
+
+            rx_packets -= 1
 
     # we implicitly wait for the write_thread in the loop above
     yield read_thread.join()

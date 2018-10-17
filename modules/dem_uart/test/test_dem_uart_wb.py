@@ -96,6 +96,8 @@ def test_dem_uart_activation(dut):
     # receive parts of the RegAccess response packet
     yield RisingEdge(dut.clk)
 
+    # Don't confuse users of this test when they see a warning message
+    dut._log.warning("The following warning 'packet receive timed out' is expected:")
     packet = yield NocDiReader(dut, dut.clk).receive_packet(set_ready=True)
     if packet:
         raise TestFailure("Received packet while module was deactivated")
@@ -143,16 +145,18 @@ def _bus_to_di_rx(dut, num_transfers=500, max_delay=100):
         for _ in range(delay):
             yield RisingEdge(dut.clk)
 
+        # Wait until data has been written to the device
+        while not _bus_to_di_fifo:
+            yield RisingEdge(dut.clk)
+
         rx_packet = yield reader.receive_packet(set_ready=True)
-
-        data = _bus_to_di_fifo.pop(0)
-
-        ex_packet.set_contents(dest=SENDER_DI_ADDRESS, src=MODULE_DI_ADDRESS,
-                               type=DiPacket.TYPE.EVENT, type_sub=0,
-                               payload=[data])
-
         if not rx_packet:
             raise TestFailure("receive_packet() timed out")
+
+        exp_data = _bus_to_di_fifo.pop(0)
+        ex_packet.set_contents(dest=SENDER_DI_ADDRESS, src=MODULE_DI_ADDRESS,
+                               type=DiPacket.TYPE.EVENT, type_sub=0,
+                               payload=[exp_data])
 
         if not rx_packet.equal_to(dut, ex_packet, mask=None):
             raise TestFailure("Unexpected content of " + rx_packet.__str__() +

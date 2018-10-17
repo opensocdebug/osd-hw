@@ -262,8 +262,8 @@ def test_both_directions(dut):
     Randomly alternate between read/write cycles on the WISHBONE bus
     """
 
-    NUM_TRANSFERS = 10000
-    MAX_DELAY     = 100
+    NUM_TRANSFERS = 1000
+    MAX_DELAY     = 50
     RANDOM_DATA   = True
 
     yield _init_dut(dut)

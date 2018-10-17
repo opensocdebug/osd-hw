@@ -58,6 +58,11 @@ module osd_dem_uart_16550
    localparam INTR_RBF  = 4'b0100;
    localparam INTR_TBE  = 4'b0010;
 
+   // Bits in the Line Status Register (LSR)
+   localparam BIT_LSR_DR   = 0; // Data Ready
+   localparam BIT_LSR_THRE = 5; // Transmitter Holding Register Empty
+   localparam BIT_LSR_TEMT = 6; // Transmitter Empty
+
    // DLAB (LCR7):
    // 0: RBR, THR and IER accessible (during communication)
    // 1: DLL and DLM accessible (during initialization to set baud rate)
@@ -127,6 +132,9 @@ module osd_dem_uart_16550
       end
    end
 
+   logic dlab;
+   assign dlab = lcr[7];
+
    always_comb begin
       nxt_erbfi = erbfi;
       nxt_etbei = etbei;
@@ -147,7 +155,7 @@ module osd_dem_uart_16550
       if (req) begin
          case (addr)
             REG_RBR_THR: begin
-               if (lcr[7]) begin
+               if (dlab) begin
                   if (write) begin
                      nxt_divisor = {divisor[15:8], bus_wdata};
                   end else begin
@@ -167,7 +175,8 @@ module osd_dem_uart_16550
                end
             end
             REG_IER: begin
-               if (lcr[7]) begin
+               if (dlab) begin
+                  // Divisor Latch MS (DLM)
                   if (write) begin
                      nxt_divisor = {bus_wdata, divisor[7:0]};
                   end else begin
@@ -175,6 +184,7 @@ module osd_dem_uart_16550
                   end
                   bus_ack = bus_req;
                end else begin
+                  // Interrupt Enable Register (IER)
                   if (write) begin
                      {nxt_elsi, nxt_etbei, nxt_erbfi} = bus_wdata[2:0];
                   end else begin
@@ -185,8 +195,10 @@ module osd_dem_uart_16550
             end
             REG_IIR_FCR: begin
                if (write) begin
+                  // FIFO Control Register (FCR)
                   {nxt_dma_mode, nxt_fifo_tx_clear, nxt_fifo_rx_clear, nxt_fifo_enable} = bus_wdata[3:0];
                end else begin
+                  // Interrupt Indent. Register (IIR)
                   bus_rdata[7:6] = {fifo_enable, fifo_enable};
                   bus_rdata[5:4] = 2'h0;
 
@@ -203,6 +215,7 @@ module osd_dem_uart_16550
                bus_ack = bus_req;
             end
             REG_LCR: begin
+               // Line Control Register (LCR)
                if (write) begin
                   nxt_lcr = bus_wdata;
                end else begin

@@ -119,8 +119,14 @@ def _bus_to_di_tx(dut, num_transfers=500, max_delay=100, random_data=False):
         for _ in range(delay):
             yield RisingEdge(dut.clk)
 
-        data = random.randint(0, 255) if random_data else 0x42
+        # Wait until the UART signals that it is ready for writes
+        while True:
+            lsr_can_write = yield _lsr_can_write(dut, wb_master)
+            if lsr_can_write:
+                break
+            yield RisingEdge(dut.clk)
 
+        data = random.randint(0, 255) if random_data else 0x42
         _bus_to_di_fifo.append(data)
 
         yield wb_master.send_cycle([WBOp(adr=0x0, dat=data, sel=0x8)])
@@ -204,6 +210,13 @@ def _di_to_bus_rx(dut, num_transfers=500, max_delay=100):
         delay = random.randint(0, max_delay)
 
         for _ in range(delay):
+            yield RisingEdge(dut.clk)
+
+        # Wait until the UART signals that it is ready for a read
+        while True:
+            lsr_can_read = yield _lsr_can_read(dut, wb_master)
+            if lsr_can_read:
+                break
             yield RisingEdge(dut.clk)
 
         # Only look at the LSB of the 32-bit wide result.

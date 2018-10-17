@@ -224,8 +224,12 @@ module osd_dem_uart_16550
                bus_ack = bus_req;
             end
             REG_LSR: begin
-               // TEMT=1, THRE=1, DR (data ready) when input
-               bus_rdata = {7'b0110000, in_valid};
+               // Line Status Register (LSR)
+               bus_rdata = 8'h0;
+               bus_rdata[BIT_LSR_DR] = in_valid;
+               bus_rdata[BIT_LSR_TEMT] = out_ready;
+               bus_rdata[BIT_LSR_THRE] = out_ready;
+
                bus_ack = bus_req;
             end
             default: begin

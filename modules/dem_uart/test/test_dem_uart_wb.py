@@ -371,6 +371,9 @@ def test_uart_16550_registers(dut):
 
     yield wb_master.send_cycle([WBOp(adr=0x0, dat=0x3, sel=0x4)])
 
+    for _ in range(10):
+        yield RisingEdge(dut.clk)
+
     ret = yield wb_master.send_cycle([WBOp(adr=0x0, dat=None, sel=0x4)])
     res = ret.pop(0).datrd & 0xFF
 
@@ -447,3 +450,97 @@ def test_uart_read_empty(dut):
     # Read from Receiver Buffer Register (RBR)
     ret = yield wb_master.send_cycle([WBOp(adr=0x0, dat=None, sel=0x0)])
     res = ret.pop(0).datrd & 0xFF
+
+
+@cocotb.test()
+def test_uart_irq_tbe(dut):
+    """
+    Check if the Transmit Buffer Empty interrupt is sent
+    """
+
+    yield _init_dut(dut)
+    yield _activate_module(dut)
+
+    wb_master = WishboneMaster(dut, dut.clk)
+
+    # ensure that IRQ is lowered before we start sending
+    if dut.irq.value != 0:
+        raise TestFailure("irq is not lowered at start.")
+
+    # Enable TBE interrupt by setting bit 2 in IER
+    yield wb_master.send_cycle([WBOp(adr=0x0, dat=0x2, sel=0x4)])
+    yield RisingEdge(dut.clk)
+
+    # ensure that IRQ is still lowered before we start sending
+    if dut.irq.value != 1:
+        raise TestFailure("irq is not high (indicating an empty transmit buffer)")
+
+    yield RisingEdge(dut.clk)
+
+    # simulate the CPU sending a single char to the UART device
+    yield _bus_to_di_tx(dut, num_transfers=1, random_data=False)
+
+    # check that IRQ is now lowered
+    if dut.irq.value != 0:
+        raise TestFailure("irq it not lowered after receiving data.")
+
+    # Let the UART module empty its send buffer
+    yield _bus_to_di_rx(dut, num_transfers=1)
+
+    # check that IRQ is now high again, indicating an empty transmit buffer
+    if dut.irq.value != 1:
+        raise TestFailure("irq not high again after emptying the transmit buffer.")
+
+    # Disable the TBE interrupt again
+    yield wb_master.send_cycle([WBOp(adr=0x0, dat=0x0, sel=0x4)])
+    yield RisingEdge(dut.clk)
+
+    # Ensure that the interrupt signal is now lowered
+    if dut.irq.value != 0:
+        raise TestFailure("irq not lowered after disabling the interrupt.")
+
+
+@cocotb.test()
+def test_uart_irq_rbf(dut):
+    """
+    Check if the Receive Buffer Full interrupt is sent
+    """
+
+    yield _init_dut(dut)
+    yield _activate_module(dut)
+
+    _di_to_bus_fifo.clear()
+
+    wb_master = WishboneMaster(dut, dut.clk)
+
+    # ensure that IRQ is lowered before we start sending
+    if dut.irq.value != 0:
+        raise TestFailure("irq is not lowered at start.")
+
+    # Enable RBF interrupt by setting bit 1 in IER
+    yield wb_master.send_cycle([WBOp(adr=0x0, dat=0x1, sel=0x4)])
+    yield RisingEdge(dut.clk)
+
+    # ensure that IRQ is still lowered before we start sending
+    if dut.irq.value != 0:
+        raise TestFailure("irq is not low, even though receive buffer is empty")
+
+    yield RisingEdge(dut.clk)
+
+    # send a single packet to the UART module
+    yield _di_to_bus_tx(dut, num_transfers=1, random_data=False)
+
+    for _ in range(4):
+        yield RisingEdge(dut.clk)
+
+    # check that IRQ is now high
+    if dut.irq.value != 1:
+        raise TestFailure("irq it not high after receiving a character")
+
+    # simulate CPU consuming the incoming character
+    yield _di_to_bus_rx(dut, num_transfers=1)
+
+    # check that IRQ is now lowered again
+    if dut.irq.value != 0:
+        raise TestFailure("irq it not lowered after the incoming character has been consumed")
+

@@ -57,6 +57,7 @@ def test_fixedwidth(dut):
     data_int = int.from_bytes(data_bytes, byteorder='little', signed=False)
     dut.data.value = BinaryValue(data_int)
 
+    dut.mod_type_sub <= 0
     dut.overflow <= 0
     dut.event_available <= 1
 

@@ -14,6 +14,34 @@
 // Authors:
 //    Stefan Wallentowitz <stefan@wallentowitz.de>
 
+/* NOTE: This is a WiP!
+ * 
+ * A couple of important points about the current state of the FIFO
+ * implementation.
+ * 
+ * 1. The ordering of any data musn't ever change. No data may be lost.
+ * 
+ * 2. We have to be able to receive 2 chars (16-bit) in a single cycle to
+ *    avoid unnecessary stalling of the DI.
+ *    
+ * 3. The bus side is only capable of sending/receiving one char (8-bit) at a time.
+ * 
+ * -> We therefore need a buffering mechanism to convert between 8-bit & 16-bit width
+ * 
+ * 4. If the osd_event_packetization module is used to create outgoing
+ *    DI packets, we have to know exactly how many chars (8-bit) we want
+ *    to send when event_available is asserted.
+ * 
+ * 5. If some sort of out_char_bypass is used to buffer outgoing chars (8-bit)
+ *    before they enter they FIFO or get sent over the DI, access to it must be synchronized.
+ *    
+ * As of my current knowledge, it seems the best way to address all these issues would be to
+ * make use of 2 8-bit Buffer for each direction (4 in total). Whenever only a single char is received,
+ * the MSB-LSB ordering of the 2 8-bit buffers is swapped, so that any follow up data won't leave an
+ * 8-bit gap in the buffer (like a 16-bit buffer would do). The new type of FIFO could be packaged into
+ * a new module nicely, see the comment below for more.
+ **/
+
 import dii_package::dii_flit;
 
 module osd_dem_uart
@@ -70,8 +98,328 @@ module osd_dem_uart
                .reg_err (1'b0),
                .reg_rdata (16'h0));
 
+   // ---------------------------------------------------------------
+   logic [2:0]    mod_type_sub;
+   logic          event_available;
+   logic          event_consumed;
+   reg   [3:0]    data_num_words;
+   logic          data_reg_idx;
+   logic          data_reg_valid;
+   logic [15:0]   data;
+
+   osd_event_packetization
+      #(.MAX_PKT_LEN(1), .MAX_DATA_NUM_WORDS(16))
+   u_event_packetization(.clk(clk), .rst(rst),
+                         .debug_out(c_uart_out),
+                         .debug_out_ready(c_uart_out_ready),
+                         .id(id),
+                         .dest(event_dest),
+                         .overflow(1'b0),
+                         .mod_type_sub(mod_type_sub),
+                         .event_available(event_available),
+                         .event_consumed(event_consumed),
+                         .data_num_words(data_num_words),
+                         .data_reg_idx(data_reg_idx),
+                         .data_reg_valid(data_reg_valid),
+                         .data(data));
+
+/* The entire tx/rx FIFO-logic could/should be a new module 'osd_dem_uart_fifo'
+ * that wraps 2 (or 4) fwft-FIFO and allows for 8 or 16 bit reads/writes.
+ * Internally the module should take care of swapping MSB & LSB whenever
+ * only 8 bit are written/read. The interface to the outside would be almost
+ * identical to a standard FIFO, except for a read_single_char & write_single_char
+ * input flag.
+ **/
+      
+// ------------------------ TX LOGIC ---------------------------------
+   logic tx_fifo0_din;
+   logic tx_fifo0_wr_en;
+   logic tx_fifo0_full;
+   logic tx_fifo0_dout;
+   logic tx_fifo0_rd_en;
+   logic tx_fifo0_empty;
+   logic tx_fifo0_count;
+   logic tx_fifo1_din;
+   logic tx_fifo1_wr_en;
+   logic tx_fifo1_full;
+   logic tx_fifo1_dout;
+   logic tx_fifo1_rd_en;
+   logic tx_fifo1_empty;
+   logic tx_fifo1_count;
+
+   fifo_singleclock_fwft
+      #(.WIDTH(16), .DEPTH(16))
+   u_tx_fifo0(.clk(clk), .rst(rst),
+             .din(tx_fifo0_din),
+             .wr_en(tx_fifo0_wr_en),
+             .full(tx_fifo0_full),
+             .prog_full(),
+             .dout(tx_fifo0_dout),
+             .rd_en(tx_fifo0_rd_en),
+             .empty(tx_fifo0_empty),
+             .count(tx_fifo0_count));
+
+   fifo_singleclock_fwft
+      #(.WIDTH(16), .DEPTH(16))
+   u_tx_fifo1(.clk(clk), .rst(rst),
+             .din(tx_fifo1_din),
+             .wr_en(tx_fifo1_wr_en),
+             .full(tx_fifo1_full),
+             .prog_full(),
+             .dout(tx_fifo1_dout),
+             .rd_en(tx_fifo1_rd_en),
+             .empty(tx_fifo1_empty),
+             .count(tx_fifo1_count));
+   
+   // 0 = fifo0, 1 = fifo1
+	logic tx_fifo_select, nxt_tx_fifo_select;
+   logic tx_fifo_select1, nxt_tx_fifo_select1;
+
+   enum {STATE_IDLE, STATE_DELAY, STATE_XFER}
+         tx_state, nxt_tx_state;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         tx_fifo_select <= 1'b0;
+         tx_fifo_select <= 1'b0;
+         tx_state <= STATE_IDLE;
+      end else begin
+			tx_fifo_select <= nxt_tx_fifo_select;
+			tx_fifo_select1 <= nxt_tx_fifo_select1;
+			tx_state <= nxt_tx_state;
+      end
+   end
+   
+   reg tx_delay_couter;
+   reg last;
+
+   always_comb begin
+      tx_fifo0_din   = 8'h0;
+      tx_fifo0_wr_en = 1'b0;
+      tx_fifo1_din   = 8'h0;
+      tx_fifo1_wr_en = 1'b0;
+      out_ready      = 1'b0;
+
+		if (tx_fifo_select) begin
+         tx_fifo0_din   = out_char;
+         tx_fifo0_wr_en = out_valid;
+         out_ready = !tx_fifo0_full;
+         if (out_valid & out_ready) begin
+            nxt_tx_fifo_select = 1'b0;
+         end
+		end else begin
+		   tx_fifo1_din   = out_char;
+         tx_fifo1_wr_en = out_valid;
+         out_ready = !tx_fifo1_full;
+         if (out_valid & out_ready) begin
+            nxt_tx_fifo_select = 1'b1;
+         end
+		end
+		
+		case (tx_state)
+		   STATE_IDLE:
+		      if (!tx_fifo01_empty) begin
+		         nxt_tx_state = STATE_DELAY;
+		      end
+		   end
+		   STATE_DELAY:
+		      // TODO: Magic numbers
+		      if (tx_delay_couter > 20 | tx_fifo01_count > 8) begin
+		         event_available = 1'b1;
+		         nxt_tx_state = STATE_XFER;
+		         data_num_words = (tx_fifo0_count + tx_fifo1_count) / 2;
+		         mod_type_sub = {(tx_fifo0_count == tx_fifo1_count), 2'b00};
+		      end else begin
+		         tx_delay_couter = tx_delay_couter + 1;
+            end
+		   end
+		   STATE_XFER:
+		      if (data_reg_valid) begin
+               // TODO: Properly send data_num_words chars using the osd_event_packetization module.
+		         // XXX: Current data_word_idx + nxt
+		         // XXX: We need a tx_fifo_select1
+		      end
+
+		      if (event_consumed) begin
+		         nxt_tx_state = STATE_IDLE;
+		      end
+         end
+      endcase
+   end
+// ------------------------- TX LOGIC END -------------------------
+
+
+// ------------------------- RX LOGIC -----------------------------
+   logic rx_fifo0_din;
+   logic rx_fifo0_wr_en;
+   logic rx_fifo0_full;
+   logic rx_fifo0_dout;
+   logic rx_fifo0_rd_en;
+   logic rx_fifo0_empty;
+   logic rx_fifo0_count;
+   logic rx_fifo1_din;
+   logic rx_fifo1_wr_en;
+   logic rx_fifo1_full;
+   logic rx_fifo1_dout;
+   logic rx_fifo1_rd_en;
+   logic rx_fifo1_empty;
+   logic rx_fifo1_count;
+
+   fifo_singleclock_fwft
+      #(.WIDTH(16), .DEPTH(16))
+   u_rx_fifo0(.clk(clk), .rst(rst),
+             .din(rx_fifo0_din),
+             .wr_en(rx_fifo0_wr_en),
+             .full(rx_fifo0_full),
+             .prog_full(),
+             .dout(rx_fifo0_dout),
+             .rd_en(rx_fifo0_rd_en),
+             .empty(rx_fifo0_empty),
+             .count(rx_fifo0_count));
+
+   fifo_singleclock_fwft
+      #(.WIDTH(16), .DEPTH(16))
+   u_rx_fifo1(.clk(clk), .rst(rst),
+             .din(rx_fifo1_din),
+             .wr_en(rx_fifo1_wr_en),
+             .full(rx_fifo1_full),
+             .prog_full(),
+             .dout(rx_fifo1_dout),
+             .rd_en(rx_fifo1_rd_en),
+             .empty(rx_fifo1_empty),
+             .count(rx_fifo1_count));
+
+   logic rx_fifo_select, nxt_rx_fifo_select;
+   logic rx_fifo_select1, nxt_rx_fifo_select1;
+
+   enum         { STATE_IDLE, STATE_HDR_SRC, STATE_HDR_FLAGS,
+                  STATE_XFER } rx_state, nxt_rx_state;
+
+   always @(posedge clk) begin
+      if (rst) begin
+         rx_fifo_select <= 1'b0;
+         rx_fifo_select1 <= 1'b0;
+         rx_state <= STATE_IDLE;
+      end else begin
+         rx_fifo_select <= nxt_rx_fifo_select;
+         rx_fifo_select1 <= nxt_rx_fifo_select1;
+         rx_state <= nxt_rx_state;
+      end
+   end
+
+   reg is_single_char;
+
+   always_comb begin
+      in_char  = 8'h0;
+      in_valid = 1'b0;
+      
+      if (rx_fifo_select) begin
+         in_char  = rx_fifo0_dout;
+         in_valid = !rx_fifo0_empty;
+         rx_fifo0_rd_en = in_ready;
+         if (in_valid & in_ready) begin
+            nxt_rx_fifo_select = 1'b0;
+         end
+      end else begin
+         in_char  = rx_fifo1_dout;
+         in_valid = !rx_fifo1_empty;
+         rx_fifo1_rd_en = in_ready;
+         if (in_valid & in_ready) begin
+            nxt_rx_fifo_select = 1'b01;
+         end
+      end
+
+      c_uart_in_ready = 0;
+      nxt_rx_fifo_select = 1'b0;
+      rx_fifo0_wr_en = 1'b0;
+      rx_fifo0_din = 8'h0;
+      rx_fifo1_wr_en = 1'b0;
+      rx_fifo1_din = 8'h0;
+
+      case (rx_state)
+         STATE_IDLE: begin
+            c_uart_in_ready = 1;
+            if (c_uart_in.valid) begin
+               nxt_rx_state = STATE_HDR_SRC;
+            end
+         end
+         STATE_HDR_SRC: begin
+            c_uart_in_ready = 1;
+            if (c_uart_in.valid) begin
+               nxt_rx_state = STATE_HDR_FLAGS;
+            end
+         end
+         STATE_HDR_FLAGS: begin
+            c_uart_in_ready = 1;
+            is_single_char  = c_uart_in.data[12];   // XXX: Choose correct bit
+            if (c_uart_in.valid) begin
+               nxt_rx_state = STATE_XFER;
+            end
+         end
+         STATE_XFER: begin
+            // XXX: Simplify this block
+            if (c_uart_in.last) begin
+               if (is_single_char) begin
+                  if (rx_fifo_select1) begin
+                     c_uart_in_ready = !rx_fifo1_full;
+                     
+                     rx_fifo1_wr_en = c_uart_in.valid;
+                     rx_fifo1_din = c_uart_in.data[7:0];
+                     nxt_rx_fifo_select1 = 1'b0;
+                  end else begin
+                     c_uart_in_ready = !rx_fifo0_full;
+                     
+                     rx_fifo0_wr_en = c_uart_in.valid;
+                     rx_fifo0_din = c_uart_in.data[7:0];
+                     nxt_rx_fifo_select1 = 1'b1;
+                  end
+               end else begin
+                  if (rx_fifo_select1) begin
+                     c_uart_in_ready = !rx_fifo0_full & !rx_fifo1_full;
+                     
+                     rx_fifo0_wr_en = c_uart_in.valid;
+                     rx_fifo0_din = c_uart_in.data[15:8];
+                     rx_fifo1_wr_en = c_uart_in.valid;
+                     rx_fifo1_din = c_uart_in.data[7:0];
+                  end else begin
+                     c_uart_in_ready = !rx_fifo0_full & !rx_fifo1_full;
+                     
+                     rx_fifo0_wr_en = c_uart_in.valid;
+                     rx_fifo0_din = c_uart_in.data[7:0];
+                     rx_fifo1_wr_en = c_uart_in.valid;
+                     rx_fifo1_din = c_uart_in.data[15:8];
+                  end
+               end
+            end else begin
+               if (rx_fifo_select1) begin
+                  c_uart_in_ready = !rx_fifo0_full & !rx_fifo1_full;
+                  
+                  rx_fifo0_wr_en = c_uart_in.valid;
+                  rx_fifo0_din = c_uart_in.data[15:8];
+                  rx_fifo1_wr_en = c_uart_in.valid;
+                  rx_fifo1_din = c_uart_in.data[7:0];
+               end else begin
+                  c_uart_in_ready = !rx_fifo0_full & !rx_fifo1_full;
+                  
+                  rx_fifo0_wr_en = c_uart_in.valid;
+                  rx_fifo0_din = c_uart_in.data[7:0];
+                  rx_fifo1_wr_en = c_uart_in.valid;
+                  rx_fifo1_din = c_uart_in.data[15:8];
+               end
+            end
+         
+            if (c_uart_in.valid && c_uart_in.last) begin
+               nxt_rx_state = STATE_IDLE;
+            end
+         end
+      endcase
+   end
+// ------------------------ RX LOGIC END ---------------------------
+
+// ---------------------- OLD CODE ---------------------------------
+// The previous implementation without any FIFOs or the osd_event_packetization module.
    enum         { STATE_IDLE, STATE_HDR_DEST, STATE_HDR_SRC, STATE_HDR_FLAGS,
-                  STATE_XFER } state_tx, state_rx;
+                  STATE_XFER } state_rx;
 
    always @(posedge clk) begin
       if (rst) begin

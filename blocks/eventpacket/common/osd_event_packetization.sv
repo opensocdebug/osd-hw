@@ -55,7 +55,10 @@ module osd_event_packetization #(
    input [15:0]                            dest,
    // Generate an overflow packet
    input                                   overflow,
-
+   
+   // Module specific sub-type (TYPE_SUB)
+   input [2:0]                             mod_type_sub,
+   
    // a new event is available
    input                                   event_available,
    // the packet has been sent
@@ -105,8 +108,9 @@ module osd_event_packetization #(
    assign data_req_idx = word_cnt;
    assign data_req_valid = (state == PAYLOAD || state == OVERFLOW);
 
-   localparam TYPE_SUB_LAST = 4'h0;
-   localparam TYPE_SUB_CONTINUE = 4'h1;
+   localparam TYPE_SUB_LAST = 1'b0;
+   localparam TYPE_SUB_CONTINUE = 1'b1;
+   
    localparam TYPE_SUB_OVERFLOW = 4'h5;
 
    always_ff @(posedge clk) begin
@@ -157,7 +161,15 @@ module osd_event_packetization #(
            debug_out.data[15:14] = 2'b10; // TYPE == EVENT
 
            // TYPE_SUB
-           if (overflow) begin
+           debug_out.data[13:11] = mod_type_sub[2:0];
+           
+           if (pkg_cnt == num_pkgs - 1) begin
+              debug_out.data[10] = TYPE_SUB_LAST;
+           end else begin
+              debug_out.data[10] = TYPE_SUB_CONTINUE;
+           end
+           
+           /*if (overflow) begin
               debug_out.data[13:10] = TYPE_SUB_OVERFLOW;
            end else begin
               if (pkg_cnt == num_pkgs - 1) begin
@@ -165,7 +177,7 @@ module osd_event_packetization #(
               end else begin
                  debug_out.data[13:10] = TYPE_SUB_CONTINUE;
               end
-           end
+           end*/
 
            debug_out.data[9:0] = 10'h0; // reserved
            debug_out.valid = 1;
